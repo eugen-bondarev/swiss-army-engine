@@ -8,6 +8,8 @@
 #include <d3dcommon.h>
 #include <d3dx10math.h>
 
+#include "depth_stencil_buffer.h"
+
 #include "../header.h"
 
 class Device
@@ -26,12 +28,14 @@ private:
     bool vsync_enabled{true};
 
 	IDXGISwapChain* swap_chain;
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* device_context;
+
 	ID3D11RenderTargetView* render_target_view;
-	ID3D11Texture2D* depth_stencil_buffer;
-	ID3D11DepthStencilState* depth_stencil_state;
-	ID3D11DepthStencilView* depth_stencil_view;
+
+    DepthStencilBuffer* depth_stencil_buffer;
+
 	ID3D11RasterizerState* raster_state;
 
 	D3DXMATRIX projection_mat;

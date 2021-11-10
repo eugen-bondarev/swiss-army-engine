@@ -29,9 +29,7 @@ Device::Device()
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11Texture2D* backBufferPtr;
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+
 	D3D11_RASTERIZER_DESC rasterDesc;
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
@@ -40,42 +38,26 @@ Device::Device()
 
     // Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create factory.");
-		// return false;
-	}
+	CHECK_RESULT(result, "Failed to create factory.");
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
 	result = factory->EnumAdapters(0, &adapter);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create adapter.");
-	}
+	CHECK_RESULT(result, "Failed to create adapter.");
 
 	// Enumerate the primary adapter output (monitor).
 	result = adapter->EnumOutputs(0, &adapterOutput);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to enumerate monitors.");
-	}
+	CHECK_RESULT(result, "Failed to enumerate monitors.");
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to enumerate modes.");
-	}
+	CHECK_RESULT(result, "Failed to enumerate modes.");
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	displayModeList = new DXGI_MODE_DESC[numModes];
 
 	// Now fill the display mode list structures.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to get display mode list.");
-	}
+	CHECK_RESULT(result, "Failed to get display mode list.");
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
@@ -93,10 +75,7 @@ Device::Device()
     
     // Get the adapter (video card) description.
 	result = adapter->GetDesc(&adapterDesc);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to acquire the GPU's description.");
-	}
+	CHECK_RESULT(result, "Failed to acquire the GPU's description.");
 
 	// Store the dedicated video card memory in megabytes.
 	gpu_memory = static_cast<int>(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
@@ -204,71 +183,8 @@ Device::Device()
 	// Release pointer to the back buffer as we no longer need it.
 	backBufferPtr->Release();
 
-    	// Initialize the description of the depth buffer.
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-
-	// Set up the description of the depth buffer.
-	depthBufferDesc.Width = static_cast<unsigned int>(window->get_width());
-	depthBufferDesc.Height = static_cast<unsigned int>(window->get_height());
-	depthBufferDesc.MipLevels = 1;
-	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
-	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.CPUAccessFlags = 0;
-	depthBufferDesc.MiscFlags = 0;
-
-    // Create the texture for the depth buffer using the filled out description.
-	result = device->CreateTexture2D(&depthBufferDesc, nullptr, &depth_stencil_buffer);
-	CHECK_RESULT(result, "Failed to create the texture for the depth buffer.");
-
-    // Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	// Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilDesc.StencilEnable = true;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	// Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-    // Create the depth stencil state.
-	result = device->CreateDepthStencilState(&depthStencilDesc, &depth_stencil_state);
-    CHECK_RESULT(result, "Failed to create the depth stencil state.");
-
-    // Set the depth stencil state.
-	device_context->OMSetDepthStencilState(depth_stencil_state, 1);
-
-    // Initailze the depth stencil view.
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-
-	// Set up the depth stencil view description.
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	// Create the depth stencil view.
-	result = device->CreateDepthStencilView(depth_stencil_buffer, &depthStencilViewDesc, &depth_stencil_view);
-    CHECK_RESULT(result, "Failed to create the depth stencil view.");
-
-    // Bind the render target view and depth stencil buffer to the output render pipeline.
-	device_context->OMSetRenderTargets(1, &render_target_view, depth_stencil_view);
+    depth_stencil_buffer = new DepthStencilBuffer(device);    
+	device_context->OMSetRenderTargets(1, &render_target_view, depth_stencil_buffer->view);
 
     // Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
@@ -320,9 +236,7 @@ Device::~Device()
 
     raster_state->Release();
 
-    depth_stencil_view->Release();
-    depth_stencil_state->Release();
-    depth_stencil_buffer->Release();
+    delete depth_stencil_buffer;
 
     render_target_view->Release();
 
@@ -338,7 +252,7 @@ void Device::begin_scene(const std::array<float, 4>& p_color)
 	device_context->ClearRenderTargetView(render_target_view, p_color.data());
     
 	// Clear the depth buffer.
-	device_context->ClearDepthStencilView(depth_stencil_view, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	device_context->ClearDepthStencilView(depth_stencil_buffer->view, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void Device::end_scene()

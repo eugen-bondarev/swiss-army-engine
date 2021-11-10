@@ -22,4 +22,12 @@
         throw std::runtime_error(msg);\
 	}
 
+template <typename T>
+T create_structure()
+{
+    T structure;
+    ZeroMemory(&structure, sizeof(structure));
+    return structure;
+}
+
 #endif
