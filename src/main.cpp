@@ -12,7 +12,7 @@ int main()
         {
             window->poll_events();
 
-            gpu->begin_scene();
+            gpu->begin_scene({ 0.2f, 0.7f, 0.2f, 1.0f });
 
             gpu->end_scene();
         }

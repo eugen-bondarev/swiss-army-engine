@@ -16,4 +16,10 @@
 
 #define LINE_OUT(x) std::cout << x << '\n'
 
+#define CHECK_RESULT(result, msg)\
+	if (FAILED(result))\
+	{\
+        throw std::runtime_error(msg);\
+	}
+
 #endif

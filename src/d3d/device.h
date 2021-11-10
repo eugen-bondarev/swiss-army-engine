@@ -8,7 +8,7 @@
 #include <d3dcommon.h>
 #include <d3dx10math.h>
 
-#include <array>
+#include "../header.h"
 
 class Device
 {

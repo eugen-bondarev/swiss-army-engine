@@ -191,24 +191,15 @@ Device::Device()
         &device_context
     );
 
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create swapchain.");
-	}
+	CHECK_RESULT(result, "Failed to create swapchain.");
 
     // Get the pointer to the back buffer.
 	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to get the pointer to the back buffer.");
-	}
+	CHECK_RESULT(result, "Failed to get the pointer to the back buffer.");
 
 	// Create the render target view with the back buffer pointer.
 	result = device->CreateRenderTargetView(backBufferPtr, nullptr, &render_target_view);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create the render target view.");
-	}
+	CHECK_RESULT(result, "Failed to create the render target view.");
 
 	// Release pointer to the back buffer as we no longer need it.
 	backBufferPtr->Release();
@@ -231,10 +222,7 @@ Device::Device()
 
     // Create the texture for the depth buffer using the filled out description.
 	result = device->CreateTexture2D(&depthBufferDesc, nullptr, &depth_stencil_buffer);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create the texture for the depth buffer.");
-	}
+	CHECK_RESULT(result, "Failed to create the texture for the depth buffer.");
 
     // Initialize the description of the stencil state.
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
@@ -262,10 +250,7 @@ Device::Device()
 
     // Create the depth stencil state.
 	result = device->CreateDepthStencilState(&depthStencilDesc, &depth_stencil_state);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create the depth stencil state.");
-	}
+    CHECK_RESULT(result, "Failed to create the depth stencil state.");
 
     // Set the depth stencil state.
 	device_context->OMSetDepthStencilState(depth_stencil_state, 1);
@@ -280,10 +265,7 @@ Device::Device()
 
 	// Create the depth stencil view.
 	result = device->CreateDepthStencilView(depth_stencil_buffer, &depthStencilViewDesc, &depth_stencil_view);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create the depth stencil view.");
-	}
+    CHECK_RESULT(result, "Failed to create the depth stencil view.");
 
     // Bind the render target view and depth stencil buffer to the output render pipeline.
 	device_context->OMSetRenderTargets(1, &render_target_view, depth_stencil_view);
@@ -302,10 +284,7 @@ Device::Device()
 
 	// Create the rasterizer state from the description we just filled out.
 	result = device->CreateRasterizerState(&rasterDesc, &raster_state);
-	if (FAILED(result))
-	{
-        throw std::runtime_error("Failed to create the rasterizer state.");
-	}
+	CHECK_RESULT(result, "Failed to create the rasterizer state.");
 
 	// Now set the rasterizer state.
 	device_context->RSSetState(raster_state);
@@ -328,13 +307,8 @@ Device::Device()
     constexpr static float screen_near = 0.1f;
     constexpr static float screen_far = 1000.0f;
 
-	// Create the projection matrix for 3D rendering.
 	D3DXMatrixPerspectiveFovLH(&projection_mat, fieldOfView, screenAspect, screen_near, screen_far);
-
-    // Initialize the world matrix to the identity matrix.
 	D3DXMatrixIdentity(&world_mat);
-
-    // Create an orthographic projection matrix for 2D rendering.
 	D3DXMatrixOrthoLH(&ortho_mat, static_cast<float>(window->get_width()), static_cast<float>(window->get_height()), screen_near, screen_far);
 
     vsync_enabled = vsync;
