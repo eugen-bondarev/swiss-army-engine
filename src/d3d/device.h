@@ -23,7 +23,7 @@ public:
 
 private:    
 	int gpu_memory;
-	char gpu_description[128];
+    std::string gpu_description;
 
     bool vsync_enabled{true};
 

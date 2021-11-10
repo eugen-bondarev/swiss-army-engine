@@ -18,141 +18,117 @@ void destroy_device()
 Device::Device()
 {    
 	HRESULT result;
-	IDXGIFactory* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapterOutput;
-    size_t stringLength;
-	unsigned int numModes, numerator, denominator;
-	DXGI_MODE_DESC* displayModeList;
-	DXGI_ADAPTER_DESC adapterDesc;
-	int error;
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11Texture2D* backBufferPtr;
-
-	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
-	float fieldOfView, screenAspect;
-
-    bool vsync{true};
 
     // Create a DirectX graphics interface factory.
+	IDXGIFactory* factory;
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	CHECK_RESULT(result, "Failed to create factory.");
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
+	IDXGIAdapter* adapter;
 	result = factory->EnumAdapters(0, &adapter);
 	CHECK_RESULT(result, "Failed to create adapter.");
 
 	// Enumerate the primary adapter output (monitor).
-	result = adapter->EnumOutputs(0, &adapterOutput);
+	IDXGIOutput* adapter_output;
+	result = adapter->EnumOutputs(0, &adapter_output);
 	CHECK_RESULT(result, "Failed to enumerate monitors.");
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
+    uint32_t num_modes{0};
+	result = adapter_output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &num_modes, NULL);
 	CHECK_RESULT(result, "Failed to enumerate modes.");
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
-	displayModeList = new DXGI_MODE_DESC[numModes];
+	// displayModeList = new DXGI_MODE_DESC[numModes];
+    std::vector<DXGI_MODE_DESC> display_mode_list(num_modes);
 
 	// Now fill the display mode list structures.
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+	result = adapter_output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &num_modes, display_mode_list.data());
 	CHECK_RESULT(result, "Failed to get display mode list.");
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for (int i = 0; i < numModes; ++i)
+    uint32_t numerator{0}, denominator{0};
+	for (uint32_t i = 0; i < num_modes; ++i)
 	{
-		if (displayModeList[i].Width == static_cast<unsigned int>(window->get_width()))
+		if (display_mode_list[i].Width == static_cast<unsigned int>(window->get_width()))
 		{
-			if (displayModeList[i].Height == static_cast<unsigned int>(window->get_height()))
+			if (display_mode_list[i].Height == static_cast<unsigned int>(window->get_height()))
 			{
-				numerator = displayModeList[i].RefreshRate.Numerator;
-				denominator = displayModeList[i].RefreshRate.Denominator;
+				numerator = display_mode_list[i].RefreshRate.Numerator;
+				denominator = display_mode_list[i].RefreshRate.Denominator;
 			}
 		}
 	}	
     
     // Get the adapter (video card) description.
-	result = adapter->GetDesc(&adapterDesc);
+	DXGI_ADAPTER_DESC adapter_desc;
+	result = adapter->GetDesc(&adapter_desc);
 	CHECK_RESULT(result, "Failed to acquire the GPU's description.");
 
 	// Store the dedicated video card memory in megabytes.
-	gpu_memory = static_cast<int>(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+	gpu_memory = static_cast<int>(adapter_desc.DedicatedVideoMemory / 1024 / 1024);
 
 	// Convert the name of the video card to a character array and store it.
-	error = wcstombs_s(&stringLength, gpu_description, 128, adapterDesc.Description, 128);
+    gpu_description.resize(128);
+    size_t string_length{0};
+	int error{wcstombs_s(&string_length, gpu_description.data(), gpu_description.size(), adapter_desc.Description, gpu_description.size())};
 	if (error != 0)
 	{
         throw std::runtime_error("Failed to acquire the GPU's name.");
 	}
 
-    // Release the display mode list.
-	delete [] displayModeList;
-	displayModeList = 0;
-
-	// Release the adapter output.
-	adapterOutput->Release();
-	adapterOutput = 0;
-
-	// Release the adapter.
+	adapter_output->Release();
 	adapter->Release();
-	adapter = 0;
-
-	// Release the factory.
 	factory->Release();
-	factory = 0;
 
-    	// Initialize the swap chain description.
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	DXGI_SWAP_CHAIN_DESC swap_chain_desc = create_structure<DXGI_SWAP_CHAIN_DESC>();
 
 	// Set to a single back buffer.
-	swapChainDesc.BufferCount = 1;
-
+	swap_chain_desc.BufferCount = 1;
 	// Set the width and height of the back buffer.
-	swapChainDesc.BufferDesc.Width = static_cast<unsigned int>(window->get_width());
-	swapChainDesc.BufferDesc.Height = static_cast<unsigned int>(window->get_height());
+	swap_chain_desc.BufferDesc.Width = static_cast<unsigned int>(window->get_width());
+	swap_chain_desc.BufferDesc.Height = static_cast<unsigned int>(window->get_height());
 
 	// Set regular 32-bit surface for the back buffer.
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-    	// Set the refresh rate of the back buffer.
-	if (vsync)
+    // Set the refresh rate of the back buffer.
+	if (vsync_enabled)
 	{
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+		swap_chain_desc.BufferDesc.RefreshRate.Numerator = numerator;
+		swap_chain_desc.BufferDesc.RefreshRate.Denominator = denominator;
 	}
 	else
 	{
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
+		swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 	}
 
 	// Set the usage of the back buffer.
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
 	// Set the handle for the window to render to.
-	swapChainDesc.OutputWindow = window->get_handle();
+	swap_chain_desc.OutputWindow = window->get_handle();
 
 	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
-
-	// Set to full screen or windowed mode.
-    swapChainDesc.Windowed = !window->is_in_fullscreen();
+	swap_chain_desc.SampleDesc.Count = 1;
+	swap_chain_desc.SampleDesc.Quality = 0;
+    swap_chain_desc.Windowed = !window->is_in_fullscreen();
 
 	// Set the scan line ordering and scaling to unspecified.
-	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
 	// Discard the back buffer contents after presenting.
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Don't set the advanced flags.
-	swapChainDesc.Flags = 0;
+	swap_chain_desc.Flags = 0;
 
-    	// Set the feature level to DirectX 11.
-	featureLevel = D3D_FEATURE_LEVEL_11_0;
+    // Set the feature level to DirectX 11.
+	D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
 
     // Create the swap chain, Direct3D device, and Direct3D device context.
 	result = D3D11CreateDeviceAndSwapChain(
@@ -160,10 +136,10 @@ Device::Device()
         D3D_DRIVER_TYPE_HARDWARE, 
         nullptr, 
         0, 
-        &featureLevel, 
+        &feature_level, 
         1, 
 		D3D11_SDK_VERSION, 
-        &swapChainDesc, 
+        &swap_chain_desc, 
         &swap_chain, 
         &device, 
         nullptr, 
@@ -173,20 +149,22 @@ Device::Device()
 	CHECK_RESULT(result, "Failed to create swapchain.");
 
     // Get the pointer to the back buffer.
-	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
+	ID3D11Texture2D* back_buffer;
+	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&back_buffer);
 	CHECK_RESULT(result, "Failed to get the pointer to the back buffer.");
 
 	// Create the render target view with the back buffer pointer.
-	result = device->CreateRenderTargetView(backBufferPtr, nullptr, &render_target_view);
+	result = device->CreateRenderTargetView(back_buffer, nullptr, &render_target_view);
 	CHECK_RESULT(result, "Failed to create the render target view.");
 
 	// Release pointer to the back buffer as we no longer need it.
-	backBufferPtr->Release();
+	back_buffer->Release();
 
     depth_stencil_buffer = new DepthStencilBuffer(device);    
 	device_context->OMSetRenderTargets(1, &render_target_view, depth_stencil_buffer->view);
 
     // Setup the raster description which will determine how and what polygons will be drawn.
+	D3D11_RASTERIZER_DESC rasterDesc;
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
@@ -206,6 +184,7 @@ Device::Device()
 	device_context->RSSetState(raster_state);
 
     // Setup the viewport for rendering.
+	D3D11_VIEWPORT viewport;
 	viewport.Width = static_cast<float>(window->get_width());
 	viewport.Height = static_cast<float>(window->get_height());
 	viewport.MinDepth = 0.0f;
@@ -217,17 +196,16 @@ Device::Device()
 	device_context->RSSetViewports(1, &viewport);
 
     // Setup the projection matrix.
-	fieldOfView = static_cast<float>(D3DX_PI) / 4.0f;
-	screenAspect = static_cast<float>(window->get_width()) / static_cast<float>(window->get_height());
+	float field_of_view, aspect_ratio;
+	field_of_view = static_cast<float>(D3DX_PI) / 4.0f;
+	aspect_ratio = static_cast<float>(window->get_width()) / static_cast<float>(window->get_height());
 
     constexpr static float screen_near = 0.1f;
     constexpr static float screen_far = 1000.0f;
 
-	D3DXMatrixPerspectiveFovLH(&projection_mat, fieldOfView, screenAspect, screen_near, screen_far);
+	D3DXMatrixPerspectiveFovLH(&projection_mat, field_of_view, aspect_ratio, screen_near, screen_far);
 	D3DXMatrixIdentity(&world_mat);
 	D3DXMatrixOrthoLH(&ortho_mat, static_cast<float>(window->get_width()), static_cast<float>(window->get_height()), screen_near, screen_far);
-
-    vsync_enabled = vsync;
 }
 
 Device::~Device()
