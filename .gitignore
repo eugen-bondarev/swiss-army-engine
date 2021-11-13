@@ -1,2 +1,5 @@
-build
+.vs
 .vscode
+
+out
+build

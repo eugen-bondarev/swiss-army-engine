@@ -1,46 +1,50 @@
-#ifndef __ENGINE_WINDOW_H__
-#define __ENGINE_WINDOW_H__
+#ifndef __WINDOW_H__
+#define __WINDOW_H__
 
 #pragma once
 
 #include "header.h"
 
-class Window
+class WindowClass
 {
-friend static LRESULT CALLBACK wnd_proc(HWND p_handle, UINT p_message, WPARAM p_wparam, LPARAM p_lparam);
-
 public:
-    using handle_t = HWND;
+    std::string GetName() noexcept;
+    HINSTANCE GetInstance() noexcept;
 
-    Window(const int p_width, const int p_height, const std::string& p_app_name, const bool p_fullscreen);
-    ~Window();
+    WindowClass() noexcept;
+   ~WindowClass();
 
-    void poll_events();
-
-    bool is_running() const;
-    bool is_in_fullscreen() const;
-    int get_width() const;
-    int get_height() const;
-    handle_t get_handle();
+    static constexpr const char* CLASS_NAME = "WinClass";
 
 private:
-    LRESULT CALLBACK process_events(handle_t p_handle, UINT p_message, WPARAM p_wparam, LPARAM p_lparam);
+    WindowClass(const WindowClass&) = delete;
+    WindowClass& operator=(const WindowClass&) = delete;    
 
-    MSG msg;
-    bool running{true};
-    bool fullscreen{false};
-    int width, height;
-    std::string app_name{"Direct3D"};
-
+private:
     HINSTANCE instance;
-    handle_t handle;
+};
+
+class Window
+{
+friend class WindowClass;
+
+public:
+    Window(const int width, const int height, const std::string& name);
+   ~Window();
+
+   HWND GetHandle();
+
+private:
+    static LRESULT CALLBACK HandleMsgSetup(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+    static LRESULT CALLBACK HandleMsgThunk(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+    LRESULT HandleMsg(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+    int width, height;
+    HWND handle;
 
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 };
-
-extern Window* window;
-void create_window();
-void destroy_window();
 
 #endif
