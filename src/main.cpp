@@ -4,6 +4,8 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
+#include "d3d/buffer.h"
+
 struct Vertex
 {
     float x, y, z;
@@ -35,35 +37,8 @@ namespace dx = DirectX;
 
 void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
 {
-    ComPtr<ID3D11Buffer> vertexBuffer;
-    
-    D3D11_BUFFER_DESC vertexBufferDesc{};
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.CPUAccessFlags = 0u;
-    vertexBufferDesc.MiscFlags = 0u;
-    vertexBufferDesc.ByteWidth = sizeof(Vertex) * vertices.size();
-    vertexBufferDesc.StructureByteStride = sizeof(Vertex);
-
-    D3D11_SUBRESOURCE_DATA vertexBufferSubData{};
-    vertexBufferSubData.pSysMem = vertices.data();
-
-    D3D_CHECK(ctx->device->CreateBuffer(&vertexBufferDesc, &vertexBufferSubData, &vertexBuffer));
-
-    ComPtr<ID3D11Buffer> indexBuffer;
-
-    D3D11_BUFFER_DESC indexBufferDesc{};
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.CPUAccessFlags = 0u;
-    indexBufferDesc.MiscFlags = 0u;
-    indexBufferDesc.ByteWidth = sizeof(uint32_t) * indices.size();
-    indexBufferDesc.StructureByteStride = sizeof(uint32_t);
-
-    D3D11_SUBRESOURCE_DATA indexBufferSubData{};
-    indexBufferSubData.pSysMem = indices.data();
-    
-    D3D_CHECK(ctx->device->CreateBuffer(&indexBufferDesc, &indexBufferSubData, &indexBuffer));
+    Buffer vertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data(), D3D11_BIND_VERTEX_BUFFER);
+    Buffer indexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data(), D3D11_BIND_INDEX_BUFFER);
 
 	ID3D10Blob* vsBlob;
 	ID3D10Blob* psBlob;
@@ -122,10 +97,8 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
     D3D_CHECK(ctx->device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
     D3D_CHECK(ctx->device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
 
-    const UINT stride{sizeof(Vertex)};
-    const UINT offset{0u};
-    ctx->context->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), &stride, &offset);
-    ctx->context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+    vertexBuffer.BindVertexBuffer(sizeof(Vertex), 0u);
+    indexBuffer.BindIndexBuffer();
 
     // Constant buffer
     struct ConstantBuffer
@@ -156,6 +129,7 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
     constantBufferDesc.MiscFlags = 0u;
     constantBufferDesc.ByteWidth = sizeof(cb);
     constantBufferDesc.StructureByteStride = 0u;
+    
     D3D11_SUBRESOURCE_DATA constantBufferSubData{};
     constantBufferSubData.pSysMem = &cb;
     

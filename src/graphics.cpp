@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "d3d/common.h"
 
 std::unique_ptr<Debugger> Graphics::debugger;
 
@@ -77,4 +78,7 @@ Graphics::Graphics(HWND handle)
     context->OMSetRenderTargets(1u, renderTargetView.GetAddressOf(), depthView.Get());
 
     debugger = std::make_unique<Debugger>();
+
+    common::device = device.Get();
+    common::ctx = context.Get();
 }
