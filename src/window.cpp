@@ -56,7 +56,7 @@ Window::Window(const int width, const int height, const std::string& name)
         nullptr, nullptr, windowClass.GetInstance(), this
     );
 
-    ShowWindow(handle, SW_SHOW);
+    ShowWindow(handle, SW_SHOWDEFAULT);
 }
 
 Window::~Window()
@@ -76,6 +76,7 @@ LRESULT CALLBACK Window::HandleMsgSetup(HWND handle, UINT msg, WPARAM wParam, LP
 
         return window->HandleMsg(handle, msg, wParam, lParam);
     }
+    
     return DefWindowProc(handle, msg, wParam, lParam);
 }
 

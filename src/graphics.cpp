@@ -46,5 +46,35 @@ Graphics::Graphics(HWND handle)
     D3D_CHECK(swapchain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
     D3D_CHECK(device->CreateRenderTargetView(backBuffer.Get(), nullptr, &renderTargetView));
 
+    D3D11_DEPTH_STENCIL_DESC depthBufferDesc{};
+    depthBufferDesc.DepthEnable = TRUE;
+    depthBufferDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthBufferDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    ComPtr<ID3D11DepthStencilState> depthStencilState;
+    D3D_CHECK(device->CreateDepthStencilState(&depthBufferDesc, &depthStencilState));
+
+    context->OMSetDepthStencilState(depthStencilState.Get(), 1u);
+
+    ComPtr<ID3D11Texture2D> depthTexture;
+    D3D11_TEXTURE2D_DESC depthTextureDesc{};
+    depthTextureDesc.Width = 800u;
+    depthTextureDesc.Height = 600u;
+    depthTextureDesc.MipLevels = 1u;
+    depthTextureDesc.ArraySize = 1u;
+    depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthTextureDesc.SampleDesc.Count = 1u;
+    depthTextureDesc.SampleDesc.Quality = 0u;
+    depthTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+    depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    D3D_CHECK(device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture));
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc{};
+    depthViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    depthViewDesc.Texture2D.MipSlice = 0u;
+    D3D_CHECK(device->CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &depthView));
+
+    context->OMSetRenderTargets(1u, renderTargetView.GetAddressOf(), depthView.Get());
+
     debugger = std::make_unique<Debugger>();
 }

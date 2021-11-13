@@ -2,44 +2,71 @@
 #include "graphics.h"
 
 #include <d3dcompiler.h>
+#include <DirectXMath.h>
 
-void DrawTestTriangle(Graphics* ctx)
+struct Vertex
 {
-    struct Vertex
-    {
-        float x, y;
-    };
+    float x, y, z;
+};
 
-    std::vector<Vertex> vertices = 
-    {
-        {  0.0f,  0.5f },
-        {  0.5f, -0.5f },
-        { -0.5f, -0.5f }
-    };
+std::vector<Vertex> vertices = 
+{
+    { -1, -1, -1 },
+    { 1, -1, -1 },
+    { -1, 1, -1 },
+    { 1, 1, -1 },
+    { -1, -1, 1 },
+    { 1, -1, 1 },
+    { -1, 1, 1 },
+    { 1, 1, 1 },
+};
 
+std::vector<uint32_t> indices = 
+{
+    0, 2, 1,  2, 3, 1,
+    1, 3, 5,  3, 7, 5,
+    2, 6, 3,  3, 6, 7,
+    4, 5, 7,  4, 7, 6,
+    0, 4, 2,  2, 4, 6,
+    0, 1, 4,  1, 5, 4,
+};
+
+namespace dx = DirectX;
+
+void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
+{
     ComPtr<ID3D11Buffer> vertexBuffer;
     
-    D3D11_BUFFER_DESC bd{};
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.CPUAccessFlags = 0u;
-    bd.MiscFlags = 0u;
-    bd.ByteWidth = sizeof(Vertex) * vertices.size();
-    bd.StructureByteStride = sizeof(Vertex);
+    D3D11_BUFFER_DESC vertexBufferDesc{};
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    vertexBufferDesc.CPUAccessFlags = 0u;
+    vertexBufferDesc.MiscFlags = 0u;
+    vertexBufferDesc.ByteWidth = sizeof(Vertex) * vertices.size();
+    vertexBufferDesc.StructureByteStride = sizeof(Vertex);
 
-    D3D11_SUBRESOURCE_DATA sd{};
-    sd.pSysMem = vertices.data();
+    D3D11_SUBRESOURCE_DATA vertexBufferSubData{};
+    vertexBufferSubData.pSysMem = vertices.data();
 
-    D3D_CHECK(ctx->device->CreateBuffer(&bd, &sd, &vertexBuffer));
+    D3D_CHECK(ctx->device->CreateBuffer(&vertexBufferDesc, &vertexBufferSubData, &vertexBuffer));
 
-    const UINT stride{sizeof(Vertex)};
-    const UINT offset{0u};
+    ComPtr<ID3D11Buffer> indexBuffer;
 
-    ctx->context->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), &stride, &offset);
+    D3D11_BUFFER_DESC indexBufferDesc{};
+    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    indexBufferDesc.CPUAccessFlags = 0u;
+    indexBufferDesc.MiscFlags = 0u;
+    indexBufferDesc.ByteWidth = sizeof(uint32_t) * indices.size();
+    indexBufferDesc.StructureByteStride = sizeof(uint32_t);
+
+    D3D11_SUBRESOURCE_DATA indexBufferSubData{};
+    indexBufferSubData.pSysMem = indices.data();
     
+    D3D_CHECK(ctx->device->CreateBuffer(&indexBufferDesc, &indexBufferSubData, &indexBuffer));
+
 	ID3D10Blob* vsBlob;
 	ID3D10Blob* psBlob;
-
 	ID3D10Blob* errorBlob;
 
     HRESULT hr;
@@ -56,7 +83,7 @@ void DrawTestTriangle(Graphics* ctx)
     {
         if (errorBlob)
         {
-            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+            OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
             errorBlob->Release();
         }
     }
@@ -64,12 +91,13 @@ void DrawTestTriangle(Graphics* ctx)
     ComPtr<ID3D11InputLayout> inputLayout;
     std::vector<D3D11_INPUT_ELEMENT_DESC> ied = 
     {
-        { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    D3D_CHECK(ctx->device->CreateInputLayout(
+    D3D_TRY(ctx->device->CreateInputLayout(
         ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout
     ));
+
     ctx->context->IASetInputLayout(inputLayout.Get());
 
     hr = D3DCompileFromFile(
@@ -84,7 +112,7 @@ void DrawTestTriangle(Graphics* ctx)
     {
         if (errorBlob)
         {
-            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+            OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
             errorBlob->Release();
         }
     }
@@ -94,10 +122,52 @@ void DrawTestTriangle(Graphics* ctx)
     D3D_CHECK(ctx->device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
     D3D_CHECK(ctx->device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
 
+    const UINT stride{sizeof(Vertex)};
+    const UINT offset{0u};
+    ctx->context->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), &stride, &offset);
+    ctx->context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+
+    // Constant buffer
+    struct ConstantBuffer
+    {
+        dx::XMMATRIX transform;
+    };
+
+    dx::XMMATRIX transform = 
+        dx::XMMatrixRotationX(angleZ) * 
+        dx::XMMatrixRotationY(angleY) * 
+        dx::XMMatrixRotationZ(angleZ) * 
+        dx::XMMatrixTranslation(0, 0, 10) * 
+        dx::XMMatrixPerspectiveFovLH(70.0f * 3.14159265359f / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f)
+    ;
+
+    const ConstantBuffer cb =
+    {
+        {
+            dx::XMMatrixTranspose(transform)
+        }
+    };
+
+    ComPtr<ID3D11Buffer> constantBuffer;
+    D3D11_BUFFER_DESC constantBufferDesc{};
+    constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    constantBufferDesc.MiscFlags = 0u;
+    constantBufferDesc.ByteWidth = sizeof(cb);
+    constantBufferDesc.StructureByteStride = 0u;
+    D3D11_SUBRESOURCE_DATA constantBufferSubData{};
+    constantBufferSubData.pSysMem = &cb;
+    
+    D3D_TRY(ctx->device->CreateBuffer(&constantBufferDesc, &constantBufferSubData, &constantBuffer));
+
+    ctx->context->VSSetConstantBuffers(0u, 1u, constantBuffer.GetAddressOf());
+    ///////
+
     ctx->context->VSSetShader(vertexShader.Get(), nullptr, 0u);
     ctx->context->PSSetShader(pixelShader.Get(), nullptr, 0u);
 
-    ctx->context->OMSetRenderTargets(1u, ctx->renderTargetView.GetAddressOf(), nullptr);
+    // ctx->context->OMSetRenderTargets(1u, ctx->renderTargetView.GetAddressOf(), nullptr);
 
     ctx->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -110,7 +180,7 @@ void DrawTestTriangle(Graphics* ctx)
     vp.TopLeftY = 0;
     ctx->context->RSSetViewports(1u, &vp);
 
-    D3D_TRY(ctx->context->Draw(vertices.size(), 0u));
+    D3D_TRY(ctx->context->DrawIndexed(indices.size(), 0u, 0u));
 }
 
 #define USE_CONSOLE
@@ -123,7 +193,6 @@ void DrawTestTriangle(Graphics* ctx)
     int main()
 #endif
 {
-    MSG msg{};
 
     Graphics* graphics;
 
@@ -134,19 +203,31 @@ void DrawTestTriangle(Graphics* ctx)
         graphics = new Graphics(wnd.GetHandle());
 
         BOOL result;
-        while ((result = GetMessage(&msg, nullptr, 0, 0)) > 0)
+        while (true)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            MSG msg;
+            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+            {
+                if (msg.message == WM_QUIT)
+                {
+                    return static_cast<int>(msg.wParam);
+                }
+
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
 
             const static std::array<float, 4> clearColor{0.2f, 1.0f, 0.5f, 1.0f};
             graphics->context->ClearRenderTargetView(graphics->renderTargetView.Get(), clearColor.data());
+            graphics->context->ClearDepthStencilView(graphics->depthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
-            // Render here
-            DrawTestTriangle(graphics);
+            static float angle{0};
+            DrawTestTriangle(graphics, angle, 0);
+            DrawTestTriangle(graphics, 0, angle);
+            angle += 0.01f;
 
-            HRESULT hr;
-            if (FAILED(hr = graphics->swapchain->Present(1u, 0u)))
+            HRESULT hr = graphics->swapchain->Present(1u, 0u);
+            if (FAILED(hr))
             {
                 if (hr == DXGI_ERROR_DEVICE_REMOVED)
                 {
@@ -167,10 +248,9 @@ void DrawTestTriangle(Graphics* ctx)
     catch (const std::runtime_error& p_exception)
     {
         MessageBox(nullptr, p_exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
-        // LINE_OUT(p_exception.what());
     }
 
     delete graphics;
 
-    return msg.wParam;
+    return 0;
 }

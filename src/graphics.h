@@ -16,6 +16,8 @@ public:
     ComPtr<ID3D11DeviceContext> context{nullptr};
     ComPtr<ID3D11RenderTargetView> renderTargetView;
 
+    ComPtr<ID3D11DepthStencilView> depthView;
+
     static std::unique_ptr<Debugger> debugger;
 };
 
