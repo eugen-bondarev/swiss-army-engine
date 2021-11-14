@@ -1,5 +1,5 @@
 #include "buffer.h"
-#include "d3d.h"
+#include "d3d_instance.h"
 
 Buffer::Buffer(const UINT byteWidth, const UINT stride, const void* data, const UINT bindFlags, const UINT cpuAccessFlags, D3D11_USAGE usage)
 {    

@@ -5,16 +5,16 @@
 
 #include "common.h"
 // #include "../graphics.h"
-#include "d3d.h"
+#include "d3d_instance.h"
 
 class Shader
 {
 public:
     Shader(const std::string& vertexShaderCode, const std::string& pixelShaderCode)
     {        
-        ID3D10Blob* vsBlob;
-        ID3D10Blob* psBlob;
-        ID3D10Blob* errorBlob;
+        ComPtr<ID3D10Blob> vsBlob;
+        ComPtr<ID3D10Blob> psBlob;
+        ComPtr<ID3D10Blob> errorBlob;
 
         HRESULT hr;
 
@@ -26,19 +26,15 @@ public:
             nullptr,
             "main", "vs_5_0",
             D3DCOMPILE_ENABLE_STRICTNESS, 0,
-            &vsBlob,
-            &errorBlob
+            vsBlob.GetAddressOf(),
+            errorBlob.GetAddressOf()
         );
-
-        if (FAILED(hr))
+        
+        if (FAILED(hr) && errorBlob.GetAddressOf())
         {
-            if (errorBlob)
-            {
-                OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
-                errorBlob->Release();
-            }
+            throw std::runtime_error(std::string(static_cast<char*>(errorBlob->GetBufferPointer())));
         }
-
+        
         hr = D3DCompile(
             std::string(pixelShaderCode).c_str(),
             std::string(pixelShaderCode).length(),
@@ -47,17 +43,13 @@ public:
             nullptr,
             "main", "ps_5_0",
             D3DCOMPILE_ENABLE_STRICTNESS, 0,
-            &psBlob,
-            &errorBlob
+            psBlob.GetAddressOf(),
+            errorBlob.GetAddressOf()
         );
         
-        if (FAILED(hr))
+        if (FAILED(hr) && errorBlob.GetAddressOf())
         {
-            if (errorBlob)
-            {
-                OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
-                errorBlob->Release();
-            }
+            throw std::runtime_error(std::string(static_cast<char*>(errorBlob->GetBufferPointer())));
         }
 
         std::vector<D3D11_INPUT_ELEMENT_DESC> ied = 

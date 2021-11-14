@@ -1,11 +1,11 @@
-#include "d3d.h"
+#include "d3d_instance.h"
 
 #include <map>
 
-static std::map<HWND, D3D*> windows;
-static D3D* currentCtx{nullptr};
+static std::map<HWND, D3DInstance*> windows;
+static D3DInstance* currentCtx{nullptr};
 
-D3D::D3D(HWND handle)
+D3DInstance::D3DInstance(HWND handle)
 {
     DXGI_SWAP_CHAIN_DESC sd{};
     sd.BufferDesc.Width = 0;
@@ -88,12 +88,26 @@ D3D::D3D(HWND handle)
     currentCtx = this;
 }
 
-void MakeContextCurrent(D3D* newCtx)
+
+void D3DInstance::SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height)
+{
+    D3D11_VIEWPORT viewport;
+    viewport.Width = Width;
+    viewport.Height = Height;
+    viewport.MinDepth = 0;
+    viewport.MaxDepth = 1;
+    viewport.TopLeftX = X;
+    viewport.TopLeftY = Y;
+    Ctx()->RSSetViewports(1u, &viewport);
+}
+
+
+void MakeContextCurrent(D3DInstance* newCtx)
 {
     currentCtx = newCtx;
 }
 
-D3D* GetContext(HWND handle)
+D3DInstance* GetContext(HWND handle)
 {
     return windows[handle];
 }
@@ -130,7 +144,7 @@ ID3D11DepthStencilView* DepthStencilView()
     return currentCtx->depthView.Get();
 }
 
-D3D::~D3D()
+D3DInstance::~D3DInstance()
 {
 #ifndef NDEBUG
     delete debugger;

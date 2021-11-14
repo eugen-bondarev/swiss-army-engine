@@ -4,7 +4,7 @@
 #pragma once
 
 #include "common.h"
-#include "d3d.h"
+#include "d3d_instance.h"
 
 class Texture
 {

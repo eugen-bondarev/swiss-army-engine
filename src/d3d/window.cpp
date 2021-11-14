@@ -1,5 +1,5 @@
 #include "window.h"
-#include "d3d.h"
+#include "d3d_instance.h"
 
 static size_t numWindows{0};
 
@@ -20,10 +20,10 @@ Window::~Window()
 
     glfwDestroyWindow(handle);
 
-    // if (numWindows == 0)
-    // {
-    //     glfwTerminate();
-    // }
+    if (numWindows == 0)
+    {
+        glfwTerminate();
+    }
 }
 
 bool Window::IsRunning() const
