@@ -1,4 +1,5 @@
 #include "window.h"
+#include "d3d/d3d.h"
 
 static WindowClass windowClass;
 
@@ -96,6 +97,24 @@ LRESULT Window::HandleMsg(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) n
     }
 
     return DefWindowProc(handle, msg, wParam, lParam);
+}
+
+void Window::Present(UINT syncInterval, UINT flags)
+{
+    D3D* context = GetContext(handle);
+    HRESULT hr = context->swapchain->Present(syncInterval, flags);
+    
+    if (FAILED(hr))
+    {
+        if (hr == DXGI_ERROR_DEVICE_REMOVED)
+        {
+            throw EXCEPTION_WHAT(std::to_string(context->device->GetDeviceRemovedReason()));
+        }
+        else
+        {
+            throw EXCEPTION();
+        }
+    }
 }
 
 HWND Window::GetHandle()

@@ -15,6 +15,8 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 class D3D
 {
+friend class Window;
+
 friend Debugger* GetDebugger();
 friend ID3D11Device* Device();
 friend ID3D11DeviceContext* Ctx();
@@ -47,8 +49,7 @@ ID3D11RenderTargetView* RenderTargetView();
 ID3D11DepthStencilView* DepthStencilView();
 
 void MakeContextCurrent(D3D* another);
-
-extern D3D* d3d;
+D3D* GetContext(HWND handle);
 
 #define D3D_TRY(exp)\
     GetDebugger()->Start();\

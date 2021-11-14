@@ -32,7 +32,9 @@ public:
     Window(const int width, const int height, const std::string& name);
    ~Window();
 
-   HWND GetHandle();
+    void Present(UINT syncInterval = 1u, UINT flags = 0u);
+
+    HWND GetHandle();
 
 private:
     static LRESULT CALLBACK HandleMsgSetup(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

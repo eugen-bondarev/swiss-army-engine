@@ -2,8 +2,6 @@
 
 #include <map>
 
-D3D* d3d{nullptr};
-
 static std::map<HWND, D3D*> windows;
 static D3D* current{nullptr};
 
@@ -89,6 +87,11 @@ D3D::D3D(HWND handle)
 void MakeContextCurrent(D3D* another)
 {
     current = another;
+}
+
+D3D* GetContext(HWND handle)
+{
+    return windows[handle];
 }
 
 Debugger* GetDebugger()

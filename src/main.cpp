@@ -15,19 +15,19 @@ struct Vertex
     float x, y, z;
 };
 
-std::vector<Vertex> vertices = 
+std::vector<Vertex> cubeVertices = 
 {
     { -1, -1, -1 },
-    { 1, -1, -1 },
-    { -1, 1, -1 },
-    { 1, 1, -1 },
-    { -1, -1, 1 },
-    { 1, -1, 1 },
-    { -1, 1, 1 },
-    { 1, 1, 1 },
+    {  1, -1, -1 },
+    { -1,  1, -1 },
+    {  1,  1, -1 },
+    { -1, -1,  1 },
+    {  1, -1,  1 },
+    { -1,  1,  1 },
+    {  1,  1,  1 },
 };
 
-std::vector<uint32_t> indices = 
+std::vector<uint32_t> cubeIndices = 
 {
     0, 2, 1,  2, 3, 1,
     1, 3, 5,  3, 7, 5,
@@ -39,15 +39,15 @@ std::vector<uint32_t> indices =
 
 namespace dx = DirectX;
 
-VertexBuffer* triangleVertexBuffer{nullptr};
-IndexBuffer* triangleIndexBuffer{nullptr};
-ConstantBuffer* triangleConstBuffer{nullptr};
-Shader* triangleShader{nullptr};
-
-VertexBuffer* triangleVertexBuffer1{nullptr};
-IndexBuffer* triangleIndexBuffer1{nullptr};
+VertexBuffer*   triangleVertexBuffer1{nullptr};
+IndexBuffer*    triangleIndexBuffer1{nullptr};
 ConstantBuffer* triangleConstBuffer1{nullptr};
-Shader* triangleShader1{nullptr};
+Shader*         triangleShader1{nullptr};
+
+VertexBuffer*   triangleVertexBuffer2{nullptr};
+IndexBuffer*    triangleIndexBuffer2{nullptr};
+ConstantBuffer* triangleConstBuffer2{nullptr};
+Shader*         triangleShader2{nullptr};
 
 const char* vertexShaderCode = R""""(
 
@@ -81,29 +81,6 @@ float4 main(float3 color : Color) : SV_Target
 
 )"""";
 
-void DrawTestTriangle(const float angleY, const float angleZ)
-{
-    triangleShader->Bind();
-    triangleVertexBuffer->Bind(sizeof(Vertex), 0u);
-    triangleIndexBuffer->Bind();
-    triangleConstBuffer->Bind();
-
-    dx::XMMATRIX transform = 
-        dx::XMMatrixRotationX(angleZ) * 
-        dx::XMMatrixRotationY(angleY) * 
-        dx::XMMatrixRotationZ(angleZ) * 
-        dx::XMMatrixTranslation(0, 0, 10) * 
-        dx::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
-
-    dx::XMMATRIX* data = (dx::XMMATRIX*) triangleConstBuffer->Map();
-    *data = dx::XMMatrixTranspose(transform);
-    triangleConstBuffer->Unmap();
-
-    Ctx()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    D3D_TRY(Ctx()->DrawIndexed(indices.size(), 0u, 0u));
-}
-
 void DrawTestTriangle1(const float angleY, const float angleZ)
 {
     triangleShader1->Bind();
@@ -124,7 +101,30 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
 
     Ctx()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    D3D_TRY(Ctx()->DrawIndexed(indices.size(), 0u, 0u));
+    D3D_TRY(Ctx()->DrawIndexed(cubeIndices.size(), 0u, 0u));
+}
+
+void DrawTestTriangle2(const float angleY, const float angleZ)
+{
+    triangleShader2->Bind();
+    triangleVertexBuffer2->Bind(sizeof(Vertex), 0u);
+    triangleIndexBuffer2->Bind();
+    triangleConstBuffer2->Bind();
+
+    dx::XMMATRIX transform = 
+        dx::XMMatrixRotationX(angleZ) * 
+        dx::XMMatrixRotationY(angleY) * 
+        dx::XMMatrixRotationZ(angleZ) * 
+        dx::XMMatrixTranslation(0, 0, 10) * 
+        dx::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+
+    dx::XMMATRIX* data = static_cast<dx::XMMATRIX*>(triangleConstBuffer2->Map());
+    *data = dx::XMMatrixTranspose(transform);
+    triangleConstBuffer2->Unmap();
+
+    Ctx()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    D3D_TRY(Ctx()->DrawIndexed(cubeIndices.size(), 0u, 0u));
 }
 
 #define USE_CONSOLE
@@ -137,36 +137,38 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
     int main()
 #endif
 {
+    D3D* ctx1;
+    D3D* ctx2;
+
     try
     {
-        Window wnd(800, 600, "WindowClass");
-        d3d = new D3D(wnd.GetHandle());
+        Window window1(800, 600, "Window 1");
+        ctx1 = new D3D(window1.GetHandle());
 
-        Window wnd1(800, 600, "WindowClass1");
-        D3D* d3d1 = new D3D(wnd1.GetHandle());
+        Window window2(800, 600, "Window 2");
+        ctx2 = new D3D(window2.GetHandle());
 
-        D3D11_VIEWPORT vp;
-        vp.Width = 800;
-        vp.Height = 600;
-        vp.MinDepth = 0;
-        vp.MaxDepth = 1;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
+        D3D11_VIEWPORT viewport;
+        viewport.Width = 800;
+        viewport.Height = 600;
+        viewport.MinDepth = 0;
+        viewport.MaxDepth = 1;
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
 
-        Ctx()->RSSetViewports(1u, &vp);
-        triangleVertexBuffer1 = new VertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data());
-        triangleIndexBuffer1 = new IndexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data());
+        Ctx()->RSSetViewports(1u, &viewport);
+        triangleVertexBuffer2 = new VertexBuffer(sizeof(Vertex) * cubeVertices.size(), sizeof(Vertex), cubeVertices.data());
+        triangleIndexBuffer2 = new IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
+        triangleConstBuffer2 = new ConstantBuffer(sizeof(dx::XMMATRIX));
+        triangleShader2 = new Shader(vertexShaderCode, pixelShaderCode);
+
+        MakeContextCurrent(ctx1);
+
+        Ctx()->RSSetViewports(1u, &viewport);
+        triangleVertexBuffer1 = new VertexBuffer(sizeof(Vertex) * cubeVertices.size(), sizeof(Vertex), cubeVertices.data());
+        triangleIndexBuffer1 = new IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
         triangleConstBuffer1 = new ConstantBuffer(sizeof(dx::XMMATRIX));
         triangleShader1 = new Shader(vertexShaderCode, pixelShaderCode);
-
-        MakeContextCurrent(d3d);
-
-        Ctx()->RSSetViewports(1u, &vp);
-        triangleVertexBuffer = new VertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data());
-        triangleIndexBuffer = new IndexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data());
-        triangleConstBuffer = new ConstantBuffer(sizeof(dx::XMMATRIX));
-        triangleShader = new Shader(vertexShaderCode, pixelShaderCode);
-
 
         BOOL result;
         while (true)
@@ -183,53 +185,33 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
                 DispatchMessage(&msg);
             }
             
-            static float angle{0};
-            angle += 0.01f;
-            const static std::array<float, 4> clearColor{0.2f, 1.0f, 0.5f, 1.0f};
+            static float angle{0}; angle += 0.05f;
+            const static std::array<float, 4> clearColor1{0.2f, 1.0f, 0.5f, 1.0f};
+            const static std::array<float, 4> clearColor2{0.6f, 0.8f, 0.2f, 1.0f};
 
-            MakeContextCurrent(d3d1);
-            Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor.data());
+            MakeContextCurrent(ctx1);
+            Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor1.data());
             Ctx()->ClearDepthStencilView(DepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-            DrawTestTriangle1(0, angle);
+            DrawTestTriangle1(angle, 0);
 
-            MakeContextCurrent(d3d);
-            Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor.data());
+            MakeContextCurrent(ctx2);
+            Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor2.data());
             Ctx()->ClearDepthStencilView(DepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-            DrawTestTriangle(angle, 0);
+            DrawTestTriangle2(0, angle);
 
-            HRESULT hr = Swapchain()->Present(1u, 0u);
-            if (FAILED(hr))
-            {
-                if (hr == DXGI_ERROR_DEVICE_REMOVED)
-                {
-                    throw EXCEPTION_WHAT(std::to_string(Device()->GetDeviceRemovedReason()));
-                }
-                else
-                {
-                    throw EXCEPTION();
-                }
-            }
-            
-            MakeContextCurrent(d3d1);
-
-            hr = Swapchain()->Present(1u, 0u);
-            if (FAILED(hr))
-            {
-                if (hr == DXGI_ERROR_DEVICE_REMOVED)
-                {
-                    throw EXCEPTION_WHAT(std::to_string(Device()->GetDeviceRemovedReason()));
-                }
-                else
-                {
-                    throw EXCEPTION();
-                }
-            }
+            window1.Present();            
+            window2.Present();
         }
 
-        delete triangleShader;
-        delete triangleConstBuffer;
-        delete triangleIndexBuffer;
-        delete triangleVertexBuffer;
+        delete triangleShader1;
+        delete triangleConstBuffer1;
+        delete triangleIndexBuffer1;
+        delete triangleVertexBuffer1;
+
+        delete triangleShader2;
+        delete triangleConstBuffer2;
+        delete triangleIndexBuffer2;
+        delete triangleVertexBuffer2;
 
         if (result == -1)
         {
@@ -241,7 +223,8 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
         MessageBox(nullptr, p_exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
 
-    delete d3d;
+    delete ctx1;
+    delete ctx2;
 
     return 0;
 }
