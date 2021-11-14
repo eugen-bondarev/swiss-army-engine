@@ -3,7 +3,7 @@
 #include <map>
 
 static std::map<HWND, D3D*> windows;
-static D3D* current{nullptr};
+static D3D* currentCtx{nullptr};
 
 D3D::D3D(HWND handle)
 {
@@ -24,17 +24,18 @@ D3D::D3D(HWND handle)
     sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     sd.Flags = 0;
 
-    #ifndef NDEBUG
-        #define DEBUG_LAYER D3D11_CREATE_DEVICE_DEBUG
-    #else
-        #define DEBUG_LAYER 0
-    #endif
+    const UINT flags = 
+#ifndef NDEBUG
+        D3D11_CREATE_DEVICE_DEBUG;
+#else
+        0;
+#endif
 
     D3D_CHECK(D3D11CreateDeviceAndSwapChain(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
         nullptr,
-        DEBUG_LAYER,
+        flags,
         nullptr,
         0,
         D3D11_SDK_VERSION,
@@ -78,15 +79,18 @@ D3D::D3D(HWND handle)
     D3D_CHECK(device->CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &depthView));
 
     ctx->OMSetRenderTargets(1u, renderTargetView.GetAddressOf(), depthView.Get());
+
+#ifndef NDEBUG
     debugger = new Debugger();
+#endif
 
     windows[handle] = this;
-    current = this;
+    currentCtx = this;
 }
 
-void MakeContextCurrent(D3D* another)
+void MakeContextCurrent(D3D* newCtx)
 {
-    current = another;
+    currentCtx = newCtx;
 }
 
 D3D* GetContext(HWND handle)
@@ -94,37 +98,41 @@ D3D* GetContext(HWND handle)
     return windows[handle];
 }
 
+#ifndef NDEBUG
 Debugger* GetDebugger()
 {
-    return current->debugger;
+    return currentCtx->debugger;
 }
+#endif
 
 ID3D11Device* Device()
 {
-    return current->device.Get();
+    return currentCtx->device.Get();
 }
 
 ID3D11DeviceContext* Ctx()
 {
-    return current->ctx.Get();
+    return currentCtx->ctx.Get();
 }
 
 IDXGISwapChain* Swapchain()
 {
-    return current->swapchain.Get();
+    return currentCtx->swapchain.Get();
 }
 
 ID3D11RenderTargetView* RenderTargetView()
 {
-    return current->renderTargetView.Get();
+    return currentCtx->renderTargetView.Get();
 }
 
 ID3D11DepthStencilView* DepthStencilView()
 {
-    return current->depthView.Get();
+    return currentCtx->depthView.Get();
 }
 
 D3D::~D3D()
 {
+#ifndef NDEBUG
     delete debugger;
+#endif
 }

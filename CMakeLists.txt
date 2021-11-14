@@ -31,5 +31,6 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
     "external/glfw/include"
+    "external/stb_image"
     # "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include"
 )

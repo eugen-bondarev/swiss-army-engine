@@ -33,27 +33,38 @@ public:
     ComPtr<IDXGISwapChain> swapchain;
     ComPtr<ID3D11RenderTargetView> renderTargetView;
     ComPtr<ID3D11DepthStencilView> depthView;
+
 private:
+    #ifndef NDEBUG
     Debugger* debugger;
+    #endif
 
 private:
     D3D(const D3D&) = delete;
     D3D& operator=(const D3D&) = delete;
 };
 
+#ifndef NDEBUG
 Debugger* GetDebugger();
+#endif
+
 ID3D11Device* Device();
 ID3D11DeviceContext* Ctx();
 IDXGISwapChain* Swapchain();
 ID3D11RenderTargetView* RenderTargetView();
 ID3D11DepthStencilView* DepthStencilView();
 
-void MakeContextCurrent(D3D* another);
+void MakeContextCurrent(D3D* newCtx);
 D3D* GetContext(HWND handle);
 
-#define D3D_TRY(exp)\
-    GetDebugger()->Start();\
-    exp;\
-    GetDebugger()->End(__FILE__, __LINE__)
+#ifndef NDEBUG
+#   define D3D_TRY(exp)\
+        GetDebugger()->Start();\
+        exp;\
+        GetDebugger()->End(__FILE__, __LINE__)
+#else
+#   define D3D_TRY(exp)\
+        exp
+#endif
 
 #endif

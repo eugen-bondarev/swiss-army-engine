@@ -1,6 +1,6 @@
 struct VSOut
 {
-    float3 color : Color;
+    float2 texCoords : TexCoords;
     float4 pos : SV_Position;
 };
 
@@ -9,10 +9,10 @@ cbuffer CBuf
     matrix transform;
 };
 
-VSOut main(float3 pos : Position)
+VSOut main(float3 pos : Position, float2 texCoords : TexCoords)
 {
     VSOut vso;
     vso.pos = mul(float4(pos, 1.0f), transform );
-    vso.color = pos;
+    vso.texCoords = texCoords;
     return vso;
 }

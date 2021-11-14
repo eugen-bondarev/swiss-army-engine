@@ -7,32 +7,35 @@
 #include "d3d/window.h"
 #include "d3d/buffer.h"
 #include "d3d/shader.h"
+#include "d3d/texture.h"
+#include "d3d/sampler.h"
+
+#include "util/assets.h"
 
 struct Vertex
 {
-    float x, y, z;
+    struct
+    {
+        float x, y, z;
+    } position;
+
+    struct
+    {
+        float x, y;
+    } uv;
 };
 
 std::vector<Vertex> cubeVertices = 
 {
-    { -1, -1, -1 },
-    {  1, -1, -1 },
-    { -1,  1, -1 },
-    {  1,  1, -1 },
-    { -1, -1,  1 },
-    {  1, -1,  1 },
-    { -1,  1,  1 },
-    {  1,  1,  1 },
+    { { -1,  1, 0.0f }, { 0, 0 } },
+    { {  1,  1, 0.0f }, { 1, 0 } },
+    { {  1, -1, 0.0f }, { 1, 1 } },
+    { { -1, -1, 0.0f }, { 0, 1 } }
 };
 
 std::vector<uint32_t> cubeIndices = 
 {
-    0, 2, 1,  2, 3, 1,
-    1, 3, 5,  3, 7, 5,
-    2, 6, 3,  3, 6, 7,
-    4, 5, 7,  4, 7, 6,
-    0, 4, 2,  2, 4, 6,
-    0, 1, 4,  1, 5, 4,
+    0, 1, 2, 0, 2, 3
 };
 
 namespace dx = DirectX;
@@ -41,43 +44,15 @@ VertexBuffer*   triangleVertexBuffer1{nullptr};
 IndexBuffer*    triangleIndexBuffer1{nullptr};
 ConstantBuffer* triangleConstBuffer1{nullptr};
 Shader*         triangleShader1{nullptr};
+Sampler*        sampler1{nullptr};
+Texture*        texture1{nullptr};
 
 VertexBuffer*   triangleVertexBuffer2{nullptr};
 IndexBuffer*    triangleIndexBuffer2{nullptr};
 ConstantBuffer* triangleConstBuffer2{nullptr};
 Shader*         triangleShader2{nullptr};
-
-const char* vertexShaderCode = R""""(
-
-struct VSOut
-{
-    float3 color : Color;
-    float4 pos : SV_Position;
-};
-
-cbuffer CBuf
-{
-    matrix transform;
-};
-
-VSOut main(float3 pos : Position)
-{
-    VSOut vso;
-    vso.pos = mul(float4(pos, 1.0f), transform );
-    vso.color = pos;
-    return vso;
-}
-
-)"""";
-
-const char* pixelShaderCode = R""""(
-
-float4 main(float3 color : Color) : SV_Target
-{
-    return float4(color, 1.0f);
-}
-
-)"""";
+Sampler*        sampler2{nullptr};
+Texture*        texture2{nullptr};
 
 void DrawTestTriangle1(const float angleY, const float angleZ)
 {
@@ -85,12 +60,14 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
     triangleVertexBuffer1->Bind(sizeof(Vertex), 0u);
     triangleIndexBuffer1->Bind();
     triangleConstBuffer1->Bind();
+    sampler1->Bind();
+    texture1->Bind();
 
     dx::XMMATRIX transform = 
         dx::XMMatrixRotationX(angleZ) * 
         dx::XMMatrixRotationY(angleY) * 
         dx::XMMatrixRotationZ(angleZ) * 
-        dx::XMMatrixTranslation(0, 0, 10) * 
+        dx::XMMatrixTranslation(0, 0, 3) * 
         dx::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
     dx::XMMATRIX* data = (dx::XMMATRIX*) triangleConstBuffer1->Map();
@@ -108,12 +85,14 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
     triangleVertexBuffer2->Bind(sizeof(Vertex), 0u);
     triangleIndexBuffer2->Bind();
     triangleConstBuffer2->Bind();
+    sampler2->Bind();
+    texture2->Bind();
 
     dx::XMMATRIX transform = 
         dx::XMMatrixRotationX(angleZ) * 
         dx::XMMatrixRotationY(angleY) * 
         dx::XMMatrixRotationZ(angleZ) * 
-        dx::XMMatrixTranslation(0, 0, 10) * 
+        dx::XMMatrixTranslation(0, 0, 3) * 
         dx::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
     dx::XMMATRIX* data = static_cast<dx::XMMATRIX*>(triangleConstBuffer2->Map());
@@ -157,12 +136,19 @@ int MAIN
         viewport.TopLeftX = 0;
         viewport.TopLeftY = 0;
 
+        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/vertex-shader.hlsl");
+        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/pixel-shader.hlsl");
+
+        const Util::ImageAsset diana = Util::LoadImageFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/diana.png");
+
         MakeContextCurrent(ctx1);
         Ctx()->RSSetViewports(1u, &viewport);
         triangleVertexBuffer1 = new VertexBuffer(sizeof(Vertex) * cubeVertices.size(), sizeof(Vertex), cubeVertices.data());
         triangleIndexBuffer1 = new IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
         triangleConstBuffer1 = new ConstantBuffer(sizeof(dx::XMMATRIX));
         triangleShader1 = new Shader(vertexShaderCode, pixelShaderCode);
+        sampler1 = new Sampler();
+        texture1 = new Texture(diana.Width, diana.Height, diana.Data);
 
         MakeContextCurrent(ctx2);
         Ctx()->RSSetViewports(1u, &viewport);
@@ -170,12 +156,14 @@ int MAIN
         triangleIndexBuffer2 = new IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
         triangleConstBuffer2 = new ConstantBuffer(sizeof(dx::XMMATRIX));
         triangleShader2 = new Shader(vertexShaderCode, pixelShaderCode);
+        sampler2 = new Sampler();
+        texture2 = new Texture(diana.Width, diana.Height, diana.Data);
 
         while (window1->IsRunning() || (window2 != nullptr && window2->IsRunning()))
         {
             glfwPollEvents();
             
-            static float angle{0}; angle += 0.05f;
+            static float angle{0}; /* angle += 0.05f; */
             const static std::array<float, 4> clearColor1{0.2f, 1.0f, 0.5f, 1.0f};
             const static std::array<float, 4> clearColor2{0.3f, 0.2f, 0.9f, 1.0f};
 
@@ -212,11 +200,15 @@ int MAIN
     delete triangleConstBuffer1;
     delete triangleIndexBuffer1;
     delete triangleVertexBuffer1;
+    delete sampler1;
+    delete texture1;
 
     delete triangleShader2;
     delete triangleConstBuffer2;
     delete triangleIndexBuffer2;
     delete triangleVertexBuffer2;
+    delete sampler2;
+    delete texture2;
     
     delete ctx1;
 
