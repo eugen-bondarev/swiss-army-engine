@@ -37,8 +37,8 @@ namespace dx = DirectX;
 
 void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
 {
-    Buffer vertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data(), D3D11_BIND_VERTEX_BUFFER);
-    Buffer indexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data(), D3D11_BIND_INDEX_BUFFER);
+    VertexBuffer vertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data());
+    IndexBuffer indexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data());
 
 	ID3D10Blob* vsBlob;
 	ID3D10Blob* psBlob;
@@ -97,8 +97,8 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
     D3D_CHECK(ctx->device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
     D3D_CHECK(ctx->device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
 
-    vertexBuffer.BindVertexBuffer(sizeof(Vertex), 0u);
-    indexBuffer.BindIndexBuffer();
+    vertexBuffer.Bind(sizeof(Vertex), 0u);
+    indexBuffer.Bind();
 
     // Constant buffer
     struct ConstantBuffer
