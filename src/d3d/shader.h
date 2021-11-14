@@ -65,19 +65,19 @@ public:
             { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
         };
 
-        D3D_TRY(d3d->device->CreateInputLayout(
+        D3D_TRY(Device()->CreateInputLayout(
             ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout
         ));
 
-        D3D_CHECK(d3d->device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
-        D3D_CHECK(d3d->device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
+        D3D_CHECK(Device()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
+        D3D_CHECK(Device()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
     }
 
     void Bind()
     {        
-        d3d->ctx->IASetInputLayout(inputLayout.Get());
-        d3d->ctx->VSSetShader(vertexShader.Get(), nullptr, 0u);
-        d3d->ctx->PSSetShader(pixelShader.Get(), nullptr, 0u);
+        Ctx()->IASetInputLayout(inputLayout.Get());
+        Ctx()->VSSetShader(vertexShader.Get(), nullptr, 0u);
+        Ctx()->PSSetShader(pixelShader.Get(), nullptr, 0u);
     }
 
     ComPtr<ID3D11InputLayout> inputLayout;
