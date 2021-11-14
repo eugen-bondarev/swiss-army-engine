@@ -7,6 +7,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include "d3d/win.h"
 #include "d3d/buffer.h"
 #include "d3d/shader.h"
 
@@ -142,11 +143,11 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
 
     try
     {
-        Window window1(800, 600, "Window 1");
-        ctx1 = new D3D(window1.GetHandle());
+        Win win;
+        Win win1;
 
-        Window window2(800, 600, "Window 2");
-        ctx2 = new D3D(window2.GetHandle());
+        ctx1 = new D3D(glfwGetWin32Window(win.handle));
+        ctx2 = new D3D(glfwGetWin32Window(win1.handle));
 
         D3D11_VIEWPORT viewport;
         viewport.Width = 800;
@@ -170,20 +171,9 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
         triangleConstBuffer1 = new ConstantBuffer(sizeof(dx::XMMATRIX));
         triangleShader1 = new Shader(vertexShaderCode, pixelShaderCode);
 
-        BOOL result;
-        while (true)
+        while (!glfwWindowShouldClose(win.handle) && !glfwWindowShouldClose(win1.handle))
         {
-            MSG msg;
-            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-            {
-                if (msg.message == WM_QUIT)
-                {
-                    return static_cast<int>(msg.wParam);
-                }
-
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
+            glfwPollEvents();
             
             static float angle{0}; angle += 0.05f;
             const static std::array<float, 4> clearColor1{0.2f, 1.0f, 0.5f, 1.0f};
@@ -193,29 +183,37 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
             Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor1.data());
             Ctx()->ClearDepthStencilView(DepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
             DrawTestTriangle1(angle, 0);
+            
+            HRESULT hr = Swapchain()->Present(1u, 0u);            
+            if (FAILED(hr))
+            {
+                if (hr == DXGI_ERROR_DEVICE_REMOVED)
+                {
+                    throw EXCEPTION_WHAT(std::to_string(Device()->GetDeviceRemovedReason()));
+                }
+                else
+                {
+                    throw EXCEPTION();
+                }
+            }
 
             MakeContextCurrent(ctx2);
             Ctx()->ClearRenderTargetView(RenderTargetView(), clearColor2.data());
             Ctx()->ClearDepthStencilView(DepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
             DrawTestTriangle2(0, angle);
-
-            window1.Present();            
-            window2.Present();
-        }
-
-        delete triangleShader1;
-        delete triangleConstBuffer1;
-        delete triangleIndexBuffer1;
-        delete triangleVertexBuffer1;
-
-        delete triangleShader2;
-        delete triangleConstBuffer2;
-        delete triangleIndexBuffer2;
-        delete triangleVertexBuffer2;
-
-        if (result == -1)
-        {
-            return result;
+            
+            hr = Swapchain()->Present(1u, 0u);            
+            if (FAILED(hr))
+            {
+                if (hr == DXGI_ERROR_DEVICE_REMOVED)
+                {
+                    throw EXCEPTION_WHAT(std::to_string(Device()->GetDeviceRemovedReason()));
+                }
+                else
+                {
+                    throw EXCEPTION();
+                }
+            }
         }
     }
     catch (const std::runtime_error& p_exception)
@@ -223,6 +221,16 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
         MessageBox(nullptr, p_exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
 
+    delete triangleShader1;
+    delete triangleConstBuffer1;
+    delete triangleIndexBuffer1;
+    delete triangleVertexBuffer1;
+
+    delete triangleShader2;
+    delete triangleConstBuffer2;
+    delete triangleIndexBuffer2;
+    delete triangleVertexBuffer2;
+    
     delete ctx1;
     delete ctx2;
 

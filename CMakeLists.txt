@@ -16,6 +16,8 @@ link_directories(
     "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Lib/x64"
 )
 
+add_subdirectory(external/glfw)
+
 target_link_libraries(${PROJECT_NAME} 
     d3d11
     dxgi
@@ -23,9 +25,11 @@ target_link_libraries(${PROJECT_NAME}
     "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/d3d10.lib"
     "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/d3dcompiler.lib"
     dxguid
+    glfw
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
+    "external/glfw/include"
     # "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include"
 )
