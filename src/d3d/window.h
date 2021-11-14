@@ -15,6 +15,9 @@ public:
     Window();
    ~Window();
 
+    bool IsRunning() const;
+    void Present(const UINT syncInterval = 1u, const UINT flags = 0u);
+
     Handle_t handle;
 private:
 

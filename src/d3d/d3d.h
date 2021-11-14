@@ -28,12 +28,12 @@ public:
     D3D(HWND handle);
    ~D3D();
 
-private:
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> ctx;
     ComPtr<IDXGISwapChain> swapchain;
     ComPtr<ID3D11RenderTargetView> renderTargetView;
     ComPtr<ID3D11DepthStencilView> depthView;
+private:
     Debugger* debugger;
 
 private:
