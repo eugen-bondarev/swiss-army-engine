@@ -42,13 +42,6 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #define EXCEPTION_WHAT(x)\
     std::runtime_error(std::string(__FILE__) + "\n\nLine: " + std::to_string(__LINE__) + "\n\n" + x)
 
-#ifndef NDEBUG
-#define D3D_CHECK(hr)\
-    if (FAILED(hr)) { throw EXCEPTION_WHAT(#hr); }(void(0))
-#else
-#define D3D_CHECK(hr)\
-    hr
-#endif
 
 template <typename T>
 T create_structure()

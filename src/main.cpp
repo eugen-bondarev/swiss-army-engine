@@ -4,7 +4,11 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "d3d/buffer.h"
+#include "d3d/shader.h"
 
 struct Vertex
 {
@@ -35,126 +39,65 @@ std::vector<uint32_t> indices =
 
 namespace dx = DirectX;
 
-void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
+VertexBuffer* triangleVertexBuffer{nullptr};
+IndexBuffer* triangleIndexBuffer{nullptr};
+ConstantBuffer* triangleConstBuffer{nullptr};
+Shader* triangleShader{nullptr};
+
+const char* vertexShaderCode = R""""(
+
+struct VSOut
 {
-    VertexBuffer vertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data());
-    IndexBuffer indexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data());
+    float3 color : Color;
+    float4 pos : SV_Position;
+};
 
-	ID3D10Blob* vsBlob;
-	ID3D10Blob* psBlob;
-	ID3D10Blob* errorBlob;
+cbuffer CBuf
+{
+    matrix transform;
+};
 
-    HRESULT hr;
+VSOut main(float3 pos : Position)
+{
+    VSOut vso;
+    vso.pos = mul(float4(pos, 1.0f), transform );
+    vso.color = pos;
+    return vso;
+}
 
-    hr = D3DCompileFromFile(
-        L"C:/Users/azare/Documents/Dev/Cpp/direct3d/vertex-shader.hlsl",
-        nullptr, nullptr,
-        "main", "vs_5_0",
-        0u, 0u,
-        &vsBlob, &errorBlob
-    );
-    
-    if (FAILED(hr))
-    {
-        if (errorBlob)
-        {
-            OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
-            errorBlob->Release();
-        }
-    }
+)"""";
 
-    ComPtr<ID3D11InputLayout> inputLayout;
-    std::vector<D3D11_INPUT_ELEMENT_DESC> ied = 
-    {
-        { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
+const char* pixelShaderCode = R""""(
 
-    D3D_TRY(ctx->device->CreateInputLayout(
-        ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout
-    ));
+float4 main(float3 color : Color) : SV_Target
+{
+    return float4(color, 1.0f);
+}
 
-    ctx->context->IASetInputLayout(inputLayout.Get());
+)"""";
 
-    hr = D3DCompileFromFile(
-        L"C:/Users/azare/Documents/Dev/Cpp/direct3d/pixel-shader.hlsl",
-        nullptr, nullptr,
-        "main", "ps_5_0",
-        0u, 0u,
-        &psBlob, &errorBlob
-    );
-    
-    if (FAILED(hr))
-    {
-        if (errorBlob)
-        {
-            OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
-            errorBlob->Release();
-        }
-    }
+void DrawTestTriangle(const float angleY, const float angleZ)
+{
+    triangleShader->Bind();
 
-    ComPtr<ID3D11VertexShader> vertexShader;
-    ComPtr<ID3D11PixelShader> pixelShader;
-    D3D_CHECK(ctx->device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
-    D3D_CHECK(ctx->device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
-
-    vertexBuffer.Bind(sizeof(Vertex), 0u);
-    indexBuffer.Bind();
-
-    // Constant buffer
-    struct ConstantBuffer
-    {
-        dx::XMMATRIX transform;
-    };
+    triangleVertexBuffer->Bind(sizeof(Vertex), 0u);
+    triangleIndexBuffer->Bind();
+    triangleConstBuffer->Bind();
 
     dx::XMMATRIX transform = 
         dx::XMMatrixRotationX(angleZ) * 
         dx::XMMatrixRotationY(angleY) * 
         dx::XMMatrixRotationZ(angleZ) * 
         dx::XMMatrixTranslation(0, 0, 10) * 
-        dx::XMMatrixPerspectiveFovLH(70.0f * 3.14159265359f / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f)
-    ;
+        dx::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
-    const ConstantBuffer cb =
-    {
-        {
-            dx::XMMatrixTranspose(transform)
-        }
-    };
+    dx::XMMATRIX* data = (dx::XMMATRIX*) triangleConstBuffer->Map();
+    *data = dx::XMMatrixTranspose(transform);
+    triangleConstBuffer->Unmap();
 
-    ComPtr<ID3D11Buffer> constantBuffer;
-    D3D11_BUFFER_DESC constantBufferDesc{};
-    constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    constantBufferDesc.MiscFlags = 0u;
-    constantBufferDesc.ByteWidth = sizeof(cb);
-    constantBufferDesc.StructureByteStride = 0u;
-    
-    D3D11_SUBRESOURCE_DATA constantBufferSubData{};
-    constantBufferSubData.pSysMem = &cb;
-    
-    D3D_TRY(ctx->device->CreateBuffer(&constantBufferDesc, &constantBufferSubData, &constantBuffer));
+    d3d->ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ctx->context->VSSetConstantBuffers(0u, 1u, constantBuffer.GetAddressOf());
-    ///////
-
-    ctx->context->VSSetShader(vertexShader.Get(), nullptr, 0u);
-    ctx->context->PSSetShader(pixelShader.Get(), nullptr, 0u);
-
-    // ctx->context->OMSetRenderTargets(1u, ctx->renderTargetView.GetAddressOf(), nullptr);
-
-    ctx->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    D3D11_VIEWPORT vp;
-    vp.Width = 800;
-    vp.Height = 600;
-    vp.MinDepth = 0;
-    vp.MaxDepth = 1;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    ctx->context->RSSetViewports(1u, &vp);
-
-    D3D_TRY(ctx->context->DrawIndexed(indices.size(), 0u, 0u));
+    D3D_TRY(d3d->ctx->DrawIndexed(indices.size(), 0u, 0u));
 }
 
 #define USE_CONSOLE
@@ -167,14 +110,29 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
     int main()
 #endif
 {
-
-    Graphics* graphics;
+    // Graphics* graphics;
 
     try
     {
         Window wnd(800, 600, "WindowClass");
 
-        graphics = new Graphics(wnd.GetHandle());
+        // graphics = new Graphics(wnd.GetHandle());
+        d3d = new D3D();
+        d3d->Create(wnd.GetHandle());
+
+        D3D11_VIEWPORT vp;
+        vp.Width = 800;
+        vp.Height = 600;
+        vp.MinDepth = 0;
+        vp.MaxDepth = 1;
+        vp.TopLeftX = 0;
+        vp.TopLeftY = 0;
+        d3d->ctx->RSSetViewports(1u, &vp);
+
+        triangleVertexBuffer = new VertexBuffer(sizeof(Vertex) * vertices.size(), sizeof(Vertex), vertices.data());
+        triangleIndexBuffer = new IndexBuffer(sizeof(uint32_t) * indices.size(), sizeof(uint32_t), indices.data());
+        triangleConstBuffer = new ConstantBuffer(sizeof(dx::XMMATRIX));
+        triangleShader = new Shader(vertexShaderCode, pixelShaderCode);
 
         BOOL result;
         while (true)
@@ -192,20 +150,20 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
             }
 
             const static std::array<float, 4> clearColor{0.2f, 1.0f, 0.5f, 1.0f};
-            graphics->context->ClearRenderTargetView(graphics->renderTargetView.Get(), clearColor.data());
-            graphics->context->ClearDepthStencilView(graphics->depthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+            d3d->ctx->ClearRenderTargetView(d3d->renderTargetView.Get(), clearColor.data());
+            d3d->ctx->ClearDepthStencilView(d3d->depthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
             static float angle{0};
-            DrawTestTriangle(graphics, angle, 0);
-            DrawTestTriangle(graphics, 0, angle);
+            DrawTestTriangle(angle, 0);
+            DrawTestTriangle(0, angle);
             angle += 0.01f;
 
-            HRESULT hr = graphics->swapchain->Present(1u, 0u);
+            HRESULT hr = d3d->swapchain->Present(1u, 0u);
             if (FAILED(hr))
             {
                 if (hr == DXGI_ERROR_DEVICE_REMOVED)
                 {
-                    throw EXCEPTION_WHAT(std::to_string(graphics->device->GetDeviceRemovedReason()));
+                    throw EXCEPTION_WHAT(std::to_string(d3d->device->GetDeviceRemovedReason()));
                 }
                 else
                 {
@@ -213,6 +171,11 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
                 }
             }
         }
+
+        delete triangleShader;
+        delete triangleConstBuffer;
+        delete triangleIndexBuffer;
+        delete triangleVertexBuffer;
 
         if (result == -1)
         {
@@ -224,7 +187,9 @@ void DrawTestTriangle(Graphics* ctx, const float angleY, const float angleZ)
         MessageBox(nullptr, p_exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
 
-    delete graphics;
+    // delete graphics;
+    d3d->Shutdown();
+    delete d3d;
 
     return 0;
 }
