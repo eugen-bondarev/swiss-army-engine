@@ -1,13 +1,10 @@
-#include "window.h"
-#include "graphics.h"
-
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "d3d/win.h"
+#include "d3d/window.h"
 #include "d3d/buffer.h"
 #include "d3d/shader.h"
 
@@ -143,11 +140,11 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
 
     try
     {
-        Win win;
-        Win win1;
+        Window window1;
+        Window window2;
 
-        ctx1 = new D3D(glfwGetWin32Window(win.handle));
-        ctx2 = new D3D(glfwGetWin32Window(win1.handle));
+        ctx1 = new D3D(glfwGetWin32Window(window1.handle));
+        ctx2 = new D3D(glfwGetWin32Window(window2.handle));
 
         D3D11_VIEWPORT viewport;
         viewport.Width = 800;
@@ -171,7 +168,7 @@ void DrawTestTriangle2(const float angleY, const float angleZ)
         triangleConstBuffer1 = new ConstantBuffer(sizeof(dx::XMMATRIX));
         triangleShader1 = new Shader(vertexShaderCode, pixelShaderCode);
 
-        while (!glfwWindowShouldClose(win.handle) && !glfwWindowShouldClose(win1.handle))
+        while (!glfwWindowShouldClose(window1.handle) && !glfwWindowShouldClose(window2.handle))
         {
             glfwPollEvents();
             

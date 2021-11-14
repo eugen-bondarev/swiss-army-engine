@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../header.h"
+#include "common.h"
 
 #include <dxgidebug.h>
 

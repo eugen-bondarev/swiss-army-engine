@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <array>
 
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;

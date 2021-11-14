@@ -1,5 +1,7 @@
 #include "debugger.h"
 
+#include <memory>
+
 Debugger::Debugger()
 {   
 	// define function signature of DXGIGetDebugInterface
