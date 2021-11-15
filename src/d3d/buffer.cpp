@@ -1,5 +1,4 @@
 #include "buffer.h"
-#include "d3d_instance.h"
 
 Buffer::Buffer(const UINT byteWidth, const UINT stride, const void* data, const UINT bindFlags, const UINT cpuAccessFlags, D3D11_USAGE usage)
 {    
@@ -15,11 +14,11 @@ Buffer::Buffer(const UINT byteWidth, const UINT stride, const void* data, const 
     {
         D3D11_SUBRESOURCE_DATA bufferSubData{};
         bufferSubData.pSysMem = data;
-        D3D_CHECK(Device()->CreateBuffer(&bufferDesc, &bufferSubData, &dxBuffer));
+        D3D_TRY(Device()->CreateBuffer(&bufferDesc, &bufferSubData, &dxBuffer));
     }
     else
     {
-        D3D_CHECK(Device()->CreateBuffer(&bufferDesc, nullptr, &dxBuffer));
+        D3D_TRY(Device()->CreateBuffer(&bufferDesc, nullptr, &dxBuffer));
     }
 }
 

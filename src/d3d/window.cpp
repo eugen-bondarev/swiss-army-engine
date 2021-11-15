@@ -1,5 +1,5 @@
 #include "window.h"
-#include "d3d_instance.h"
+#include "dx_instance.h"
 
 static size_t numWindows{0};
 

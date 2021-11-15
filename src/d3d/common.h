@@ -21,10 +21,20 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
     std::runtime_error(std::string(__FILE__) + "\n\nLine: " + std::to_string(__LINE__) + "\n\n" + x)
 
 #ifndef NDEBUG
-#define D3D_CHECK(hr)\
+#   define D3D_TRY(exp)\
+        Debugger()->Start();\
+        exp;\
+        Debugger()->End(__FILE__, __LINE__)
+#else
+#   define D3D_TRY(exp)\
+        exp
+#endif
+
+#ifndef NDEBUG
+#define __D3D_TRY(hr)\
     if (FAILED(hr)) { throw EXCEPTION_WHAT(#hr); }(void(0))
 #else
-#define D3D_CHECK(hr)\
+#define __D3D_TRY(hr)\
     hr
 #endif
 

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "dx_instance.h"
 
 class Buffer
 {

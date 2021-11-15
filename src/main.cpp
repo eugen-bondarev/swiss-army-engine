@@ -77,14 +77,14 @@ void DrawTestTriangle1(const float angleY, const float angleZ)
 int main()
 {
     Window* window{nullptr};
-    D3DInstance* d3d{nullptr};
+    D3D11Instance* d3d{nullptr};
 
     try
     {
         window = new Window();
 
-        d3d = new D3DInstance(glfwGetWin32Window(window->handle));
-        D3DInstance::SetViewport(0, 0, 800, 600);
+        d3d = new D3D11Instance(glfwGetWin32Window(window->handle));
+        D3D11Instance::SetViewport(0, 0, 800, 600);
 
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/vertex-shader.hlsl");
         const Util::TextAsset pixelShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/pixel-shader.hlsl");

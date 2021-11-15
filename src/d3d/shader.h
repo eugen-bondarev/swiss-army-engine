@@ -3,79 +3,23 @@
 
 #pragma once
 
-#include "common.h"
-// #include "../graphics.h"
-#include "d3d_instance.h"
+#include "dx_instance.h"
 
 class Shader
 {
 public:
-    Shader(const std::string& vertexShaderCode, const std::string& pixelShaderCode)
-    {        
-        ComPtr<ID3D10Blob> vsBlob;
-        ComPtr<ID3D10Blob> psBlob;
-        ComPtr<ID3D10Blob> errorBlob;
+    Shader(const std::string& VSCode, const std::string& PSCode);
+   ~Shader() = default;
+   
+    void Bind();
 
-        HRESULT hr;
+private:
+    ComPtr<ID3D11InputLayout>   DXInputLayout;
+    ComPtr<ID3D11VertexShader>  DXVertexShader;
+    ComPtr<ID3D11PixelShader>   DXPixelShader;
 
-        hr = D3DCompile(
-            std::string(vertexShaderCode).c_str(),
-            std::string(vertexShaderCode).length(),
-            nullptr,
-            nullptr,
-            nullptr,
-            "main", "vs_5_0",
-            D3DCOMPILE_ENABLE_STRICTNESS, 0,
-            vsBlob.GetAddressOf(),
-            errorBlob.GetAddressOf()
-        );
-        
-        if (FAILED(hr) && errorBlob.GetAddressOf())
-        {
-            throw std::runtime_error(std::string(static_cast<char*>(errorBlob->GetBufferPointer())));
-        }
-        
-        hr = D3DCompile(
-            std::string(pixelShaderCode).c_str(),
-            std::string(pixelShaderCode).length(),
-            nullptr,
-            nullptr,
-            nullptr,
-            "main", "ps_5_0",
-            D3DCOMPILE_ENABLE_STRICTNESS, 0,
-            psBlob.GetAddressOf(),
-            errorBlob.GetAddressOf()
-        );
-        
-        if (FAILED(hr) && errorBlob.GetAddressOf())
-        {
-            throw std::runtime_error(std::string(static_cast<char*>(errorBlob->GetBufferPointer())));
-        }
-
-        std::vector<D3D11_INPUT_ELEMENT_DESC> ied = 
-        {
-            { "Position",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,   D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TexCoords", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-        };
-
-        D3D_TRY(Device()->CreateInputLayout(
-            ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout
-        ));
-
-        D3D_CHECK(Device()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader));
-        D3D_CHECK(Device()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader));
-    }
-
-    void Bind()
-    {        
-        Ctx()->IASetInputLayout(inputLayout.Get());
-        Ctx()->VSSetShader(vertexShader.Get(), nullptr, 0u);
-        Ctx()->PSSetShader(pixelShader.Get(), nullptr, 0u);
-    }
-
-    ComPtr<ID3D11InputLayout> inputLayout;
-    ComPtr<ID3D11VertexShader> vertexShader;
-    ComPtr<ID3D11PixelShader> pixelShader;
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
 };
 
 #endif
