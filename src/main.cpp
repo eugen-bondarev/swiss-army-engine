@@ -4,6 +4,10 @@
 
 #include "util/assets.h"
 
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_glfw.h>
+
 struct Vertex
 {
     struct
@@ -72,6 +76,21 @@ int main()
         window = CreatePtr<Window>();
         dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->handle));
 
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
+        ImGui_ImplGlfw_InitForOther(window->handle, true);
+
         DX::Instance::SetViewport(0u, 0u, 800u, 600u);
 
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
@@ -88,6 +107,11 @@ int main()
         while (window->IsRunning())
         {
             glfwPollEvents();
+
+            // Start the Dear ImGui frame
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
             
             static float theta   {0};
             static bool  dir     {true};
@@ -103,13 +127,27 @@ int main()
             DX::GetContext()->ClearRenderTargetView(DX::GetRenderTargetView(), clearColor.data());
             DX::GetContext()->ClearDepthStencilView(DX::GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
             RenderMesh(theta, theta);
-            window->Present();
+            
+            ImGui::ShowDemoWindow();
+
+            ID3D11RenderTargetView* g_mainRenderTargetView = DX::GetRenderTargetView();
+            ID3D11DeviceContext* g_pd3dDeviceContext = DX::GetContext();
+                
+            ImGui::Render();
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+            window->Present(1, 0);
         }
     }
     catch (const std::runtime_error& Exception)
     {
         MessageBox(nullptr, Exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
+
+    // Cleanup
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

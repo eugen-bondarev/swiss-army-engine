@@ -4,7 +4,7 @@ project(direct3d VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE VAR_SRC src/*.cpp)
+file(GLOB_RECURSE VAR_SRC src/*.cpp external/imgui/*.cpp)
 
 add_executable(
     ${PROJECT_NAME} 
@@ -34,5 +34,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
     "external/glfw/include"
     "external/stb_image"
+    "external/imgui"
     # "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include"
 )
