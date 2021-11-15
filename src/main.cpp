@@ -1,9 +1,6 @@
 #include "window/window.h"
-#include "dx/buffer.h"
-#include "dx/shader.h"
-#include "dx/texture.h"
-#include "dx/sampler.h"
-#include "dx/math.h"
+
+#include "dx/dx.h"
 
 #include "util/assets.h"
 
@@ -20,7 +17,7 @@ struct Vertex
     } texCoords;
 };
 
-std::vector<Vertex> cubeVertices = 
+static std::vector<Vertex> quadVertices = 
 {
     { { -1,  1, 0 }, { 0, 0 } },
     { {  1,  1, 0 }, { 1, 0 } },
@@ -28,17 +25,17 @@ std::vector<Vertex> cubeVertices =
     { { -1, -1, 0 }, { 0, 1 } }
 };
 
-std::vector<uint32_t> cubeIndices = 
+static std::vector<uint32_t> quadIndices = 
 {
     0, 1, 2,  0, 2, 3
 };
 
-DX::VertexBuffer*   meshVertexBuffer{nullptr};
-DX::IndexBuffer*    meshIndexBuffer{nullptr};
-DX::ConstantBuffer* constantBuffer{nullptr};
-DX::Shader*         shader{nullptr};
-DX::Sampler*        sampler{nullptr};
-DX::Texture*        texture{nullptr};
+static Ptr<DX::VertexBuffer>   meshVertexBuffer{nullptr};
+static Ptr<DX::IndexBuffer>    meshIndexBuffer{nullptr};
+static Ptr<DX::ConstantBuffer> constantBuffer{nullptr};
+static Ptr<DX::Shader>         shader{nullptr};
+static Ptr<DX::Sampler>        sampler{nullptr};
+static Ptr<DX::Texture>        texture{nullptr};
 
 void RenderMesh(const float AngleX, const float AngleY)
 {
@@ -56,24 +53,24 @@ void RenderMesh(const float AngleX, const float AngleY)
         DX::XMMatrixTranslation(0, 0, 3) * 
         DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
-    DX::XMMATRIX* data = (DX::XMMATRIX*) constantBuffer->Map();
+    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
     *data = DX::XMMatrixTranspose(transform);
     constantBuffer->Unmap();
 
     DX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    D3D_TRY(DX::GetContext()->DrawIndexed(cubeIndices.size(), 0u, 0u));
+    D3D_TRY(DX::GetContext()->DrawIndexed(quadIndices.size(), 0u, 0u));
 }
 
 int main()
 {
-    Window* window{nullptr};
-    DX::Instance* dxInstance{nullptr};
+    Ptr<Window> window;
+    Ptr<DX::Instance> dxInstance;
 
     try
     {
-        window = new Window();
-        dxInstance = new DX::Instance(glfwGetWin32Window(window->handle));
+        window = CreatePtr<Window>();
+        dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->handle));
 
         DX::Instance::SetViewport(0u, 0u, 800u, 600u);
 
@@ -81,12 +78,12 @@ int main()
         const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/pixel-shader.hlsl");
         const Util::ImageAsset diana = Util::LoadImageFile(PROJECT_ROOT_DIR "/assets/images/diana.png");
 
-        meshVertexBuffer = new DX::VertexBuffer(sizeof(Vertex) * cubeVertices.size(), sizeof(Vertex), cubeVertices.data());
-        meshIndexBuffer = new DX::IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
-        constantBuffer = new DX::ConstantBuffer(sizeof(DX::XMMATRIX));
-        shader = new DX::Shader(vertexShaderCode, pixelShaderCode);
-        sampler = new DX::Sampler();
-        texture = new DX::Texture(diana.Width, diana.Height, diana.Data);
+        meshVertexBuffer = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * quadVertices.size(), sizeof(Vertex), quadVertices.data());
+        meshIndexBuffer = CreatePtr<DX::IndexBuffer>(sizeof(uint32_t) * quadIndices.size(), sizeof(uint32_t), quadIndices.data());
+        constantBuffer = CreatePtr<DX::ConstantBuffer>(sizeof(DX::XMMATRIX));
+        shader = CreatePtr<DX::Shader>(vertexShaderCode, pixelShaderCode);
+        sampler = CreatePtr<DX::Sampler>();
+        texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
 
         while (window->IsRunning())
         {
@@ -113,16 +110,6 @@ int main()
     {
         MessageBox(nullptr, Exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
-
-    delete shader;
-    delete constantBuffer;
-    delete meshIndexBuffer;
-    delete meshVertexBuffer;
-    delete sampler;
-    delete texture;
-
-    delete dxInstance;
-    delete window;
 
     return 0;
 }
