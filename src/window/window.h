@@ -1,5 +1,5 @@
-#ifndef __D3D_WINDOW_H__
-#define __D3D_WINDOW_H__
+#ifndef __DX_WINDOW_H__
+#define __DX_WINDOW_H__
 
 #pragma once
 
@@ -16,7 +16,7 @@ public:
    ~Window();
 
     bool IsRunning() const;
-    void Present(const UINT syncInterval = 1u, const UINT flags = 0u);
+    void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
 
     Handle_t handle;
 private:

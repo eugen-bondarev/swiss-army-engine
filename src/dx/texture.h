@@ -1,9 +1,11 @@
-#ifndef __D3D_TEXTURE_H__
-#define __D3D_TEXTURE_H__
+#ifndef __DX_TEXTURE_H__
+#define __DX_TEXTURE_H__
 
 #pragma once
 
-#include "dx_instance.h"
+#include "instance.h"
+
+namespace DX {
 
 class Texture
 {
@@ -19,5 +21,7 @@ private:
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
 };
+
+}
 
 #endif

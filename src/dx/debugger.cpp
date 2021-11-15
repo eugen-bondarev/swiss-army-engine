@@ -1,8 +1,8 @@
-#include "dx_debugger.h"
+#include "debugger.h"
 
-#include <memory>
+namespace DX {
 
-ID3D11Debugger::ID3D11Debugger()
+Debugger::Debugger()
 {   
 	// define function signature of DXGIGetDebugInterface
 	typedef HRESULT (WINAPI* DXGIGetDebugInterface)(REFIID,void **);
@@ -24,15 +24,15 @@ ID3D11Debugger::ID3D11Debugger()
         throw EXCEPTION();
 	}
 
-	__D3D_TRY(DxgiGetDebugInterface(__uuidof(IDXGIInfoQueue), &DXInfoQueue));
+	__DX_TRY(DxgiGetDebugInterface(__uuidof(IDXGIInfoQueue), &DXInfoQueue));
 }
 
-void ID3D11Debugger::Start()
+void Debugger::Start()
 {
 	Next = DXInfoQueue->GetNumStoredMessages(DXGI_DEBUG_ALL);
 }
 
-void ID3D11Debugger::End(const std::string& File, const unsigned int Line)
+void Debugger::End(const std::string& File, const unsigned int Line)
 {
 	const auto end = DXInfoQueue->GetNumStoredMessages(DXGI_DEBUG_ALL);
 
@@ -54,4 +54,6 @@ void ID3D11Debugger::End(const std::string& File, const unsigned int Line)
     {
         throw std::runtime_error(File + ", " + std::to_string(Line) + "\n\n" + Messages[i]);
     }
+}
+
 }

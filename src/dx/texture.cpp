@@ -1,5 +1,7 @@
 #include "texture.h"
 
+namespace DX {
+
 Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data)
 {
     D3D11_TEXTURE2D_DESC textureDesc{};
@@ -20,7 +22,7 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     textureSubData.SysMemPitch = Width * sizeof(unsigned char) * 4;
 
     ComPtr<ID3D11Texture2D> texture;
-    D3D_TRY(Device()->CreateTexture2D(&textureDesc, &textureSubData, &texture));
+    D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &texture));
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format = textureDesc.Format;
@@ -28,10 +30,12 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.Texture2D.MipLevels = 1;
 
-    D3D_TRY(Device()->CreateShaderResourceView(texture.Get(), &srvDesc, &DXView));
+    D3D_TRY(GetDevice()->CreateShaderResourceView(texture.Get(), &srvDesc, &DXView));
 }
 
 void Texture::Bind()
 {
-    Ctx()->PSSetShaderResources(0u, 1u, DXView.GetAddressOf());
+    GetContext()->PSSetShaderResources(0u, 1u, DXView.GetAddressOf());
+}
+
 }

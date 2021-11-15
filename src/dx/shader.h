@@ -1,9 +1,11 @@
-#ifndef __D3D_SHADER_H__
-#define __D3D_SHADER_H__
+#ifndef __DX_SHADER_H__
+#define __DX_SHADER_H__
 
 #pragma once
 
-#include "dx_instance.h"
+#include "instance.h"
+
+namespace DX {
 
 class Shader
 {
@@ -21,5 +23,7 @@ private:
     Shader(const Shader&) = delete;
     Shader& operator=(const Shader&) = delete;
 };
+
+}
 
 #endif

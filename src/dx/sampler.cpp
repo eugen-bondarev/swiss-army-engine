@@ -1,5 +1,7 @@
 #include "sampler.h"
 
+namespace DX {
+
 Sampler::Sampler()
 {
     D3D11_SAMPLER_DESC samplerDesc{};
@@ -8,10 +10,12 @@ Sampler::Sampler()
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
-    D3D_TRY(Device()->CreateSamplerState(&samplerDesc, &DXSampler));
+    D3D_TRY(GetDevice()->CreateSamplerState(&samplerDesc, &DXSampler));
 }
 
 void Sampler::Bind()
 {
-    Ctx()->PSSetSamplers(0u, 1u, DXSampler.GetAddressOf());
+    GetContext()->PSSetSamplers(0u, 1u, DXSampler.GetAddressOf());
+}
+
 }

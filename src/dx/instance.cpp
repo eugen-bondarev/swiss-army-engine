@@ -1,11 +1,11 @@
-#include "dx_instance.h"
+#include "instance.h"
 
-#include <map>
+namespace DX {
 
-static std::map<HWND, D3D11Instance*> windows;
-static D3D11Instance* currentCtx{nullptr};
+static std::map<HWND, Instance*>   Instances;
+static Instance*                   CurrentInstance{nullptr};
 
-D3D11Instance::D3D11Instance(HWND handle)
+Instance::Instance(HWND Handle)
 {
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferDesc.Width = 0;
@@ -19,7 +19,7 @@ D3D11Instance::D3D11Instance(HWND handle)
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.BufferCount = 1;
-    swapChainDesc.OutputWindow = handle;
+    swapChainDesc.OutputWindow = Handle;
     swapChainDesc.Windowed = TRUE;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapChainDesc.Flags = 0;
@@ -31,7 +31,7 @@ D3D11Instance::D3D11Instance(HWND handle)
         0;
 #endif
 
-    __D3D_TRY(D3D11CreateDeviceAndSwapChain(
+    __DX_TRY(D3D11CreateDeviceAndSwapChain(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
         nullptr,
@@ -47,11 +47,11 @@ D3D11Instance::D3D11Instance(HWND handle)
     ));
 
 #ifndef NDEBUG
-    DXDebugger = new ID3D11Debugger();
+    DXDebugger = std::make_unique<Debugger>();
 #endif
 
-    windows[handle] = this;
-    currentCtx = this;
+    Instances[Handle] = this;
+    CurrentInstance = this;
 
     ComPtr<ID3D11Resource> backBuffer{nullptr};
     D3D_TRY(DXSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
@@ -88,8 +88,7 @@ D3D11Instance::D3D11Instance(HWND handle)
     DXContext->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), DXDepthView.Get());
 }
 
-
-void D3D11Instance::SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height)
+void Instance::SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height)
 {
     D3D11_VIEWPORT viewport;
     viewport.Width = Width;
@@ -98,54 +97,49 @@ void D3D11Instance::SetViewport(const UINT X, const UINT Y, const UINT Width, co
     viewport.MaxDepth = 1;
     viewport.TopLeftX = X;
     viewport.TopLeftY = Y;
-    Ctx()->RSSetViewports(1u, &viewport);
+    GetContext()->RSSetViewports(1u, &viewport);
 }
 
-void MakeContextCurrent(D3D11Instance* newCtx)
+void MakeInstanceCurrent(Instance* NewContext)
 {
-    currentCtx = newCtx;
+    CurrentInstance = NewContext;
 }
 
-D3D11Instance* GetContext(HWND handle)
+Instance* GetInstance(HWND Handle)
 {
-    return windows[handle];
+    return Instances[Handle];
 }
 
 #ifndef NDEBUG
-ID3D11Debugger* Debugger()
+Debugger* GetDebugger()
 {
-    return currentCtx->DXDebugger;
+    return CurrentInstance->DXDebugger.get();
 }
 #endif
 
-ID3D11Device* Device()
+ID3D11Device* GetDevice()
 {
-    return currentCtx->DXDevice.Get();
+    return CurrentInstance->DXDevice.Get();
 }
 
-ID3D11DeviceContext* Ctx()
+ID3D11DeviceContext* GetContext()
 {
-    return currentCtx->DXContext.Get();
+    return CurrentInstance->DXContext.Get();
 }
 
-IDXGISwapChain* Swapchain()
+IDXGISwapChain* GetSwapChain()
 {
-    return currentCtx->DXSwapChain.Get();
+    return CurrentInstance->DXSwapChain.Get();
 }
 
-ID3D11RenderTargetView* RenderTargetView()
+ID3D11RenderTargetView* GetRenderTargetView()
 {
-    return currentCtx->DXRenderTargetView.Get();
+    return CurrentInstance->DXRenderTargetView.Get();
 }
 
-ID3D11DepthStencilView* DepthStencilView()
+ID3D11DepthStencilView* GetDepthStencilView()
 {
-    return currentCtx->DXDepthView.Get();
+    return CurrentInstance->DXDepthView.Get();
 }
 
-D3D11Instance::~D3D11Instance()
-{
-#ifndef NDEBUG
-    delete DXDebugger;
-#endif
 }

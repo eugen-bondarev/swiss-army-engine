@@ -1,9 +1,11 @@
-#ifndef __D3D_SAMPLER_H__
-#define __D3D_SAMPLER_H__
+#ifndef __DX_SAMPLER_H__
+#define __DX_SAMPLER_H__
 
 #pragma once
 
-#include "dx_instance.h"
+#include "instance.h"
+
+namespace DX {
 
 class Sampler
 {
@@ -19,5 +21,7 @@ private:
     Sampler(const Sampler&) = delete;
     Sampler& operator=(const Sampler&) = delete;
 };
+
+}
 
 #endif

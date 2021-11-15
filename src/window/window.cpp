@@ -1,7 +1,7 @@
 #include "window.h"
-#include "dx_instance.h"
+#include "../dx/instance.h"
 
-static size_t numWindows{0};
+static size_t NumWindows{0};
 
 Window::Window()
 {
@@ -11,16 +11,16 @@ Window::Window()
 
     handle = glfwCreateWindow(800, 600, "Hello, world!", nullptr, nullptr);
 
-    numWindows++;
+    NumWindows++;
 }
 
 Window::~Window()
 {
-    numWindows--;
+    NumWindows--;
 
     glfwDestroyWindow(handle);
 
-    if (numWindows == 0)
+    if (NumWindows == 0)
     {
         glfwTerminate();
     }
@@ -31,15 +31,15 @@ bool Window::IsRunning() const
     return !glfwWindowShouldClose(handle);
 }
 
-void Window::Present(const UINT syncInterval, const UINT flags)
+void Window::Present(const UINT SyncInterval, const UINT Flags)
 {            
-    HRESULT hr = Swapchain()->Present(syncInterval, flags);   
+    HRESULT hr = DX::GetSwapChain()->Present(SyncInterval, Flags);   
 
     if (FAILED(hr))
     {
         if (hr == DXGI_ERROR_DEVICE_REMOVED)
         {
-            throw EXCEPTION_WHAT(std::to_string(Device()->GetDeviceRemovedReason()));
+            throw EXCEPTION_WHAT(std::to_string(DX::GetDevice()->GetDeviceRemovedReason()));
         }
         else
         {
