@@ -15,27 +15,28 @@ add_executable(
 add_compile_definitions(PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
 
 link_directories(
-    "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Lib/x64"
+    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64"
 )
 
 add_subdirectory(external/glfw)
+add_subdirectory(external/assimp)
 
 target_link_libraries(${PROJECT_NAME} 
-    d3d11
     dxgi
-    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/d3d11.lib"
-    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/d3d10.lib"
-    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/d3dcompiler.lib"
-    "C:/Users/azare/Downloads/assimp-5.1.0/assimp-5.1.0/build/lib/Debug/assimp_d.lib"
+    d3d10
+    d3d11
     dxguid
+    d3dcompiler
+
+    assimp
     glfw
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
+    
     "external/glfw/include"
-    "C:/Users/azare/Downloads/assimp-5.1.0/assimp-5.1.0/include"
+    "external/assimp/include"
     "external/stb_image"
     "external/imgui"
-    # "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include"
 )
