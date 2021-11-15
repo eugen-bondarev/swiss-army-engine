@@ -73,13 +73,13 @@ int main()
     try
     {
         window = new Window();
-
         dxInstance = new DX::Instance(glfwGetWin32Window(window->handle));
+
         DX::Instance::SetViewport(0u, 0u, 800u, 600u);
 
-        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/assets/shaders/vertex-shader.hlsl");
-        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/assets/shaders/pixel-shader.hlsl");
-        const Util::ImageAsset diana = Util::LoadImageFile("C:/Users/azare/Documents/Dev/Cpp/direct3d/assets/images/diana.png");
+        const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
+        const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/pixel-shader.hlsl");
+        const Util::ImageAsset diana = Util::LoadImageFile(PROJECT_ROOT_DIR "/assets/images/diana.png");
 
         meshVertexBuffer = new DX::VertexBuffer(sizeof(Vertex) * cubeVertices.size(), sizeof(Vertex), cubeVertices.data());
         meshIndexBuffer = new DX::IndexBuffer(sizeof(uint32_t) * cubeIndices.size(), sizeof(uint32_t), cubeIndices.data());
@@ -105,7 +105,7 @@ int main()
 
             DX::GetContext()->ClearRenderTargetView(DX::GetRenderTargetView(), clearColor.data());
             DX::GetContext()->ClearDepthStencilView(DX::GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-            RenderMesh(theta, 0);
+            RenderMesh(theta, theta);
             window->Present();
         }
     }

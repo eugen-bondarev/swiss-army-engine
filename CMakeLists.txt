@@ -12,6 +12,8 @@ add_executable(
     ${VAR_SRC}
 )
 
+add_compile_definitions(PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
+
 link_directories(
     "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Lib/x64"
 )
