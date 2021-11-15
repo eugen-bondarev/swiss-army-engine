@@ -33,7 +33,7 @@ void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIn
         DX::XMMatrixRotationY(AngleY + M_PI) * 
         DX::XMMatrixRotationZ(0) * 
         DX::XMMatrixTranslation(0, -5, 10) * 
-        DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+        DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
 
     DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
     *data = DX::XMMatrixTranspose(transform);
@@ -51,7 +51,7 @@ int main()
 
     try
     {
-        window = CreatePtr<Window>();
+        window = CreatePtr<Window>(1920u, 1080u, WindowMode::Windowed);
         dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->handle));
 
         // Setup Dear ImGui context
@@ -69,7 +69,7 @@ int main()
         ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
         ImGui_ImplGlfw_InitForOther(window->handle, true);
 
-        DX::Instance::SetViewport(0u, 0u, 1024u, 768u);
+        DX::Instance::SetViewport(0u, 0u, 1920u, 1080u);
 
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
         const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/pixel-shader.hlsl");

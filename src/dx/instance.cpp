@@ -68,8 +68,8 @@ Instance::Instance(HWND Handle)
 
     ComPtr<ID3D11Texture2D> depthTexture;
     D3D11_TEXTURE2D_DESC depthTextureDesc{};
-    depthTextureDesc.Width = 1024u;
-    depthTextureDesc.Height = 768u;
+    depthTextureDesc.Width = 1920u;
+    depthTextureDesc.Height = 1080u;
     depthTextureDesc.MipLevels = 1u;
     depthTextureDesc.ArraySize = 1u;
     depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;

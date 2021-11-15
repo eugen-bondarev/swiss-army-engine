@@ -3,13 +3,38 @@
 
 static size_t NumWindows{0};
 
-Window::Window()
+Window::Window(const unsigned int Width, const unsigned int Height, const WindowMode Mode, const std::string& Title)
 {
     glfwInit();
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    handle = glfwCreateWindow(1024, 768, "Hello, world!", nullptr, nullptr);
+    switch (Mode)
+    {
+        case WindowMode::Windowed:
+        {
+            handle = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
+            glfwMaximizeWindow(handle);
+            break;
+        }
+
+        case WindowMode::Fullscreen:
+        {
+            handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            break;
+        }
+
+        case WindowMode::Borderless:
+        {
+            const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            glfwWindowHint(GLFW_RED_BITS, videoMode->redBits);
+            glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
+            glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
+            glfwWindowHint(GLFW_REFRESH_RATE, videoMode->refreshRate);
+            handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            break;
+        }
+    }
 
     NumWindows++;
 }
