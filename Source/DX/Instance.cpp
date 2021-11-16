@@ -26,6 +26,8 @@ Instance::Instance(HWND Handle)
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapChainDesc.Flags = 0;
 
+    DXSwapChain = CreatePtr<SwapChain>();
+
     const UINT flags = 
 #ifndef NDEBUG
         D3D11_CREATE_DEVICE_DEBUG;
@@ -42,7 +44,7 @@ Instance::Instance(HWND Handle)
         0,
         D3D11_SDK_VERSION,
         &swapChainDesc,
-        &DXSwapChain,
+        &DXSwapChain->DXSwapChain,
         &DXDevice,
         nullptr,
         &DXContext
@@ -56,7 +58,7 @@ Instance::Instance(HWND Handle)
     CurrentInstance = this;
 
     ComPtr<ID3D11Resource> backBuffer{nullptr};
-    D3D_TRY(DXSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
+    D3D_TRY(GetSwapChain()->DXSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
 
     DXRenderTargetView = CreatePtr<RenderTargetView>(backBuffer.Get(), false);
 
@@ -110,9 +112,9 @@ ID3D11DeviceContext* GetContext()
     return CurrentInstance->DXContext.Get();
 }
 
-IDXGISwapChain* GetSwapChain()
+SwapChain* GetSwapChain()
 {
-    return CurrentInstance->DXSwapChain.Get();
+    return CurrentInstance->DXSwapChain.get();
 }
 
 RenderTargetView* GetRenderTargetView()

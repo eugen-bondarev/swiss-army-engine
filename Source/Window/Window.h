@@ -19,16 +19,15 @@ enum class WindowMode
 class Window
 {
 public:
-    using Handle_t = GLFWwindow*;
-
     Window(const unsigned int Width = 1920u, const unsigned int Height = 1080u, const WindowMode Mode = WindowMode::Windowed, const std::string& Title = "Window");
    ~Window();
 
     bool IsRunning() const;
-    void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
 
-    Handle_t handle;
+    GLFWwindow* GetHandle();
+
 private:
+    GLFWwindow* Handle;
 
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;

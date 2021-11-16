@@ -13,14 +13,14 @@ Window::Window(const unsigned int Width, const unsigned int Height, const Window
     {
         case WindowMode::Windowed:
         {
-            handle = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
-            glfwMaximizeWindow(handle);
+            Handle = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
+            glfwMaximizeWindow(Handle);
             break;
         }
 
         case WindowMode::Fullscreen:
         {
-            handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            Handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
 
@@ -31,7 +31,7 @@ Window::Window(const unsigned int Width, const unsigned int Height, const Window
             glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, videoMode->refreshRate);
-            handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            Handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
     }
@@ -43,7 +43,7 @@ Window::~Window()
 {
     NumWindows--;
 
-    glfwDestroyWindow(handle);
+    glfwDestroyWindow(Handle);
 
     if (NumWindows == 0)
     {
@@ -53,22 +53,10 @@ Window::~Window()
 
 bool Window::IsRunning() const
 {
-    return !glfwWindowShouldClose(handle);
+    return !glfwWindowShouldClose(Handle);
 }
 
-void Window::Present(const UINT SyncInterval, const UINT Flags)
-{            
-    HRESULT hr = DX::GetSwapChain()->Present(SyncInterval, Flags);   
-
-    if (FAILED(hr))
-    {
-        if (hr == DXGI_ERROR_DEVICE_REMOVED)
-        {
-            throw EXCEPTION_WHAT(std::to_string(DX::GetDevice()->GetDeviceRemovedReason()));
-        }
-        else
-        {
-            throw EXCEPTION();
-        }
-    }
+GLFWwindow* Window::GetHandle()
+{
+    return Handle;
 }

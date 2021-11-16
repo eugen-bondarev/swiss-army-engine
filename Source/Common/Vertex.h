@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../common.h"
+#include "../Common.h"
 
 struct Vertex
 {

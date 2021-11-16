@@ -4,7 +4,7 @@
 #pragma once
 
 #include <DirectXMath.h>
-#include "../common_math.h"
+#include "../CommonMath.h"
 
 namespace DX {
 

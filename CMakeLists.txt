@@ -4,7 +4,7 @@ project(direct3d VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE VAR_SRC src/*.cpp external/imgui/*.cpp)
+file(GLOB_RECURSE VAR_SRC Source/*.cpp external/imgui/*.cpp)
 
 add_executable(
     ${PROJECT_NAME} 

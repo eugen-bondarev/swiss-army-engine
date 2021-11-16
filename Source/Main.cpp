@@ -1,9 +1,7 @@
-#include "window/window.h"
-
-#include "dx/dx.h"
-
-#include "common/vertex.h"
-#include "util/assets.h"
+#include "Window/Window.h"
+#include "Common/Vertex.h"
+#include "Util/Assets.h"
+#include "DX/DX.h"
 
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
@@ -44,6 +42,37 @@ void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIn
     D3D_TRY(DX::GetContext()->DrawIndexed(NumIndices, 0u, 0u));
 }
 
+static void InitImGui(GLFWwindow* Handle)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
+    ImGui_ImplGlfw_InitForOther(Handle, true);
+}
+
+static void ShutdownImGui()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+static void BeginImGuiFrame()
+{
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+static void EndImGuiFrame()
+{
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
 int main()
 {
     Ptr<Window> window;
@@ -52,22 +81,9 @@ int main()
     try
     {
         window = CreatePtr<Window>(1920u, 1080u, WindowMode::Windowed);
-        dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->handle));
+        dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->GetHandle()));
 
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        //ImGui::StyleColorsClassic();
-
-        // Setup Platform/Renderer backends
-        ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
-        ImGui_ImplGlfw_InitForOther(window->handle, true);
+        InitImGui(window->GetHandle());
 
         DX::Instance::SetViewport(0u, 0u, 1920u, 1080u);
 
@@ -83,54 +99,48 @@ int main()
         sampler = CreatePtr<DX::Sampler>();
         texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
 
-        Ptr<DX::RenderTargetView> renderTarget = CreatePtr<DX::RenderTargetView>(nullptr, true);
+        Ptr<DX::RenderTargetView> offscreenPass = CreatePtr<DX::RenderTargetView>(nullptr, true);
 
         while (window->IsRunning())
         {
             glfwPollEvents();
-
-            // Start the Dear ImGui frame
-            ImGui_ImplDX11_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
             
             static float theta   {0};
-            static bool  dir     {true};
-            static float rotSpeed{0.05f};
 
-            theta += rotSpeed * (static_cast<int>(dir) - 0.5f) * 2.0f;
+            {
+                static bool  dir     {true};
+                static float rotSpeed{0.05f};
 
-            if (theta >=  M_PI_2) dir = !dir;
-            if (theta <= -M_PI_2) dir = !dir;
+                theta += rotSpeed * (static_cast<int>(dir) - 0.5f) * 2.0f;
 
-            const static std::array<float, 4> clearColor{0.2f, 1.0f, 0.5f, 1.0f};
+                if (theta >=  M_PI_2) dir = !dir;
+                if (theta <= -M_PI_2) dir = !dir;
+            }
 
-            renderTarget->Bind();
-            renderTarget->Clear(clearColor);
+            offscreenPass->Bind();
+            offscreenPass->Clear({0.2f, 1.0f, 0.5f, 1.0f});
             RenderMesh(theta, theta, characterMesh.Indices.size());
+            
+            BeginImGuiFrame();
+
+            ImGui::Begin("Render target");
+                ImGui::Image(offscreenPass->GetTexture()->GetDXView(), ImVec2(800, 450));
+            ImGui::End();
             
             DX::GetRenderTargetView()->Bind();
             DX::GetRenderTargetView()->Clear();
-            
-            ImGui::Begin("Render target");
-                ImGui::Image(renderTarget->GetTexture()->GetDXView(), ImVec2(800, 600));
-            ImGui::End();
 
-            ImGui::Render();
-            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            EndImGuiFrame();
 
-            window->Present(1, 0);
+            DX::GetSwapChain()->Present();
         }
+
+        ShutdownImGui();
     }
     catch (const std::runtime_error& Exception)
     {
         MessageBox(nullptr, Exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
-
-    // Cleanup
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 
     return 0;
 }

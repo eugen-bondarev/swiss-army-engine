@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "SwapChain.h"
 #include "Debugger.h"
 #include "Common.h"
 
@@ -13,7 +14,7 @@ class RenderTargetView;
 Debugger*                           GetDebugger();
 ID3D11Device*                       GetDevice();
 ID3D11DeviceContext*                GetContext();
-IDXGISwapChain*                     GetSwapChain();
+SwapChain*                          GetSwapChain();
 RenderTargetView*                   GetRenderTargetView();
 
 class Instance final
@@ -24,7 +25,7 @@ friend class Window;
 friend Debugger*                    GetDebugger();
 friend ID3D11Device*                GetDevice();
 friend ID3D11DeviceContext*         GetContext();
-friend IDXGISwapChain*              GetSwapChain();
+friend SwapChain*                   GetSwapChain();
 friend RenderTargetView*            GetRenderTargetView();
 
 public:
@@ -36,7 +37,7 @@ public:
 private:
     ComPtr<ID3D11Device>            DXDevice;
     ComPtr<ID3D11DeviceContext>     DXContext;
-    ComPtr<IDXGISwapChain>          DXSwapChain;
+    Ptr<SwapChain>                  DXSwapChain;
     Ptr<RenderTargetView>           DXRenderTargetView;
 
     #ifndef NDEBUG
