@@ -12,4 +12,6 @@
 #include "common.h"
 #include "math.h"
 
+#include "RenderTargetView.h"
+
 #endif

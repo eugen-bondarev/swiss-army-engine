@@ -2,7 +2,7 @@
 
 namespace DX {
 
-Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data)
+Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data, bool RenderTarget)
 {
     D3D11_TEXTURE2D_DESC textureDesc{};
     textureDesc.Width = Width;
@@ -13,16 +13,23 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     textureDesc.SampleDesc.Count = 1;
     textureDesc.SampleDesc.Quality = 0;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    textureDesc.BindFlags = RenderTarget ? (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET) : (D3D11_BIND_SHADER_RESOURCE);
     textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
-    D3D11_SUBRESOURCE_DATA textureSubData{};
-    textureSubData.pSysMem = Data;
-    textureSubData.SysMemPitch = Width * sizeof(unsigned char) * 4;
+    // ComPtr<ID3D11Texture2D> texture;
 
-    ComPtr<ID3D11Texture2D> texture;
-    D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &texture));
+    if (Data)
+    {
+        D3D11_SUBRESOURCE_DATA textureSubData{};
+        textureSubData.pSysMem = Data;
+        textureSubData.SysMemPitch = Width * sizeof(unsigned char) * 4;
+        D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &DXTexture));
+    }
+    else
+    {
+        D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, nullptr, &DXTexture));
+    }
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format = textureDesc.Format;
@@ -30,7 +37,7 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.Texture2D.MipLevels = 1;
 
-    D3D_TRY(GetDevice()->CreateShaderResourceView(texture.Get(), &srvDesc, &DXView));
+    D3D_TRY(GetDevice()->CreateShaderResourceView(DXTexture.Get(), &srvDesc, &DXView));
 }
 
 void Texture::Bind()

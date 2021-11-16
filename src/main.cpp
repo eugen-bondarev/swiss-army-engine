@@ -83,6 +83,8 @@ int main()
         sampler = CreatePtr<DX::Sampler>();
         texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
 
+        Ptr<DX::RenderTargetView> renderTarget = CreatePtr<DX::RenderTargetView>();
+
         while (window->IsRunning())
         {
             glfwPollEvents();
@@ -103,15 +105,23 @@ int main()
 
             const static std::array<float, 4> clearColor{0.2f, 1.0f, 0.5f, 1.0f};
 
-            DX::GetContext()->ClearRenderTargetView(DX::GetRenderTargetView(), clearColor.data());
+            ID3D11RenderTargetView* renderTarget1{renderTarget->GetDXRenderTarget()};
+            // DX::GetContext()->OMSetRenderTargets(1u, &renderTarget1, DX::GetDepthStencilView());
+            renderTarget->Bind();
+            DX::GetContext()->ClearRenderTargetView(renderTarget1, clearColor.data());
             DX::GetContext()->ClearDepthStencilView(DX::GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
             RenderMesh(theta, theta, characterMesh.Indices.size());
             
-            ImGui::ShowDemoWindow();
+            ID3D11RenderTargetView* screenRenderTarget{DX::GetRenderTargetView()};
+            DX::GetContext()->OMSetRenderTargets(1u, &screenRenderTarget, nullptr);
+            DX::GetContext()->ClearRenderTargetView(DX::GetRenderTargetView(), (std::array<float, 4> {0,0,0,0}).data());
+            // DX::GetContext()->ClearDepthStencilView(DX::GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+            
+            // ImGui::ShowDemoWindow();
+            ImGui::Begin("Render target");
+                ImGui::Image(renderTarget->GetTexture()->GetView(), ImVec2(800, 600));
+            ImGui::End();
 
-            ID3D11RenderTargetView* g_mainRenderTargetView = DX::GetRenderTargetView();
-            ID3D11DeviceContext* g_pd3dDeviceContext = DX::GetContext();
-                
             ImGui::Render();
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
