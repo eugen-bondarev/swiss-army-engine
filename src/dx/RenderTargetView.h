@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "instance.h"
-#include "texture.h"
+#include "Instance.h"
+#include "Texture.h"
 
 namespace DX {
 

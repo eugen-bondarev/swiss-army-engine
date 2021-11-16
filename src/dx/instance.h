@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "debugger.h"
-#include "common.h"
+#include "Debugger.h"
+#include "Common.h"
 
 namespace DX {
 

@@ -1,4 +1,4 @@
-#include "debugger.h"
+#include "Debugger.h"
 
 namespace DX {
 

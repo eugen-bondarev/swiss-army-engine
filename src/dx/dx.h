@@ -3,15 +3,14 @@
 
 #pragma once
 
-#include "instance.h"
-#include "debugger.h"
-#include "texture.h"
-#include "sampler.h"
-#include "buffer.h"
-#include "shader.h"
-#include "common.h"
-#include "math.h"
-
 #include "RenderTargetView.h"
+#include "Instance.h"
+#include "Debugger.h"
+#include "Texture.h"
+#include "Sampler.h"
+#include "Buffer.h"
+#include "Shader.h"
+#include "Common.h"
+#include "Math.h"
 
 #endif

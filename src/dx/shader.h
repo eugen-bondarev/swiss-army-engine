@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "instance.h"
+#include "Instance.h"
 
 namespace DX {
 
