@@ -8,12 +8,13 @@
 
 namespace DX {
 
+class RenderTargetView;
+
 Debugger*                           GetDebugger();
 ID3D11Device*                       GetDevice();
 ID3D11DeviceContext*                GetContext();
 IDXGISwapChain*                     GetSwapChain();
-ID3D11RenderTargetView*             GetRenderTargetView();
-ID3D11DepthStencilView*             GetDepthStencilView();
+RenderTargetView*                   GetRenderTargetView();
 
 class Instance final
 {
@@ -24,8 +25,7 @@ friend Debugger*                    GetDebugger();
 friend ID3D11Device*                GetDevice();
 friend ID3D11DeviceContext*         GetContext();
 friend IDXGISwapChain*              GetSwapChain();
-friend ID3D11RenderTargetView*      GetRenderTargetView();
-friend ID3D11DepthStencilView*      GetDepthStencilView();
+friend RenderTargetView*            GetRenderTargetView();
 
 public:
     Instance(HWND Handle);
@@ -37,11 +37,10 @@ private:
     ComPtr<ID3D11Device>            DXDevice;
     ComPtr<ID3D11DeviceContext>     DXContext;
     ComPtr<IDXGISwapChain>          DXSwapChain;
-    ComPtr<ID3D11RenderTargetView>  DXRenderTargetView;
-    ComPtr<ID3D11DepthStencilView>  DXDepthView;
+    Ptr<RenderTargetView>           DXRenderTargetView;
 
     #ifndef NDEBUG
-    std::unique_ptr<Debugger> DXDebugger;
+    Ptr<Debugger> DXDebugger;
     #endif
 
     Instance(const Instance&) = delete;

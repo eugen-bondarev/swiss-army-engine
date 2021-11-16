@@ -1,5 +1,7 @@
 #include "instance.h"
 
+#include "RenderTargetView.h"
+
 namespace DX {
 
 static std::map<HWND, Instance*>   Instances;
@@ -47,7 +49,7 @@ Instance::Instance(HWND Handle)
     ));
 
 #ifndef NDEBUG
-    DXDebugger = std::make_unique<Debugger>();
+    DXDebugger = CreatePtr<Debugger>();
 #endif
 
     Instances[Handle] = this;
@@ -55,7 +57,8 @@ Instance::Instance(HWND Handle)
 
     ComPtr<ID3D11Resource> backBuffer{nullptr};
     D3D_TRY(DXSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
-    D3D_TRY(DXDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, &DXRenderTargetView));
+
+    DXRenderTargetView = CreatePtr<RenderTargetView>(backBuffer.Get(), false);
 
     D3D11_DEPTH_STENCIL_DESC depthBufferDesc{};
     depthBufferDesc.DepthEnable = TRUE;
@@ -65,27 +68,7 @@ Instance::Instance(HWND Handle)
     D3D_TRY(DXDevice->CreateDepthStencilState(&depthBufferDesc, &depthStencilState));
 
     DXContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
-
-    ComPtr<ID3D11Texture2D> depthTexture;
-    D3D11_TEXTURE2D_DESC depthTextureDesc{};
-    depthTextureDesc.Width = 1920u;
-    depthTextureDesc.Height = 1080u;
-    depthTextureDesc.MipLevels = 1u;
-    depthTextureDesc.ArraySize = 1u;
-    depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthTextureDesc.SampleDesc.Count = 1u;
-    depthTextureDesc.SampleDesc.Quality = 0u;
-    depthTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-    depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    D3D_TRY(DXDevice->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture));
-
-    D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc{};
-    depthViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    depthViewDesc.Texture2D.MipSlice = 0u;
-    D3D_TRY(DXDevice->CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &DXDepthView));
-
-    DXContext->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), DXDepthView.Get());
+    DXRenderTargetView->Bind();
 }
 
 void Instance::SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height)
@@ -132,14 +115,9 @@ IDXGISwapChain* GetSwapChain()
     return CurrentInstance->DXSwapChain.Get();
 }
 
-ID3D11RenderTargetView* GetRenderTargetView()
+RenderTargetView* GetRenderTargetView()
 {
-    return CurrentInstance->DXRenderTargetView.Get();
-}
-
-ID3D11DepthStencilView* GetDepthStencilView()
-{
-    return CurrentInstance->DXDepthView.Get();
+    return CurrentInstance->DXRenderTargetView.get();
 }
 
 }

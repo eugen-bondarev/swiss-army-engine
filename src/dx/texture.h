@@ -15,15 +15,8 @@ public:
 
     void Bind();
 
-    ID3D11Texture2D* GetDXTexture()
-    {
-        return DXTexture.Get();
-    }
-
-    ID3D11ShaderResourceView* GetView()
-    {
-        return DXView.Get();
-    }
+    ID3D11ShaderResourceView* GetDXView();
+    ID3D11Texture2D* GetDXTexture();
 
 private:
     ComPtr<ID3D11Texture2D>          DXTexture;

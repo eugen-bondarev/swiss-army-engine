@@ -11,33 +11,19 @@ namespace DX {
 class RenderTargetView
 {
 public:
-    RenderTargetView(bool Depth = false);
+    RenderTargetView(ID3D11Resource* Resource = nullptr, bool Depth = false);
    ~RenderTargetView() = default;
 
-    Texture* GetTexture()
-    {
-        return DXTexture.get();
-    }
+    void Bind();
+    void Clear(const std::array<float, 4>& ClearColor = {0, 0, 0, 1});
 
-    ID3D11RenderTargetView* GetDXRenderTarget()
-    {
-        return DXRenderTargetView.Get();
-    }
-
-    void Bind()
-    {
-        GetContext()->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), GetDepthStencilView());
-
-        if (DXDepthView)
-        {
-            GetContext()->ClearDepthStencilView(DXDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-        }
-    }
+    ID3D11RenderTargetView* GetDXRenderTarget();
+    Texture* GetTexture();
 
 protected:
-    Ptr<Texture>                    DXTexture;
     ComPtr<ID3D11RenderTargetView>  DXRenderTargetView;
     ComPtr<ID3D11DepthStencilView>  DXDepthView;
+    Ptr<Texture>                    DXTexture;
 
     RenderTargetView(const RenderTargetView&) = delete;
     RenderTargetView& operator=(const RenderTargetView&) = delete;

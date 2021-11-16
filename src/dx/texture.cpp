@@ -17,8 +17,6 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
-    // ComPtr<ID3D11Texture2D> texture;
-
     if (Data)
     {
         D3D11_SUBRESOURCE_DATA textureSubData{};
@@ -43,6 +41,16 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
 void Texture::Bind()
 {
     GetContext()->PSSetShaderResources(0u, 1u, DXView.GetAddressOf());
+}
+
+ID3D11Texture2D* Texture::GetDXTexture()
+{
+    return DXTexture.Get();
+}
+
+ID3D11ShaderResourceView* Texture::GetDXView()
+{
+    return DXView.Get();
 }
 
 }

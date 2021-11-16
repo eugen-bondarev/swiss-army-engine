@@ -2,11 +2,18 @@
 
 namespace DX {
 
-RenderTargetView::RenderTargetView(bool Depth)
+RenderTargetView::RenderTargetView(ID3D11Resource* Resource, bool Depth)
 {
-    DXTexture = CreatePtr<Texture>(1920u, 1080u, nullptr, true);
-
-    D3D_TRY(GetDevice()->CreateRenderTargetView(DXTexture->GetDXTexture(), nullptr, &DXRenderTargetView));
+    if (!Resource)
+    {
+        DXTexture = CreatePtr<Texture>(1920u, 1080u, nullptr, true);
+        D3D_TRY(GetDevice()->CreateRenderTargetView(DXTexture->GetDXTexture(), nullptr, &DXRenderTargetView));
+    }
+    else
+    {
+        DXTexture = CreatePtr<Texture>(1920u, 1080u, nullptr, true);
+        D3D_TRY(GetDevice()->CreateRenderTargetView(Resource, nullptr, &DXRenderTargetView));
+    }
 
     if (Depth)
     {
@@ -28,6 +35,36 @@ RenderTargetView::RenderTargetView(bool Depth)
         depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         depthViewDesc.Texture2D.MipSlice = 0u;
         D3D_TRY(GetDevice()->CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &DXDepthView));
+    }
+}
+
+Texture* RenderTargetView::GetTexture()
+{
+    return DXTexture.get();
+}
+
+ID3D11RenderTargetView* RenderTargetView::GetDXRenderTarget()
+{
+    return DXRenderTargetView.Get();
+}
+
+void RenderTargetView::Bind()
+{
+    GetContext()->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), DXDepthView.Get());
+
+    if (DXDepthView)
+    {
+        GetContext()->ClearDepthStencilView(DXDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+    }
+}
+
+void RenderTargetView::Clear(const std::array<float, 4>& ClearColor)
+{    
+    GetContext()->ClearRenderTargetView(DXRenderTargetView.Get(), ClearColor.data());
+
+    if (DXDepthView)
+    {
+        GetContext()->ClearDepthStencilView(DXDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
     }
 }
 
