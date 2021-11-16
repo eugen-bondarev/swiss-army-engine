@@ -1,7 +1,18 @@
-#include "window.h"
-#include "../dx/instance.h"
+#include "Window.h"
+#include "../DX/Instance.h"
 
 static size_t NumWindows{0};
+
+static void SizeCallback(GLFWwindow* Handle, int Width, int Height)
+{
+    Window* window = static_cast<Window*>(glfwGetWindowUserPointer(Handle));
+    window->GetSwapChain()->Resize(Width, Height);
+
+    for (size_t i = 0; i < window->ResizeCallbacks.size(); i++)
+    {
+        window->ResizeCallbacks[i](Width, Height);
+    }
+}
 
 Window::Window(const unsigned int Width, const unsigned int Height, const WindowMode Mode, const std::string& Title)
 {
@@ -36,6 +47,9 @@ Window::Window(const unsigned int Width, const unsigned int Height, const Window
         }
     }
 
+    glfwSetWindowUserPointer(Handle, this);
+    glfwSetWindowSizeCallback(Handle, SizeCallback);
+
     NumWindows++;
 }
 
@@ -59,4 +73,9 @@ bool Window::IsRunning() const
 GLFWwindow* Window::GetHandle()
 {
     return Handle;
+}
+
+Base::SwapChain* Window::GetSwapChain()
+{
+    return SwapChain;
 }

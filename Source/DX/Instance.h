@@ -7,6 +7,8 @@
 #include "Debugger.h"
 #include "Common.h"
 
+class Window;
+
 namespace DX {
 
 class RenderTargetView;
@@ -15,7 +17,7 @@ Debugger*                           GetDebugger();
 ID3D11Device*                       GetDevice();
 ID3D11DeviceContext*                GetContext();
 SwapChain*                          GetSwapChain();
-RenderTargetView*                   GetRenderTargetView();
+Ref<RenderTargetView>&              GetRenderTargetView();
 
 class Instance final
 {
@@ -26,10 +28,10 @@ friend Debugger*                    GetDebugger();
 friend ID3D11Device*                GetDevice();
 friend ID3D11DeviceContext*         GetContext();
 friend SwapChain*                   GetSwapChain();
-friend RenderTargetView*            GetRenderTargetView();
+friend Ref<RenderTargetView>&       GetRenderTargetView();
 
 public:
-    Instance(HWND Handle);
+    Instance(Window* Wnd);
    ~Instance() = default;
 
     static void SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height);
@@ -38,7 +40,7 @@ private:
     ComPtr<ID3D11Device>            DXDevice;
     ComPtr<ID3D11DeviceContext>     DXContext;
     Ptr<SwapChain>                  DXSwapChain;
-    Ptr<RenderTargetView>           DXRenderTargetView;
+    Ref<RenderTargetView>           DXRenderTargetView;
 
     #ifndef NDEBUG
     Ptr<Debugger> DXDebugger;

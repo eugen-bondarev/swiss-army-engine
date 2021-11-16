@@ -2,16 +2,28 @@
 
 namespace DX {
 
-RenderTargetView::RenderTargetView(ID3D11Resource* Resource, bool Depth)
+RenderTargetView::RenderTargetView(SwapChain* Swapchain, const bool Depth)
+{
+    ComPtr<ID3D11Resource> backBuffer{nullptr};
+    D3D_TRY(Swapchain->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
+    Init(Swapchain->GetWidth(), Swapchain->GetHeight(), backBuffer.Get(), Depth);
+}
+
+RenderTargetView::RenderTargetView(const unsigned int Width, const unsigned int Height, const bool Depth)
+{
+    Init(Width, Height, nullptr, Depth);
+}
+
+void RenderTargetView::Init(const unsigned int Width, const unsigned int Height, ID3D11Resource* Resource, const bool Depth)
 {
     if (!Resource)
     {
-        DXTexture = CreatePtr<Texture>(1920u, 1080u, nullptr, true);
+        DXTexture = CreatePtr<Texture>(Width, Height, nullptr, true);
         D3D_TRY(GetDevice()->CreateRenderTargetView(DXTexture->GetDXTexture(), nullptr, &DXRenderTargetView));
     }
     else
     {
-        DXTexture = CreatePtr<Texture>(1920u, 1080u, nullptr, true);
+        DXTexture = CreatePtr<Texture>(Width, Height, nullptr, true);
         D3D_TRY(GetDevice()->CreateRenderTargetView(Resource, nullptr, &DXRenderTargetView));
     }
 
@@ -19,8 +31,8 @@ RenderTargetView::RenderTargetView(ID3D11Resource* Resource, bool Depth)
     {
         ComPtr<ID3D11Texture2D> depthTexture;
         D3D11_TEXTURE2D_DESC depthTextureDesc{};
-        depthTextureDesc.Width = 1920u;
-        depthTextureDesc.Height = 1080u;
+        depthTextureDesc.Width = Width;
+        depthTextureDesc.Height = Height;
         depthTextureDesc.MipLevels = 1u;
         depthTextureDesc.ArraySize = 1u;
         depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;

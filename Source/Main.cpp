@@ -31,7 +31,7 @@ void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIn
         DX::XMMatrixRotationY(AngleY + M_PI) * 
         DX::XMMatrixRotationZ(0) * 
         DX::XMMatrixTranslation(0, -5, 10) * 
-        DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
+        DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, static_cast<float>(DX::GetSwapChain()->GetWidth()) / static_cast<float>(DX::GetSwapChain()->GetHeight()), 0.1f, 1000.0f);
 
     DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
     *data = DX::XMMatrixTranspose(transform);
@@ -75,15 +75,12 @@ static void EndImGuiFrame()
 
 int main()
 {
-    Ptr<Window> window;
-    Ptr<DX::Instance> dxInstance;
-
     try
     {
-        window = CreatePtr<Window>(1920u, 1080u, WindowMode::Windowed);
-        dxInstance = CreatePtr<DX::Instance>(glfwGetWin32Window(window->GetHandle()));
+        Window window(1920u, 1080u, WindowMode::Windowed);
+        DX::Instance instance(&window);
 
-        InitImGui(window->GetHandle());
+        InitImGui(window.GetHandle());
 
         DX::Instance::SetViewport(0u, 0u, 1920u, 1080u);
 
@@ -99,9 +96,15 @@ int main()
         sampler = CreatePtr<DX::Sampler>();
         texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
 
-        Ptr<DX::RenderTargetView> offscreenPass = CreatePtr<DX::RenderTargetView>(nullptr, true);
+        Ptr<DX::RenderTargetView> offscreenPass = CreatePtr<DX::RenderTargetView>(1920u, 1080u, true);
 
-        while (window->IsRunning())
+        window.ResizeCallbacks.emplace_back([&](int Width, int Height)
+        {
+            offscreenPass.reset();
+            offscreenPass = CreatePtr<DX::RenderTargetView>(Width, Height, true);
+        });
+
+        while (window.IsRunning())
         {
             glfwPollEvents();
             

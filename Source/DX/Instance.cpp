@@ -1,13 +1,14 @@
 #include "Instance.h"
 
 #include "RenderTargetView.h"
+#include "../Window/Window.h"
 
 namespace DX {
 
-static std::map<HWND, Instance*>   Instances;
+static std::map<Window*, Instance*>   Instances;
 static Instance*                   CurrentInstance{nullptr};
 
-Instance::Instance(HWND Handle)
+Instance::Instance(Window* Wnd)
 {
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferDesc.Width = 0;
@@ -21,12 +22,16 @@ Instance::Instance(HWND Handle)
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.BufferCount = 1;
-    swapChainDesc.OutputWindow = Handle;
+    swapChainDesc.OutputWindow = glfwGetWin32Window(Wnd->GetHandle());
     swapChainDesc.Windowed = TRUE;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapChainDesc.Flags = 0;
 
     DXSwapChain = CreatePtr<SwapChain>();
+    DXSwapChain->Width = 1920;
+    DXSwapChain->Height = 1080;
+
+    Wnd->SwapChain = DXSwapChain.get();
 
     const UINT flags = 
 #ifndef NDEBUG
@@ -54,13 +59,11 @@ Instance::Instance(HWND Handle)
     DXDebugger = CreatePtr<Debugger>();
 #endif
 
-    Instances[Handle] = this;
+    Instances[Wnd] = this;
     CurrentInstance = this;
 
-    ComPtr<ID3D11Resource> backBuffer{nullptr};
-    D3D_TRY(GetSwapChain()->DXSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
-
-    DXRenderTargetView = CreatePtr<RenderTargetView>(backBuffer.Get(), false);
+    DXRenderTargetView = CreateRef<RenderTargetView>(DXSwapChain.get(), false);
+    DXRenderTargetView->Bind();
 
     D3D11_DEPTH_STENCIL_DESC depthBufferDesc{};
     depthBufferDesc.DepthEnable = TRUE;
@@ -70,7 +73,6 @@ Instance::Instance(HWND Handle)
     D3D_TRY(DXDevice->CreateDepthStencilState(&depthBufferDesc, &depthStencilState));
 
     DXContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
-    DXRenderTargetView->Bind();
 }
 
 void Instance::SetViewport(const UINT X, const UINT Y, const UINT Width, const UINT Height)
@@ -90,9 +92,9 @@ void MakeInstanceCurrent(Instance* NewContext)
     CurrentInstance = NewContext;
 }
 
-Instance* GetInstance(HWND Handle)
+Instance* GetInstance(Window* Wnd)
 {
-    return Instances[Handle];
+    return Instances[Wnd];
 }
 
 #ifndef NDEBUG
@@ -117,9 +119,9 @@ SwapChain* GetSwapChain()
     return CurrentInstance->DXSwapChain.get();
 }
 
-RenderTargetView* GetRenderTargetView()
+Ref<RenderTargetView>& GetRenderTargetView()
 {
-    return CurrentInstance->DXRenderTargetView.get();
+    return CurrentInstance->DXRenderTargetView;
 }
 
 }
