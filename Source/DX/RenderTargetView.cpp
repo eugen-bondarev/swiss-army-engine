@@ -63,11 +63,11 @@ ID3D11RenderTargetView* RenderTargetView::GetDXRenderTarget()
 void RenderTargetView::Bind()
 {
     GetContext()->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), DXDepthView.Get());
+}
 
-    if (DXDepthView)
-    {
-        GetContext()->ClearDepthStencilView(DXDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-    }
+void RenderTargetView::Unbind()
+{
+    GetContext()->OMSetRenderTargets(1u, nullptr, nullptr);
 }
 
 void RenderTargetView::Clear(const std::array<float, 4>& ClearColor)

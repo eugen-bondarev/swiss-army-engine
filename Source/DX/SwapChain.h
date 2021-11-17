@@ -18,16 +18,11 @@ public:
 
     void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
 
-    void Resize(const unsigned int Width, const unsigned int Height) override;
+    void Resize(const unsigned int Width = 0, const unsigned int Height = 0) override;
 
     IDXGISwapChain* GetSwapChain();
-    unsigned int GetWidth() const;
-    unsigned int GetHeight() const;
 
 private:
-    unsigned int Width;
-    unsigned int Height;
-
     ComPtr<IDXGISwapChain>     DXSwapChain;
 };
 

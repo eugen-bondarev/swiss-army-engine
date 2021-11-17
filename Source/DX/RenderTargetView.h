@@ -17,6 +17,7 @@ public:
    ~RenderTargetView() = default;
 
     void Bind();
+    void Unbind();
     void Clear(const std::array<float, 4>& ClearColor = {0, 0, 0, 1});
 
     ID3D11RenderTargetView* GetDXRenderTarget();

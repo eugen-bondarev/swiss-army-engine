@@ -18,13 +18,6 @@ static Ptr<DX::Texture>        texture{nullptr};
 
 void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIndices)
 {
-    shader->Bind();
-    meshVertexBuffer->Bind(sizeof(Vertex), 0u);
-    meshIndexBuffer->Bind();
-    constantBuffer->Bind();
-    sampler->Bind();
-    texture->Bind();
-
     DX::XMMATRIX transform = 
         DX::XMMatrixScaling(1, 1, 1) *
         DX::XMMatrixRotationX(0) * 
@@ -82,6 +75,13 @@ int main()
 
         InitImGui(window.GetHandle());
 
+        window.ResizeSubscribe([&](unsigned int Width, unsigned int Height)
+        {
+            // DX::GetRenderTargetView().reset();
+            // DX::GetSwapChain()->Resize(Width, Height);
+            // DX::GetRenderTargetView() = CreateRef<DX::RenderTargetView>(DX::GetSwapChain(), true);
+        });
+
         DX::Instance::SetViewport(0u, 0u, 1920u, 1080u);
 
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
@@ -90,28 +90,36 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/assets/models/1.fbx");
 
         meshVertexBuffer = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * characterMesh.Vertices.size(), sizeof(Vertex), characterMesh.Vertices.data());
+        meshVertexBuffer->Bind(sizeof(Vertex), 0u);
+
         meshIndexBuffer = CreatePtr<DX::IndexBuffer>(sizeof(unsigned int) * characterMesh.Indices.size(), sizeof(unsigned int), characterMesh.Indices.data());
+        meshIndexBuffer->Bind();
+
         constantBuffer = CreatePtr<DX::ConstantBuffer>(sizeof(DX::XMMATRIX));
+        constantBuffer->Bind();
+
         shader = CreatePtr<DX::Shader>(vertexShaderCode, pixelShaderCode);
+        shader->Bind();
+
         sampler = CreatePtr<DX::Sampler>();
+        sampler->Bind();
+
         texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
-
-        Ptr<DX::RenderTargetView> offscreenPass = CreatePtr<DX::RenderTargetView>(1920u, 1080u, true);
-
-        window.ResizeCallbacks.emplace_back([&](int Width, int Height)
-        {
-            offscreenPass.reset();
-            offscreenPass = CreatePtr<DX::RenderTargetView>(Width, Height, true);
-        });
+        texture->Bind();
 
         while (window.IsRunning())
         {
             glfwPollEvents();
+
+            DX::GetRenderTargetView().reset();
+            DX::GetSwapChain()->Resize(window.GetWidth(), window.GetHeight());
+            DX::GetRenderTargetView() = CreateRef<DX::RenderTargetView>(DX::GetSwapChain(), true);
+            DX::Instance::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
             
-            static float theta   {0};
+            static float theta{0};
 
             {
-                static bool  dir     {true};
+                static bool  dir{true};
                 static float rotSpeed{0.05f};
 
                 theta += rotSpeed * (static_cast<int>(dir) - 0.5f) * 2.0f;
@@ -120,18 +128,13 @@ int main()
                 if (theta <= -M_PI_2) dir = !dir;
             }
 
-            offscreenPass->Bind();
-            offscreenPass->Clear({0.2f, 1.0f, 0.5f, 1.0f});
+            DX::GetRenderTargetView()->Bind();
+            DX::GetRenderTargetView()->Clear();
             RenderMesh(theta, theta, characterMesh.Indices.size());
             
             BeginImGuiFrame();
-
-            ImGui::Begin("Render target");
-                ImGui::Image(offscreenPass->GetTexture()->GetDXView(), ImVec2(800, 450));
-            ImGui::End();
             
-            DX::GetRenderTargetView()->Bind();
-            DX::GetRenderTargetView()->Clear();
+            ImGui::ShowDemoWindow();
 
             EndImGuiFrame();
 

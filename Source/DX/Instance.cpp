@@ -62,7 +62,7 @@ Instance::Instance(Window* Wnd)
     Instances[Wnd] = this;
     CurrentInstance = this;
 
-    DXRenderTargetView = CreateRef<RenderTargetView>(DXSwapChain.get(), false);
+    DXRenderTargetView = CreateRef<RenderTargetView>(DXSwapChain.get(), true);
     DXRenderTargetView->Bind();
 
     D3D11_DEPTH_STENCIL_DESC depthBufferDesc{};
