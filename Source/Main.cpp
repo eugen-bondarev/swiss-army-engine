@@ -70,12 +70,10 @@ int main()
 {
     try
     {
-        Window window(1920u, 1080u, WindowMode::Windowed);
-        DX::Instance instance(&window);
+        Window window(WindowMode::Windowed);
+        DX::Instance instance(window);
 
         InitImGui(window.GetHandle());
-
-        DX::Instance::SetViewport(0u, 0u, 1920u, 1080u);
 
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
         const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/pixel-shader.hlsl");
@@ -104,12 +102,6 @@ int main()
         {
             glfwPollEvents();
 
-            DX::GetRenderTargetView().reset();
-                DX::GetSwapChain()->Resize(window.GetWidth(), window.GetHeight());
-            DX::GetRenderTargetView() = CreateRef<DX::RenderTargetView>(DX::GetSwapChain(), true);
-            
-            DX::Instance::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
-            
             static float theta{0};
 
             {

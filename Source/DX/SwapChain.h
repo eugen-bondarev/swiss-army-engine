@@ -6,26 +6,27 @@
 #include "../Graphics/SwapChainBase.h"
 #include "Common.h"
 
-namespace DX {
+FORWARD_DECLARE(Window);
 
-class SwapChain : public Base::SwapChain
+namespace DX
 {
-friend class Instance;
+    class SwapChain : public Base::SwapChain
+    {
+    friend class Instance;
 
-public:
-    SwapChain() = default;
-   ~SwapChain() = default;
+    public:
+        SwapChain(const Window& Wnd);
+       ~SwapChain() = default;
 
-    void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
+        void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
 
-    void Resize(const unsigned int Width = 0, const unsigned int Height = 0) override;
+        void Resize(const unsigned int Width = 0, const unsigned int Height = 0) override;
 
-    IDXGISwapChain* GetSwapChain();
+        IDXGISwapChain* GetSwapChain();
 
-private:
-    ComPtr<IDXGISwapChain>     DXSwapChain;
-};
-
+    private:
+        ComPtr<IDXGISwapChain> DXSwapChain;
+    };
 }
 
 #endif

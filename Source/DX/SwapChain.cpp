@@ -1,35 +1,40 @@
 #include "SwapChain.h"
 
 #include "RenderTargetView.h"
+#include "../Window/Window.h"
 #include "Instance.h"
 
-namespace DX {
-
-void SwapChain::Present(const UINT SyncInterval, const UINT Flags)
+namespace DX
 {
-    HRESULT hr = DXSwapChain->Present(SyncInterval, Flags);   
-
-    if (FAILED(hr))
+    SwapChain::SwapChain(const Window &Wnd) : Base::SwapChain(Wnd)
     {
-        if (hr == DXGI_ERROR_DEVICE_REMOVED)
+    }
+
+    void SwapChain::Present(const UINT SyncInterval, const UINT Flags)
+    {
+        HRESULT hr = DXSwapChain->Present(SyncInterval, Flags);
+
+        if (FAILED(hr))
         {
-            throw EXCEPTION_WHAT(std::to_string(DX::GetDevice()->GetDeviceRemovedReason()));
-        }
-        else
-        {
-            throw EXCEPTION();
+            if (hr == DXGI_ERROR_DEVICE_REMOVED)
+            {
+                throw EXCEPTION_WHAT(std::to_string(DX::GetDevice()->GetDeviceRemovedReason()));
+            }
+            else
+            {
+                throw EXCEPTION();
+            }
         }
     }
-}
 
-IDXGISwapChain* SwapChain::GetSwapChain()
-{
-    return DXSwapChain.Get();
-}
+    IDXGISwapChain *SwapChain::GetSwapChain()
+    {
+        return DXSwapChain.Get();
+    }
 
-void SwapChain::Resize(const unsigned int Width, const unsigned int Height)
-{
-    DXSwapChain->ResizeBuffers(0, Width, Height, DXGI_FORMAT_UNKNOWN, 0);
-}
+    void SwapChain::Resize(const unsigned int Width, const unsigned int Height)
+    {
+        DXSwapChain->ResizeBuffers(0, Width, Height, DXGI_FORMAT_UNKNOWN, 0);
+    }
 
 }

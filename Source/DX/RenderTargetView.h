@@ -8,34 +8,33 @@
 #include "Instance.h"
 #include "Texture.h"
 
-namespace DX {
-
-class RenderTargetView
+namespace DX
 {
-public:
-    RenderTargetView(SwapChain* Swapchain, const bool Depth = false);
-    RenderTargetView(const unsigned int Width, const unsigned int Height, const bool Depth = false);
-   ~RenderTargetView() = default;
+    class RenderTargetView
+    {
+    public:
+        RenderTargetView(SwapChain* swapChain, const bool initDepth = false);
+        RenderTargetView(const unsigned int width, const unsigned int height, const bool initDepth = false);
+       ~RenderTargetView() = default;
 
-    void Bind();
-    void Unbind();
-    void Clear(const std::array<float, 4>& ClearColor = {0, 0, 0, 1});
+        void Bind();
+        void Unbind();
+        void Clear(const std::array<float, 4>& clearColor = {0, 0, 0, 1});
 
-    ID3D11RenderTargetView* GetDXRenderTarget();
-    Texture* GetTexture();
+        ID3D11RenderTargetView *GetDXRenderTarget();
+        Texture *GetTexture();
 
-private:
-    void Init(const unsigned int Width, const unsigned int Height, ID3D11Resource* Resource, const bool Depth);
+    private:
+        void Init(const unsigned int width, const unsigned int height, ID3D11Resource *resource, const bool initDepth);
 
-protected:
-    ComPtr<ID3D11RenderTargetView>  DXRenderTargetView;
-    Ptr<DepthBuffer>                DXDepthBuffer;
-    Ptr<Texture>                    DXTexture;
+    protected:
+        ComPtr<ID3D11RenderTargetView> DXRenderTargetView;
+        Ptr<DepthBuffer> DXDepthBuffer;
+        Ptr<Texture> DXTexture;
 
-    RenderTargetView(const RenderTargetView&) = delete;
-    RenderTargetView& operator=(const RenderTargetView&) = delete;
-};
-
+        RenderTargetView(const RenderTargetView&) = delete;
+        RenderTargetView &operator=(const RenderTargetView&) = delete;
+    };
 }
 
 #endif

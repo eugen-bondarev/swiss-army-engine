@@ -32,19 +32,18 @@ using Ptr = std::unique_ptr<T>;
 template <typename T>
 using Ref = std::shared_ptr<T>;
 
-template <typename T, typename... Arguments>
-auto CreatePtr(Arguments&&... Args) -> decltype(std::make_unique<T>(std::forward<Arguments&&>(Args)...))
+template <typename T, typename... Args>
+auto CreatePtr(Args&&... args) -> decltype(std::make_unique<T>(std::forward<Args&&>(args)...))
 {
-    return std::make_unique<T>(std::forward<Arguments&&>(Args)...);
+    return std::make_unique<T>(std::forward<Args&&>(args)...);
 }
 
-template <typename T, typename... Arguments>
-auto CreateRef(Arguments&&... Args) -> decltype(std::make_shared<T>(std::forward<Arguments&&>(Args)...))
+template <typename T, typename... Args>
+auto CreateRef(Args&&... args) -> decltype(std::make_shared<T>(std::forward<Args&&>(args)...))
 {
-    return std::make_shared<T>(std::forward<Arguments&&>(Args)...);
+    return std::make_shared<T>(std::forward<Args&&>(args)...);
 }
 
-#define MY_DELETE(x) x.reset()
-#define MY_CREATE(x, ...) x = CreateRef<decltype x>(DX::GetSwapChain(), true)
+#define FORWARD_DECLARE(x) class x
 
 #endif

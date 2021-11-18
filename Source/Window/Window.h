@@ -11,6 +11,11 @@
 #include "../Common.h"
 #include "Events/Callback.h"
 
+namespace DX
+{
+    FORWARD_DECLARE(Instance);
+}
+
 enum class WindowMode
 {
     Windowed,
@@ -18,43 +23,31 @@ enum class WindowMode
     Borderless
 };
 
-namespace DX {
-
-class Instance;
-
-}
-
 class Window
 {
 friend class DX::Instance;
 friend class CallbackManager;
 
 public:
-    Window(const unsigned int Width = 1920u, const unsigned int Height = 1080u, const WindowMode Mode = WindowMode::Windowed, const std::string& Title = "Window");
+    Window(const WindowMode mode = WindowMode::Windowed, const unsigned int width = 0u, const unsigned int height = 0u, const std::string &title = "Window");
    ~Window();
 
+    void ResizeSubscribe(const Callback::Resize& NewResizeCallback);
+    void ResizeClear();
+
     bool IsRunning() const;
-
-    Base::SwapChain* GetSwapChain();
     GLFWwindow* GetHandle();
-
     unsigned int GetWidth() const;
     unsigned int GetHeight() const;
 
-    void ResizeSubscribe(const Callback::Resize& Cb);
-    void ResizeClear();
-
 private:
-    unsigned int Width, Height;
-    Base::SwapChain* SwapChain;
-    GLFWwindow* Handle;
-    
-    void SetSize(const unsigned int NewWidth, const unsigned int NewHeight);
+    unsigned int width;
+    unsigned int height;
+    GLFWwindow* handle;
+    Callback::Queue<Callback::Resize> resizeCallbacks;
 
-    Callback::Queue<Callback::Resize> ResizeCallbacks;
-
-    Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
+    Window(const Window &) = delete;
+    Window &operator=(const Window &) = delete;
 };
 
 #endif

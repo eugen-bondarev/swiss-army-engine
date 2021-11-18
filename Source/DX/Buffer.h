@@ -5,45 +5,44 @@
 
 #include "Instance.h"
 
-namespace DX {
-
-class Buffer
+namespace DX
 {
-public:
-    Buffer(const UINT ByteWidth, const UINT Stride, const void* Data, const UINT BindFlags, const UINT CPUAccessFlags = 0u, D3D11_USAGE Usage = D3D11_USAGE_DEFAULT);
-   ~Buffer() = default;
+    class Buffer
+    {
+    public:
+        Buffer(const UINT byteWidth, const UINT stride, const void* data, const UINT bindFlags, const UINT cpuAccessFlags = 0u, D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
+        ~Buffer() = default;
 
-    void* Map();
-    void Unmap();
+        void* Map();
+        void Unmap();
 
-protected:
-    ComPtr<ID3D11Buffer> DXBuffer;
+    protected:
+        ComPtr<ID3D11Buffer> dxBuffer;
 
-    Buffer(const Buffer&) = delete;
-    Buffer& operator=(const Buffer&) = delete;
-};
+        Buffer(const Buffer &) = delete;
+        Buffer &operator=(const Buffer &) = delete;
+    };
 
-class VertexBuffer : public Buffer
-{
-public:
-    VertexBuffer(const UINT ByteWidth, const UINT Stride = 0u, const void* Data = nullptr);
-    void Bind(const UINT Stride, const UINT Offset);
-};
+    class VertexBuffer : public Buffer
+    {
+    public:
+        VertexBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr);
+        void Bind(const UINT stride, const UINT Offset);
+    };
 
-class IndexBuffer : public Buffer
-{
-public:
-    IndexBuffer(const UINT ByteWidth, const UINT Stride = 0u, const void* Data = nullptr);
-    void Bind();
-};
+    class IndexBuffer : public Buffer
+    {
+    public:
+        IndexBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr);
+        void Bind();
+    };
 
-class ConstantBuffer : public Buffer
-{
-public:
-    ConstantBuffer(const UINT ByteWidth, const UINT Stride = 0u, const void* Data = nullptr);
-    void Bind();
-};
-
+    class ConstantBuffer : public Buffer
+    {
+    public:
+        ConstantBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr);
+        void Bind();
+    };
 }
 
 #endif

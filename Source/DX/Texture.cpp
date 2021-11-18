@@ -1,56 +1,55 @@
 #include "Texture.h"
 
-namespace DX {
-
-Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data, const UINT BindFlags)
+namespace DX
 {
-    D3D11_TEXTURE2D_DESC textureDesc{};
-    textureDesc.Width = Width;
-    textureDesc.Height = Height;
-    textureDesc.MipLevels = 1;
-    textureDesc.ArraySize = 1;
-    textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    textureDesc.SampleDesc.Count = 1;
-    textureDesc.SampleDesc.Quality = 0;
-    textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.BindFlags = BindFlags;
-    textureDesc.CPUAccessFlags = 0;
-    textureDesc.MiscFlags = 0;
-
-    if (Data)
+    Texture::Texture(const unsigned int width, const unsigned int height, const unsigned char* data, const UINT bindFlags)
     {
-        D3D11_SUBRESOURCE_DATA textureSubData{};
-        textureSubData.pSysMem = Data;
-        textureSubData.SysMemPitch = Width * sizeof(unsigned char) * 4;
-        D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &DXTexture));
+        D3D11_TEXTURE2D_DESC textureDesc{};
+        textureDesc.Width = width;
+        textureDesc.Height = height;
+        textureDesc.MipLevels = 1;
+        textureDesc.ArraySize = 1;
+        textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        textureDesc.SampleDesc.Count = 1;
+        textureDesc.SampleDesc.Quality = 0;
+        textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        textureDesc.BindFlags = bindFlags;
+        textureDesc.CPUAccessFlags = 0;
+        textureDesc.MiscFlags = 0;
+
+        if (data)
+        {
+            D3D11_SUBRESOURCE_DATA textureSubData{};
+            textureSubData.pSysMem = data;
+            textureSubData.SysMemPitch = width * sizeof(unsigned char) * 4;
+            D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &dxTexture));
+        }
+        else
+        {
+            D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, nullptr, &dxTexture));
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+        srvDesc.Format = textureDesc.Format;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = 1;
+
+        D3D_TRY(GetDevice()->CreateShaderResourceView(dxTexture.Get(), &srvDesc, &dxView));
     }
-    else
+
+    void Texture::Bind()
     {
-        D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, nullptr, &DXTexture));
+        GetContext()->PSSetShaderResources(0u, 1u, dxView.GetAddressOf());
     }
 
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-    srvDesc.Format = textureDesc.Format;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Texture2D.MipLevels = 1;
+    ID3D11Texture2D* Texture::GetDXTexture()
+    {
+        return dxTexture.Get();
+    }
 
-    D3D_TRY(GetDevice()->CreateShaderResourceView(DXTexture.Get(), &srvDesc, &DXView));
-}
-
-void Texture::Bind()
-{
-    GetContext()->PSSetShaderResources(0u, 1u, DXView.GetAddressOf());
-}
-
-ID3D11Texture2D* Texture::GetDXTexture()
-{
-    return DXTexture.Get();
-}
-
-ID3D11ShaderResourceView* Texture::GetDXView()
-{
-    return DXView.Get();
-}
-
+    ID3D11ShaderResourceView* Texture::GetDXView()
+    {
+        return dxView.Get();
+    }
 }

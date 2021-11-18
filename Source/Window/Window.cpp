@@ -6,20 +6,20 @@ static size_t NumWindows{0};
 class CallbackManager
 {
 public:
-    template <typename... Arguments>
-    static void Issue(const Callback::Queue<std::function<void(Arguments...)>>& Callbacks, Arguments... Args)
+    template <typename... Args>
+    static void Issue(const Callback::Queue<std::function<void(Args...)>> &callbacks, Args... args)
     {
-        for (const auto& callback : Callbacks)
+        for (const auto &callback : callbacks)
         {
-            callback(std::forward<Arguments>(Args)...);
+            callback(std::forward<Args>(args)...);
         }
     }
 
-    static void SizeCallback(GLFWwindow* Handle, int Width, int Height)
+    static void SizeCallback(GLFWwindow* handle, int width, int height)
     {
-        Window* window = static_cast<Window*>(glfwGetWindowUserPointer(Handle));
-        window->SetSize(Width, Height);
-        Issue(window->ResizeCallbacks, static_cast<unsigned int>(Width), static_cast<unsigned int>(Height));
+        Window* window = static_cast<Window* >(glfwGetWindowUserPointer(handle));
+        window->width = width; window->height = height;
+        Issue(window->resizeCallbacks, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
     }
 
 private:
@@ -28,46 +28,61 @@ private:
     CallbackManager& operator=(const CallbackManager&) = delete;
 };
 
-Window::Window(const unsigned int Width, const unsigned int Height, const WindowMode Mode, const std::string& Title)
+static void GetMonitorResolution(unsigned int& width, unsigned int& height)
+{    
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+    width = mode->width;
+    height = mode->height;
+}
+
+Window::Window(const WindowMode mode, const unsigned int width, const unsigned int height, const std::string &title)
 {
     glfwInit();
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    switch (Mode)
+    unsigned int finalWidth{width}, finalHeight{height};
+
+    if (finalWidth == 0u || finalHeight == 0u)
+    {
+        GetMonitorResolution(finalWidth, finalHeight);
+    }
+
+    switch (mode)
     {
         case WindowMode::Windowed:
         {
-            Handle = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
-            glfwMaximizeWindow(Handle);
+            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), nullptr, nullptr);
+            glfwMaximizeWindow(handle);
             break;
         }
 
         case WindowMode::Fullscreen:
         {
-            Handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
 
         case WindowMode::Borderless:
         {
-            const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            const GLFWvidmode* videoMode{glfwGetVideoMode(glfwGetPrimaryMonitor())};
             glfwWindowHint(GLFW_RED_BITS, videoMode->redBits);
             glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, videoMode->refreshRate);
-            Handle = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
     }
 
-    int width, height;
-    glfwGetFramebufferSize(Handle, &width, &height);
-    this->Width = static_cast<unsigned int>(width); 
-    this->Height = static_cast<unsigned int>(height);
+    int _width, _height;
+    glfwGetFramebufferSize(handle, &_width, &_height);
+    this->width = static_cast<unsigned int>(_width);
+    this->height = static_cast<unsigned int>(_height);
 
-    glfwSetWindowUserPointer(Handle, this);
-    glfwSetWindowSizeCallback(Handle, CallbackManager::SizeCallback);
+    glfwSetWindowUserPointer(handle, this);
+    glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
 
     NumWindows++;
 }
@@ -76,7 +91,7 @@ Window::~Window()
 {
     NumWindows--;
 
-    glfwDestroyWindow(Handle);
+    glfwDestroyWindow(handle);
 
     if (NumWindows == 0)
     {
@@ -86,41 +101,30 @@ Window::~Window()
 
 bool Window::IsRunning() const
 {
-    return !glfwWindowShouldClose(Handle);
+    return !glfwWindowShouldClose(handle);
 }
 
 unsigned int Window::GetWidth() const
 {
-    return Width;
+    return width;
 }
 
 unsigned int Window::GetHeight() const
 {
-    return Height;
-}
-
-void Window::SetSize(const unsigned int NewWidth, const unsigned int NewHeight)
-{
-    Width = NewWidth; Height = NewHeight;
-    SwapChain->SetSize(Width, Height);
+    return height;
 }
 
 GLFWwindow* Window::GetHandle()
 {
-    return Handle;
+    return handle;
 }
 
-Base::SwapChain* Window::GetSwapChain()
+void Window::ResizeSubscribe(const Callback::Resize& callback)
 {
-    return SwapChain;
-}
-
-void Window::ResizeSubscribe(const Callback::Resize& Cb)
-{
-    ResizeCallbacks.push_back(Cb);
+    resizeCallbacks.push_back(callback);
 }
 
 void Window::ResizeClear()
 {
-    ResizeCallbacks.clear();
+    resizeCallbacks.clear();
 }

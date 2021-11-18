@@ -5,25 +5,24 @@
 
 #include "Instance.h"
 
-namespace DX {
-
-class Shader
+namespace DX
 {
-public:
-    Shader(const std::string& VSCode, const std::string& PSCode);
-   ~Shader() = default;
-   
-    void Bind();
+    class Shader
+    {
+    public:
+        Shader(const std::string& VSCode, const std::string& PSCode);
+       ~Shader() = default;
 
-private:
-    ComPtr<ID3D11InputLayout>   DXInputLayout;
-    ComPtr<ID3D11VertexShader>  DXVertexShader;
-    ComPtr<ID3D11PixelShader>   DXPixelShader;
+        void Bind();
 
-    Shader(const Shader&) = delete;
-    Shader& operator=(const Shader&) = delete;
-};
+    private:
+        ComPtr<ID3D11InputLayout> DXInputLayout;
+        ComPtr<ID3D11VertexShader> DXVertexShader;
+        ComPtr<ID3D11PixelShader> DXPixelShader;
 
+        Shader(const Shader &) = delete;
+        Shader &operator=(const Shader &) = delete;
+    };
 }
 
 #endif

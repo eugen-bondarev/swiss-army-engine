@@ -1,31 +1,30 @@
-#ifndef __DX_TEXTURE_H__
-#define __DX_TEXTURE_H__
+#ifndef __DX_Texture_h__
+#define __DX_Texture_h__
 
 #pragma once
 
 #include "Instance.h"
 
-namespace DX {
-
-class Texture
+namespace DX
 {
-public:
-    Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data = nullptr, const UINT BindFlags = D3D11_BIND_SHADER_RESOURCE);
-   ~Texture() = default;
+    class Texture
+    {
+    public:
+        Texture(const unsigned int width, const unsigned int height, const unsigned char* data = nullptr, const UINT bindFlags = D3D11_BIND_SHADER_RESOURCE);
+       ~Texture() = default;
 
-    void Bind();
+        void Bind();
 
-    ID3D11ShaderResourceView* GetDXView();
-    ID3D11Texture2D* GetDXTexture();
+        ID3D11Texture2D* GetDXTexture();
+        ID3D11ShaderResourceView* GetDXView();
 
-private:
-    ComPtr<ID3D11Texture2D>          DXTexture;
-    ComPtr<ID3D11ShaderResourceView> DXView;
+    private:
+        ComPtr<ID3D11Texture2D> dxTexture;
+        ComPtr<ID3D11ShaderResourceView> dxView;
 
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
-};
-
+        Texture(const Texture&) = delete;
+        Texture &operator=(const Texture&) = delete;
+    };
 }
 
 #endif

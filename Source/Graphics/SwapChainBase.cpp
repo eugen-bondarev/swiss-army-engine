@@ -1,29 +1,19 @@
+#include "../Window/Window.h"
 #include "SwapChainBase.h"
-namespace Base {
 
-unsigned int SwapChain::GetWidth() const
+namespace Base
 {
-    return Width;
-}
+    SwapChain::SwapChain(const Window &Wnd) : Wnd{Wnd}
+    {
+    }
 
-unsigned int SwapChain::GetHeight() const
-{
-    return Height;
-}
+    unsigned int SwapChain::GetWidth() const
+    {
+        return Wnd.GetWidth();
+    }
 
-void SwapChain::SetWidth(const unsigned int NewWidth)
-{
-    Width = NewWidth;
-}
-
-void SwapChain::SetHeight(const unsigned int NewHeight)
-{
-    Height = NewHeight;
-}
-
-void SwapChain::SetSize(const unsigned int NewWidth, const unsigned int NewHeight)
-{
-    Width = NewWidth; Height = NewHeight;
-}
-
+    unsigned int SwapChain::GetHeight() const
+    {
+        return Wnd.GetHeight();
+    }
 }

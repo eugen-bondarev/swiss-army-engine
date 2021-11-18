@@ -1,5 +1,5 @@
-#ifndef __DX_D3D11_DEBUGGER_H__
-#define __DX_D3D11_DEBUGGER_H__
+#ifndef __DX_Debugger_h__
+#define __DX_Debugger_h__
 
 #pragma once
 
@@ -7,22 +7,21 @@
 
 #include <dxgidebug.h>
 
-namespace DX {
-
-class Debugger
+namespace DX
 {
-public:
-    Debugger();
+    class Debugger
+    {
+    public:
+        Debugger();
 
-    void Start();
-    void End(const std::string& File, const unsigned int Line);
+        void Start();
+        void End(const std::string& file, const unsigned int line);
 
-private:
-    size_t                      Next{0u};
-	std::vector<std::string>    Messages;
-    ComPtr<IDXGIInfoQueue>      DXInfoQueue;    
-};
-
+    private:
+        size_t next{0u};
+        std::vector<std::string> messages;
+        ComPtr<IDXGIInfoQueue> dxInfoQueue;
+    };
 }
 
 #endif

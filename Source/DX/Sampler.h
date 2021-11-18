@@ -5,23 +5,22 @@
 
 #include "Instance.h"
 
-namespace DX {
-
-class Sampler
+namespace DX
 {
-public:
-    Sampler();
-   ~Sampler() = default;
+    class Sampler
+    {
+    public:
+        Sampler();
+       ~Sampler() = default;
 
-    void Bind();
+        void Bind();
 
-private:
-    ComPtr<ID3D11SamplerState> DXSampler;
+    private:
+        ComPtr<ID3D11SamplerState> DXSampler;
 
-    Sampler(const Sampler&) = delete;
-    Sampler& operator=(const Sampler&) = delete;
-};
-
+        Sampler(const Sampler &) = delete;
+        Sampler &operator=(const Sampler &) = delete;
+    };
 }
 
 #endif

@@ -2,33 +2,33 @@
 
 namespace DX {
 
-RenderTargetView::RenderTargetView(SwapChain* Swapchain, const bool Depth)
+RenderTargetView::RenderTargetView(SwapChain* swapChain, const bool Depth)
 {
     ComPtr<ID3D11Resource> backBuffer{nullptr};
-    D3D_TRY(Swapchain->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
-    Init(Swapchain->GetWidth(), Swapchain->GetHeight(), backBuffer.Get(), Depth);
+    D3D_TRY(swapChain->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
+    Init(swapChain->GetWidth(), swapChain->GetHeight(), backBuffer.Get(), Depth);
 }
 
-RenderTargetView::RenderTargetView(const unsigned int Width, const unsigned int Height, const bool Depth)
+RenderTargetView::RenderTargetView(const unsigned int width, const unsigned int height, const bool initDepth)
 {
-    Init(Width, Height, nullptr, Depth);
+    Init(width, height, nullptr, initDepth);
 }
 
-void RenderTargetView::Init(const unsigned int Width, const unsigned int Height, ID3D11Resource* Resource, const bool Depth)
+void RenderTargetView::Init(const unsigned int width, const unsigned int height, ID3D11Resource* resource, const bool initDepth)
 {
-    if (!Resource)
+    if (!resource)
     {
-        DXTexture = CreatePtr<Texture>(Width, Height, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+        DXTexture = CreatePtr<Texture>(width, height, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
         D3D_TRY(GetDevice()->CreateRenderTargetView(DXTexture->GetDXTexture(), nullptr, &DXRenderTargetView));
     }
     else
     {
-        D3D_TRY(GetDevice()->CreateRenderTargetView(Resource, nullptr, &DXRenderTargetView));
+        D3D_TRY(GetDevice()->CreateRenderTargetView(resource, nullptr, &DXRenderTargetView));
     }
 
-    if (Depth)
+    if (initDepth)
     {
-        DXDepthBuffer = CreatePtr<DepthBuffer>(Width, Height);
+        DXDepthBuffer = CreatePtr<DepthBuffer>(width, height);
     }
 }
 
@@ -52,9 +52,9 @@ void RenderTargetView::Unbind()
     GetContext()->OMSetRenderTargets(1u, nullptr, nullptr);
 }
 
-void RenderTargetView::Clear(const std::array<float, 4>& ClearColor)
+void RenderTargetView::Clear(const std::array<float, 4>& clearColor)
 {    
-    GetContext()->ClearRenderTargetView(DXRenderTargetView.Get(), ClearColor.data());
+    GetContext()->ClearRenderTargetView(DXRenderTargetView.Get(), clearColor.data());
 
     if (DXDepthBuffer)
     {
