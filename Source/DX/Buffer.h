@@ -1,5 +1,5 @@
-#ifndef __DX_BUFFER_H__
-#define __DX_BUFFER_H__
+#ifndef __DX_Buffer_h__
+#define __DX_Buffer_h__
 
 #pragma once
 

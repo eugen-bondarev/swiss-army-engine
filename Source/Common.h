@@ -11,6 +11,8 @@
 #include <array>
 #include <map>
 
+#include <typeinfo>  //for 'typeid' to work  
+
 #define EXCEPTION()\
     std::runtime_error(std::string(__FILE__) + "\n\nLine: " + std::to_string(__LINE__))
 
@@ -41,5 +43,8 @@ auto CreateRef(Arguments&&... Args) -> decltype(std::make_shared<T>(std::forward
 {
     return std::make_shared<T>(std::forward<Arguments&&>(Args)...);
 }
+
+#define MY_DELETE(x) x.reset()
+#define MY_CREATE(x, ...) x = CreateRef<decltype x>(DX::GetSwapChain(), true)
 
 #endif

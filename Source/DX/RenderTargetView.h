@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "DepthBuffer.h"
 #include "SwapChain.h"
 #include "Instance.h"
 #include "Texture.h"
@@ -28,7 +29,7 @@ private:
 
 protected:
     ComPtr<ID3D11RenderTargetView>  DXRenderTargetView;
-    ComPtr<ID3D11DepthStencilView>  DXDepthView;
+    Ptr<DepthBuffer>                DXDepthBuffer;
     Ptr<Texture>                    DXTexture;
 
     RenderTargetView(const RenderTargetView&) = delete;

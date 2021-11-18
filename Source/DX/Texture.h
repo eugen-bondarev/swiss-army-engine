@@ -10,7 +10,7 @@ namespace DX {
 class Texture
 {
 public:
-    Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data = nullptr, bool RenderTarget = false);
+    Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data = nullptr, const UINT BindFlags = D3D11_BIND_SHADER_RESOURCE);
    ~Texture() = default;
 
     void Bind();

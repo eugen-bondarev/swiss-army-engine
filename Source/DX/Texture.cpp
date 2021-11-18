@@ -2,7 +2,7 @@
 
 namespace DX {
 
-Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data, bool RenderTarget)
+Texture::Texture(const unsigned int Width, const unsigned int Height, const unsigned char* Data, const UINT BindFlags)
 {
     D3D11_TEXTURE2D_DESC textureDesc{};
     textureDesc.Width = Width;
@@ -13,7 +13,7 @@ Texture::Texture(const unsigned int Width, const unsigned int Height, const unsi
     textureDesc.SampleDesc.Count = 1;
     textureDesc.SampleDesc.Quality = 0;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.BindFlags = RenderTarget ? (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET) : (D3D11_BIND_SHADER_RESOURCE);
+    textureDesc.BindFlags = BindFlags;
     textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
