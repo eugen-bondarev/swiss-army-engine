@@ -46,6 +46,8 @@ public:
     void SetVSync(const bool value);
     bool GetVSync() const;
 
+    void Destroy();
+
     bool IsRunning() const;
     GLFWwindow* GetHandle();
     unsigned int GetWidth() const;
@@ -55,6 +57,7 @@ private:
     unsigned int width;
     unsigned int height;
     bool vSync;
+    bool running{true};
     GLFWwindow* handle;
     Callback::Queue<Callback::Resize> resizeCallbacks;
     

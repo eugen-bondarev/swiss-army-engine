@@ -7,8 +7,6 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_glfw.h>
 
-#include <assimp/Importer.hpp>
-
 static Ptr<DX::VertexBuffer>   meshVertexBuffer1{nullptr};
 static Ptr<DX::IndexBuffer>    meshIndexBuffer1{nullptr};
 static Ptr<DX::ConstantBuffer> constantBuffer1{nullptr};
@@ -99,30 +97,20 @@ int main()
 {
     try
     {
-        Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
-        Window window2(WindowMode::Windowed, true, 800, 600, "Window 2");
-
         const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/VertexShader.hlsl");
         const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/PixelShader.hlsl");
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        DX::Instance instance1(window1);         
+        Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
+        DX::Instance instance1(window1);
         InitResources1(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
-
-        DX::Instance instance2(window2);
-        InitResources2(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
         while (window1.IsRunning())
         {
             static float theta{0};
-            static bool  dir{true};
-            static float rotSpeed{0.05f};
 
-            theta += rotSpeed * (static_cast<int>(dir) - 0.5f) * 2.0f;
-
-            if (theta >=  M_PI_2) dir = !dir;
-            if (theta <= -M_PI_2) dir = !dir;
+            theta += 0.05f;
 
             DX::MakeInstanceCurrent(&instance1);
 
@@ -131,14 +119,6 @@ int main()
                 DX::GetRenderTargetView()->Clear();
                 RenderMesh1(0, theta, characterMesh.indices.size());            
             window1.EndFrame();
-
-            DX::MakeInstanceCurrent(&instance2);
-
-            window2.BeginFrame();
-                DX::GetRenderTargetView()->Bind();
-                DX::GetRenderTargetView()->Clear();
-                RenderMesh2(theta, theta, characterMesh.indices.size());            
-            window2.EndFrame();
         }
     }
     catch (const std::runtime_error& exception)

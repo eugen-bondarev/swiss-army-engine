@@ -3,7 +3,10 @@
 #include "../DX/Instance.h"
 #include "../DX/SwapChain.h"
 
+#include <mutex>
+
 static size_t numWindows{0};
+static bool glfwInitialized{false};
 
 class CallbackManager
 {
@@ -40,7 +43,16 @@ static void GetMonitorResolution(unsigned int& width, unsigned int& height)
 
 Window::Window(const WindowMode mode, const bool vSync, const unsigned int width, const unsigned int height, const std::string& title) : vSync{vSync}
 {
-    glfwInit();
+    {
+        static std::mutex glfwInitMutex;
+        std::lock_guard glfwInitLockGuard(glfwInitMutex);
+        if (!glfwInitialized)
+        {
+            glfwInit();
+            glfwInitialized = true;
+        }
+    }
+
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -86,6 +98,8 @@ Window::Window(const WindowMode mode, const bool vSync, const unsigned int width
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
 
+    static std::mutex mutex;
+    std::lock_guard lock(mutex);
     numWindows++;
 }
 
@@ -114,7 +128,12 @@ void Window::EndFrame()
 
 bool Window::IsRunning() const
 {
-    return !glfwWindowShouldClose(handle);
+    return !glfwWindowShouldClose(handle) && running;
+}
+
+void Window::Destroy()
+{
+    running = false;
 }
 
 void Window::SetVSync(const bool value)
