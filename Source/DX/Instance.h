@@ -13,9 +13,9 @@ namespace DX
 {
     FORWARD_DECLARE(RenderTargetView);
 
-    Debugger* GetDebugger();
     ID3D11Device* GetDevice();
     ID3D11DeviceContext* GetContext();
+    Debugger* GetDebugger();
     SwapChain* GetSwapChain();
     Ref<RenderTargetView>& GetRenderTargetView();
 
@@ -23,9 +23,9 @@ namespace DX
     {
     friend class Window;
 
-    friend Debugger* GetDebugger();
     friend ID3D11Device* GetDevice();
     friend ID3D11DeviceContext* GetContext();
+    friend Debugger* GetDebugger();
     friend SwapChain* GetSwapChain();
     friend Ref<RenderTargetView>& GetRenderTargetView();
 
@@ -34,7 +34,7 @@ namespace DX
        ~Instance() = default;
 
         void SetViewport(const UINT width, const UINT height, const UINT x = 0u, const UINT y = 0u);
-        void OnResize(const unsigned int, const unsigned int);
+        void OnResize(const unsigned int width, const unsigned int height);
 
     private:
         const Window& window;
@@ -52,9 +52,8 @@ namespace DX
         Instance& operator=(const Instance&) = delete;
     };
 
-    Instance* GetInstance(HWND handle);
+    Instance* GetInstance(Window* window);
     void MakeInstanceCurrent(Instance* newContext);
-
 }
 
 #endif

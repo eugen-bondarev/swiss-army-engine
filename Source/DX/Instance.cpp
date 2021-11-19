@@ -5,8 +5,18 @@
 
 namespace DX
 {
-    static std::map<Window*, Instance*>     Instances;
-    static Instance*                        CurrentInstance{nullptr};
+    static std::map<Window*, Instance*>     instances;
+    static Instance*                        currentInstance{nullptr};
+
+    void MakeInstanceCurrent(Instance* newContext)
+    {
+        currentInstance = newContext;
+    }
+
+    Instance* GetInstance(Window* window)
+    {
+        return instances[window];
+    }
 
     Instance::Instance(Window& window) : window{window}
     {
@@ -27,8 +37,9 @@ namespace DX
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
         swapChainDesc.Flags = 0;
 
-        swapChain = CreatePtr<SwapChain>(window);        
+        swapChain = CreatePtr<SwapChain>(window);
         window.ResizeSubscribe(std::bind(&Instance::OnResize, this, std::placeholders::_1, std::placeholders::_2));
+        window.SetSwapChain(swapChain.get());
 
         const UINT flags =
 #ifndef NDEBUG
@@ -46,7 +57,7 @@ namespace DX
             0,
             D3D11_SDK_VERSION,
             &swapChainDesc,
-            &swapChain->DXSwapChain,
+            &swapChain->dxSwapChain,
             &dxDevice,
             nullptr,
             &dxContext));
@@ -55,8 +66,8 @@ namespace DX
         debugger = CreatePtr<Debugger>();
 #endif
 
-        Instances[&window] = this;
-        CurrentInstance = this;
+        instances[&window] = this;
+        currentInstance = this;
 
         renderTargetView = CreateRef<RenderTargetView>(swapChain.get(), true);
         renderTargetView->Bind();
@@ -85,7 +96,7 @@ namespace DX
         dxContext->RSSetViewports(1u, &viewport);
     }
 
-    void Instance::OnResize(const unsigned int, const unsigned int)
+    void Instance::OnResize(const unsigned int width, const unsigned int height)
     {
         renderTargetView.reset();
         swapChain->Resize(window.GetWidth(), window.GetHeight());
@@ -93,40 +104,30 @@ namespace DX
         SetViewport(window.GetWidth(), window.GetHeight());
     }
 
-    void MakeInstanceCurrent(Instance* newContext)
-    {
-        CurrentInstance = newContext;
-    }
-
-    Instance* GetInstance(Window* window)
-    {
-        return Instances[window];
-    }
-
 #ifndef NDEBUG
     Debugger* GetDebugger()
     {
-        return CurrentInstance->debugger.get();
+        return currentInstance->debugger.get();
     }
 #endif
 
     ID3D11Device* GetDevice()
     {
-        return CurrentInstance->dxDevice.Get();
+        return currentInstance->dxDevice.Get();
     }
 
     ID3D11DeviceContext* GetContext()
     {
-        return CurrentInstance->dxContext.Get();
+        return currentInstance->dxContext.Get();
     }
 
     SwapChain* GetSwapChain()
     {
-        return CurrentInstance->swapChain.get();
+        return currentInstance->swapChain.get();
     }
 
     Ref<RenderTargetView>& GetRenderTargetView()
     {
-        return CurrentInstance->renderTargetView;
+        return currentInstance->renderTargetView;
     }
 }

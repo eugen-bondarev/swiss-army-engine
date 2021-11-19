@@ -1,14 +1,17 @@
-#ifndef __DX_COMMON_H__
-#define __DX_COMMON_H__
+#ifndef __DX_Common_h__
+#define __DX_Common_h__
 
 #pragma once
 
-#include "../Common.h"
+#include "../Common/Common.h"
 #include <d3d11.h>
 #include <wrl.h>
 
-template <typename T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+namespace DX
+{
+    template <typename T>
+    using ComPtr = Microsoft::WRL::ComPtr<T>;
+}
 
 #ifndef NDEBUG
 #   define D3D_TRY(exp)\

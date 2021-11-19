@@ -1,5 +1,5 @@
-#ifndef __DX_DX_H__
-#define __DX_DX_H__
+#ifndef __DX_DX_h__
+#define __DX_DX_h__
 
 #pragma once
 

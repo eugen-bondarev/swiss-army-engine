@@ -1,5 +1,5 @@
-#ifndef __COMMON_MATH_H__
-#define __COMMON_MATH_H__
+#ifndef __Common_Math_h__
+#define __Common_Math_h__
 
 #pragma once
 

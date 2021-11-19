@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../Common.h"
+#include "../Common/Common.h"
 
 FORWARD_DECLARE(CallbackManager);
 FORWARD_DECLARE(Window);
@@ -12,20 +12,21 @@ namespace Base
 {
     class SwapChain
     {
-        friend class ::CallbackManager;
-        friend class ::Window;
+    friend class ::CallbackManager;
+    friend class ::Window;
 
     public:
-        SwapChain(const Window& Wnd);
+        SwapChain(const Window& window);
        ~SwapChain() = default;
 
-        virtual void Resize(const unsigned int Width = 0, const unsigned int Height = 0) = 0;
+        virtual void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) = 0;
+        virtual void Resize(const unsigned int width = 0, const unsigned int height = 0) = 0;
 
         unsigned int GetWidth() const;
         unsigned int GetHeight() const;
 
     protected:
-        const Window& Wnd;
+        const Window& window;
     };
 }
 

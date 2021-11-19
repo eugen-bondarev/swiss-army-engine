@@ -28,9 +28,9 @@ namespace DX
         void Init(const unsigned int width, const unsigned int height, ID3D11Resource *resource, const bool initDepth);
 
     protected:
-        ComPtr<ID3D11RenderTargetView> DXRenderTargetView;
-        Ptr<DepthBuffer> DXDepthBuffer;
-        Ptr<Texture> DXTexture;
+        ComPtr<ID3D11RenderTargetView> dxRenderTargetView;
+        Ptr<DepthBuffer> depthBuffer;
+        Ptr<Texture> texture;
 
         RenderTargetView(const RenderTargetView&) = delete;
         RenderTargetView &operator=(const RenderTargetView&) = delete;

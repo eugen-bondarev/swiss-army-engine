@@ -16,12 +16,12 @@ static Ptr<DX::Shader>         shader{nullptr};
 static Ptr<DX::Sampler>        sampler{nullptr};
 static Ptr<DX::Texture>        texture{nullptr};
 
-void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIndices)
+void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
 {
-    DX::XMMATRIX transform = 
+    const DX::XMMATRIX transform = 
         DX::XMMatrixScaling(1, 1, 1) *
         DX::XMMatrixRotationX(0) * 
-        DX::XMMatrixRotationY(AngleY + M_PI) * 
+        DX::XMMatrixRotationY(angleY + M_PI) * 
         DX::XMMatrixRotationZ(0) * 
         DX::XMMatrixTranslation(0, -5, 10) * 
         DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, static_cast<float>(DX::GetSwapChain()->GetWidth()) / static_cast<float>(DX::GetSwapChain()->GetHeight()), 0.1f, 1000.0f);
@@ -32,18 +32,18 @@ void RenderMesh(const float AngleX, const float AngleY, const unsigned int NumIn
 
     DX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    D3D_TRY(DX::GetContext()->DrawIndexed(NumIndices, 0u, 0u));
+    D3D_TRY(DX::GetContext()->DrawIndexed(numIndices, 0u, 0u));
 }
 
-static void InitImGui(GLFWwindow* Handle)
+static void InitImGui(GLFWwindow* handle)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
 
     ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
-    ImGui_ImplGlfw_InitForOther(Handle, true);
+    ImGui_ImplGlfw_InitForOther(handle, true);
 }
 
 static void ShutdownImGui()
@@ -70,20 +70,20 @@ int main()
 {
     try
     {
-        Window window(WindowMode::Windowed);
+        Window window;
         DX::Instance instance(window);
 
         InitImGui(window.GetHandle());
 
-        const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/vertex-shader.hlsl");
-        const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/assets/shaders/pixel-shader.hlsl");
-        const Util::ImageAsset diana = Util::LoadImageFile(PROJECT_ROOT_DIR "/assets/images/1.png");
-        const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/assets/models/1.fbx");
+        const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/VertexShader.hlsl");
+        const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/PixelShader.hlsl");
+        const Util::ImageAsset diana = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
+        const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
 
-        meshVertexBuffer = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * characterMesh.Vertices.size(), sizeof(Vertex), characterMesh.Vertices.data());
+        meshVertexBuffer = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
         meshVertexBuffer->Bind(sizeof(Vertex), 0u);
 
-        meshIndexBuffer = CreatePtr<DX::IndexBuffer>(sizeof(unsigned int) * characterMesh.Indices.size(), sizeof(unsigned int), characterMesh.Indices.data());
+        meshIndexBuffer = CreatePtr<DX::IndexBuffer>(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
         meshIndexBuffer->Bind();
 
         constantBuffer = CreatePtr<DX::ConstantBuffer>(sizeof(DX::XMMATRIX));
@@ -95,12 +95,12 @@ int main()
         sampler = CreatePtr<DX::Sampler>();
         sampler->Bind();
 
-        texture = CreatePtr<DX::Texture>(diana.Width, diana.Height, diana.Data);
+        texture = CreatePtr<DX::Texture>(diana.width, diana.height, diana.data);
         texture->Bind();
 
         while (window.IsRunning())
         {
-            glfwPollEvents();
+            window.BeginFrame();
 
             static float theta{0};
 
@@ -116,7 +116,7 @@ int main()
 
             DX::GetRenderTargetView()->Bind();
             DX::GetRenderTargetView()->Clear();
-            RenderMesh(theta, theta, characterMesh.Indices.size());
+            RenderMesh(theta, theta, characterMesh.indices.size());
             
             BeginImGuiFrame();
             
@@ -124,14 +124,14 @@ int main()
 
             EndImGuiFrame();
 
-            DX::GetSwapChain()->Present();
+            window.EndFrame();
         }
 
         ShutdownImGui();
     }
-    catch (const std::runtime_error& Exception)
+    catch (const std::runtime_error& exception)
     {
-        MessageBox(nullptr, Exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
+        MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
 
     return 0;

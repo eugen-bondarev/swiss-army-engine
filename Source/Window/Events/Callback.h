@@ -8,13 +8,12 @@
 
 struct GLFWwindow;
 
-namespace Callback {
+namespace Callback
+{
+    using Resize = std::function<void(unsigned int width, unsigned int height)>;
 
-using Resize = std::function<void(unsigned int Width, unsigned int Height)>;
-
-template <typename T>
-using Queue = std::vector<T>;
-
+    template <typename T>
+    using Queue = std::vector<T>;
 }
 
 #endif

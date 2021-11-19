@@ -15,17 +15,16 @@ namespace DX
     friend class Instance;
 
     public:
-        SwapChain(const Window& Wnd);
+        SwapChain(const Window& window);
        ~SwapChain() = default;
 
-        void Present(const UINT SyncInterval = 1u, const UINT Flags = 0u);
-
-        void Resize(const unsigned int Width = 0, const unsigned int Height = 0) override;
+        void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;
+        void Resize(const unsigned int width = 0, const unsigned int height = 0) override;
 
         IDXGISwapChain* GetSwapChain();
 
     private:
-        ComPtr<IDXGISwapChain> DXSwapChain;
+        ComPtr<IDXGISwapChain> dxSwapChain;
     };
 }
 

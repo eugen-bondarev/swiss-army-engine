@@ -6,13 +6,13 @@
 
 namespace DX
 {
-    SwapChain::SwapChain(const Window &Wnd) : Base::SwapChain(Wnd)
+    SwapChain::SwapChain(const Window& window) : Base::SwapChain(window)
     {
     }
 
-    void SwapChain::Present(const UINT SyncInterval, const UINT Flags)
+    void SwapChain::Present(const unsigned int syncInterval, const unsigned int flags)
     {
-        HRESULT hr = DXSwapChain->Present(SyncInterval, Flags);
+        HRESULT hr = dxSwapChain->Present(syncInterval, flags);
 
         if (FAILED(hr))
         {
@@ -27,14 +27,13 @@ namespace DX
         }
     }
 
-    IDXGISwapChain *SwapChain::GetSwapChain()
+    IDXGISwapChain* SwapChain::GetSwapChain()
     {
-        return DXSwapChain.Get();
+        return dxSwapChain.Get();
     }
 
-    void SwapChain::Resize(const unsigned int Width, const unsigned int Height)
+    void SwapChain::Resize(const unsigned int width, const unsigned int height)
     {
-        DXSwapChain->ResizeBuffers(0, Width, Height, DXGI_FORMAT_UNKNOWN, 0);
+        dxSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
     }
-
 }

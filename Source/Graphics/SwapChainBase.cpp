@@ -3,17 +3,17 @@
 
 namespace Base
 {
-    SwapChain::SwapChain(const Window &Wnd) : Wnd{Wnd}
+    SwapChain::SwapChain(const Window &window) : window{window}
     {
     }
 
     unsigned int SwapChain::GetWidth() const
     {
-        return Wnd.GetWidth();
+        return window.GetWidth();
     }
 
     unsigned int SwapChain::GetHeight() const
     {
-        return Wnd.GetHeight();
+        return window.GetHeight();
     }
 }

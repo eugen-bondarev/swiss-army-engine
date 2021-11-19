@@ -1,9 +1,10 @@
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __Common_h__
+#define __Common_h__
 
 #pragma once
 
 #include <stdexcept>
+#include <assert.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -45,5 +46,7 @@ auto CreateRef(Args&&... args) -> decltype(std::make_shared<T>(std::forward<Args
 }
 
 #define FORWARD_DECLARE(x) class x
+
+#define MY_ASSERT(x) assert(x)
 
 #endif

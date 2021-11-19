@@ -1,9 +1,9 @@
-#ifndef __VERTEX_H__
-#define __VERTEX_H__
+#ifndef __Common_Vertex_h__
+#define __Common_Vertex_h__
 
 #pragma once
 
-#include "../Common.h"
+#include "Common.h"
 
 struct Vertex
 {

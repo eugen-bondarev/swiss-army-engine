@@ -10,11 +10,11 @@ namespace DX
         samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
-        D3D_TRY(GetDevice()->CreateSamplerState(&samplerDesc, &DXSampler));
+        D3D_TRY(GetDevice()->CreateSamplerState(&samplerDesc, &dxSampler));
     }
 
     void Sampler::Bind()
     {
-        GetContext()->PSSetSamplers(0u, 1u, DXSampler.GetAddressOf());
+        GetContext()->PSSetSamplers(0u, 1u, dxSampler.GetAddressOf());
     }
 }

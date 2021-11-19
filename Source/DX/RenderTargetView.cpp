@@ -2,11 +2,11 @@
 
 namespace DX {
 
-RenderTargetView::RenderTargetView(SwapChain* swapChain, const bool Depth)
+RenderTargetView::RenderTargetView(SwapChain* swapChain, const bool initDepth)
 {
     ComPtr<ID3D11Resource> backBuffer{nullptr};
     D3D_TRY(swapChain->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
-    Init(swapChain->GetWidth(), swapChain->GetHeight(), backBuffer.Get(), Depth);
+    Init(swapChain->GetWidth(), swapChain->GetHeight(), backBuffer.Get(), initDepth);
 }
 
 RenderTargetView::RenderTargetView(const unsigned int width, const unsigned int height, const bool initDepth)
@@ -18,33 +18,33 @@ void RenderTargetView::Init(const unsigned int width, const unsigned int height,
 {
     if (!resource)
     {
-        DXTexture = CreatePtr<Texture>(width, height, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-        D3D_TRY(GetDevice()->CreateRenderTargetView(DXTexture->GetDXTexture(), nullptr, &DXRenderTargetView));
+        texture = CreatePtr<Texture>(width, height, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+        D3D_TRY(GetDevice()->CreateRenderTargetView(texture->GetDXTexture(), nullptr, &dxRenderTargetView));
     }
     else
     {
-        D3D_TRY(GetDevice()->CreateRenderTargetView(resource, nullptr, &DXRenderTargetView));
+        D3D_TRY(GetDevice()->CreateRenderTargetView(resource, nullptr, &dxRenderTargetView));
     }
 
     if (initDepth)
     {
-        DXDepthBuffer = CreatePtr<DepthBuffer>(width, height);
+        depthBuffer = CreatePtr<DepthBuffer>(width, height);
     }
 }
 
 Texture* RenderTargetView::GetTexture()
 {
-    return DXTexture.get();
+    return texture.get();
 }
 
 ID3D11RenderTargetView* RenderTargetView::GetDXRenderTarget()
 {
-    return DXRenderTargetView.Get();
+    return dxRenderTargetView.Get();
 }
 
 void RenderTargetView::Bind()
 {
-    GetContext()->OMSetRenderTargets(1u, DXRenderTargetView.GetAddressOf(), DXDepthBuffer ? DXDepthBuffer->GetDXDepthStencilView() : nullptr);
+    GetContext()->OMSetRenderTargets(1u, dxRenderTargetView.GetAddressOf(), depthBuffer ? depthBuffer->GetDXDepthStencilView() : nullptr);
 }
 
 void RenderTargetView::Unbind()
@@ -54,11 +54,11 @@ void RenderTargetView::Unbind()
 
 void RenderTargetView::Clear(const std::array<float, 4>& clearColor)
 {    
-    GetContext()->ClearRenderTargetView(DXRenderTargetView.Get(), clearColor.data());
+    GetContext()->ClearRenderTargetView(dxRenderTargetView.Get(), clearColor.data());
 
-    if (DXDepthBuffer)
+    if (depthBuffer)
     {
-        DXDepthBuffer->Clear();
+        depthBuffer->Clear();
     }
 }
 

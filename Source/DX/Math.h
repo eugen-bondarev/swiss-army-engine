@@ -1,15 +1,14 @@
-#ifndef __DX_MATH_H__
-#define __DX_MATH_H__
+#ifndef __DX_Math_h__
+#define __DX_Math_h__
 
 #pragma once
 
 #include <DirectXMath.h>
-#include "../CommonMath.h"
+#include "../Common/Math.h"
 
-namespace DX {
-
-using namespace DirectX;
-
+namespace DX
+{
+    using namespace DirectX;
 }
 
 #endif

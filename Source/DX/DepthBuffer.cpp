@@ -4,7 +4,6 @@ namespace DX
 {
     DepthBuffer::DepthBuffer(const unsigned int width, const unsigned int height)
     {
-        ComPtr<ID3D11Texture2D> depthTexture;
         D3D11_TEXTURE2D_DESC depthTextureDesc{};
         depthTextureDesc.Width = width;
         depthTextureDesc.Height = height;
@@ -15,6 +14,8 @@ namespace DX
         depthTextureDesc.SampleDesc.Quality = 0u;
         depthTextureDesc.Usage = D3D11_USAGE_DEFAULT;
         depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        
+        ComPtr<ID3D11Texture2D> depthTexture;
         D3D_TRY(GetDevice()->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture));
 
         D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc{};

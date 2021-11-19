@@ -1,7 +1,9 @@
 #include "Window.h"
-#include "../DX/Instance.h"
 
-static size_t NumWindows{0};
+#include "../DX/Instance.h"
+#include "../DX/SwapChain.h"
+
+static size_t numWindows{0};
 
 class CallbackManager
 {
@@ -9,7 +11,7 @@ public:
     template <typename... Args>
     static void Issue(const Callback::Queue<std::function<void(Args...)>> &callbacks, Args... args)
     {
-        for (const auto &callback : callbacks)
+        for (const auto& callback : callbacks)
         {
             callback(std::forward<Args>(args)...);
         }
@@ -17,7 +19,7 @@ public:
 
     static void SizeCallback(GLFWwindow* handle, int width, int height)
     {
-        Window* window = static_cast<Window* >(glfwGetWindowUserPointer(handle));
+        Window* window = static_cast<Window*>(glfwGetWindowUserPointer(handle));
         window->width = width; window->height = height;
         Issue(window->resizeCallbacks, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
     }
@@ -36,7 +38,7 @@ static void GetMonitorResolution(unsigned int& width, unsigned int& height)
     height = mode->height;
 }
 
-Window::Window(const WindowMode mode, const unsigned int width, const unsigned int height, const std::string &title)
+Window::Window(const WindowMode mode, const bool vSync, const unsigned int width, const unsigned int height, const std::string& title) : vSync{vSync}
 {
     glfwInit();
     glfwDefaultWindowHints();
@@ -84,24 +86,45 @@ Window::Window(const WindowMode mode, const unsigned int width, const unsigned i
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
 
-    NumWindows++;
+    numWindows++;
 }
 
 Window::~Window()
 {
-    NumWindows--;
+    numWindows--;
 
     glfwDestroyWindow(handle);
 
-    if (NumWindows == 0)
+    if (numWindows == 0)
     {
         glfwTerminate();
     }
 }
 
+void Window::BeginFrame()
+{
+    glfwPollEvents();
+}
+
+void Window::EndFrame()
+{
+    MY_ASSERT(swapChain != nullptr);
+    swapChain->Present(static_cast<unsigned int>(vSync), 0u);
+}
+
 bool Window::IsRunning() const
 {
     return !glfwWindowShouldClose(handle);
+}
+
+void Window::SetVSync(const bool value)
+{
+    vSync = value;
+}
+
+bool Window::GetVSync() const
+{
+    return vSync;
 }
 
 unsigned int Window::GetWidth() const
@@ -112,6 +135,11 @@ unsigned int Window::GetWidth() const
 unsigned int Window::GetHeight() const
 {
     return height;
+}
+
+void Window::SetSwapChain(Base::SwapChain* swapChain)
+{
+    this->swapChain = swapChain;
 }
 
 GLFWwindow* Window::GetHandle()
