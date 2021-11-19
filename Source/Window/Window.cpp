@@ -56,7 +56,7 @@ Window::Window(const WindowMode mode, const bool vSync, const unsigned int width
         case WindowMode::Windowed:
         {
             handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), nullptr, nullptr);
-            glfwMaximizeWindow(handle);
+            // glfwMaximizeWindow(handle);
             break;
         }
 

@@ -60,7 +60,8 @@ namespace DX
             &swapChain->dxSwapChain,
             &dxDevice,
             nullptr,
-            &dxContext));
+            &dxContext)
+        );
 
 #ifndef NDEBUG
         debugger = CreatePtr<Debugger>();
