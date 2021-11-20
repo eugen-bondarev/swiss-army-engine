@@ -4,10 +4,6 @@
 #include "API/Buffer.h"
 #include "DX/DX.h"
 
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_glfw.h>
-
 static Ptr<API::VertexBuffer> meshVertexBuffer{nullptr};
 static Ptr<API::IndexBuffer> meshIndexBuffer{nullptr};
 static Ptr<API::UniformBuffer> constantBuffer{nullptr};
@@ -66,74 +62,15 @@ int main()
 
         InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
-        
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-        //io.ConfigViewportsNoAutoMerge = true;
-        //io.ConfigViewportsNoTaskBarIcon = true;
-        //io.ConfigViewportsNoDefaultParent = true;
-        //io.ConfigDockingAlwaysTabBar = true;
-        //io.ConfigDockingTransparentPayload = true;
-        //io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // FIXME-DPI: Experimental. THIS CURRENTLY DOESN'T WORK AS EXPECTED. DON'T USE IN USER APP!
-        //io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; // FIXME-DPI: Experimental.
-
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        //ImGui::StyleColorsClassic();
-
-        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-        ImGuiStyle& style = ImGui::GetStyle();
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            style.WindowRounding = 0.0f;
-            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-        }
-
-        // Setup Platform/Renderer backends
-        // ImGui_ImplGlfw_Init(window->GetHandle(), true);
-        ImGui_ImplGlfw_InitForOther(window->GetHandle(), true);
-        ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
-
         while (window->IsRunning())
         {
-            // Start the Dear ImGui frame
-            ImGui_ImplDX11_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-
             window->BeginFrame();
-
-                static float theta{0};
-                theta += 0.05f;
-
+                static float theta{0}; theta += 0.05f;
                 DX::GetRenderTargetView()->Bind();
                 DX::GetRenderTargetView()->Clear();
                 RenderMesh(0, theta, characterMesh.indices.size());
-
-                ImGui::ShowDemoWindow();
-                
-                ImGui::Render();
-                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-                if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-                {
-                    ImGui::UpdatePlatformWindows();
-                    ImGui::RenderPlatformWindowsDefault();
-                }
-
             window->EndFrame();
         }
-
-        // Cleanup
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
     }
     catch (const std::runtime_error& exception)
     {
