@@ -1,13 +1,8 @@
 #include "Window/Window.h"
 #include "Common/Vertex.h"
 #include "Util/Assets.h"
-#include "DX/DX.h"
-
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_glfw.h>
-
 #include "API/Buffer.h"
+#include "DX/DX.h"
 
 static Ptr<API::VertexBuffer>   meshVertexBuffer{nullptr};
 static Ptr<API::IndexBuffer>    meshIndexBuffer{nullptr};
@@ -68,55 +63,19 @@ int main()
 
         InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-        ImGui::StyleColorsDark();
-        ImGui_ImplGlfw_InitForOther(window.GetHandle(), true);
-        ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
-
         while (window.IsRunning())
         {
             window.BeginFrame();
 
-            ImGui_ImplDX11_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-
                 static float theta{0};
                 theta += 0.05f;
-
-                ImGui::ShowDemoWindow();
-
-                ImGui::Begin("Settings");
-                    if (ImGui::Button("Toggle vsync"))
-                    {
-                        window.SetVSync(!window.GetVSync());
-                    }
-                ImGui::End();
 
                 DX::GetRenderTargetView()->Bind();
                 DX::GetRenderTargetView()->Clear();
                 RenderMesh(0, theta, characterMesh.indices.size());
 
-                ImGui::Render();
-                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-            // Update and Render additional Platform Windows
-            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-            }
-
             window.EndFrame();
         }
-
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
     }
     catch (const std::runtime_error& exception)
     {
