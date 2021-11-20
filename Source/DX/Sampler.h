@@ -5,15 +5,17 @@
 
 #include "Instance.h"
 
+#include "../API/Sampler.h"
+
 namespace DX
 {
-    class Sampler
+    class Sampler : public API::Sampler
     {
     public:
         Sampler();
        ~Sampler() = default;
 
-        void Bind();
+        void Bind() override;
 
     private:
         ComPtr<ID3D11SamplerState> dxSampler;

@@ -1,6 +1,7 @@
 #include "Window/RawWindow.h"
 #include "Common/Vertex.h"
 #include "Util/Assets.h"
+#include "API/Sampler.h"
 #include "API/Window.h"
 #include "API/Buffer.h"
 #include "API/Shader.h"
@@ -10,8 +11,8 @@ static Ptr<API::VertexBuffer> meshVertexBuffer{nullptr};
 static Ptr<API::IndexBuffer> meshIndexBuffer{nullptr};
 static Ptr<API::UniformBuffer> constantBuffer{nullptr};
 static Ptr<API::Shader> shader{nullptr};
+static Ptr<API::Sampler> sampler{nullptr};
 
-static Ptr<DX::Sampler> sampler{nullptr};
 static Ptr<DX::Texture> texture{nullptr};
 
 void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
@@ -46,9 +47,10 @@ void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode,
     meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
     constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
     shader = API::Shader::Create(vsCode, psCode);
+    sampler = API::Sampler::Create();
     
     // shader = CreatePtr<DX::Shader>(vsCode, psCode);
-    sampler = CreatePtr<DX::Sampler>();
+    // sampler = CreatePtr<DX::Sampler>();
     texture = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
 }
 
