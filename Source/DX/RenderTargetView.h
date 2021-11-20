@@ -21,8 +21,8 @@ namespace DX
         void Unbind();
         void Clear(const std::array<float, 4>& clearColor = {0, 0, 0, 1});
 
-        ID3D11RenderTargetView *GetDXRenderTarget();
-        Texture *GetTexture();
+        ID3D11RenderTargetView* GetDXRenderTarget();
+        Texture* GetTexture();
 
     private:
         void Init(const unsigned int width, const unsigned int height, ID3D11Resource *resource, const bool initDepth);
