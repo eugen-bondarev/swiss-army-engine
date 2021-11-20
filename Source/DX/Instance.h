@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "../API/Instance.h"
+
 #include "SwapChain.h"
 #include "Debugger.h"
 #include "Common.h"
@@ -19,7 +21,7 @@ namespace DX
     SwapChain* GetSwapChain();
     Ref<RenderTargetView>& GetRenderTargetView();
 
-    class Instance final
+    class Instance final : public API::Instance
     {
     friend class Window;
 
@@ -36,9 +38,9 @@ namespace DX
         void SetViewport(const UINT width, const UINT height, const UINT x = 0u, const UINT y = 0u);
         void OnResize(const unsigned int width, const unsigned int height);
 
-    private:
-        const Window& window;
+        API::Type GetAPIType() const override;
 
+    private:
         ComPtr<ID3D11Device>        dxDevice;
         ComPtr<ID3D11DeviceContext> dxContext;
         Ptr<SwapChain>              swapChain;
@@ -51,9 +53,6 @@ namespace DX
         Instance(const Instance&) = delete;
         Instance& operator=(const Instance&) = delete;
     };
-
-    Instance* GetInstance(Window* window);
-    void MakeInstanceCurrent(Instance* newContext);
 }
 
 #endif

@@ -5,20 +5,7 @@
 
 namespace DX
 {
-    static thread_local std::map<Window*, Instance*>     instances;
-    static thread_local Instance*                        currentInstance{nullptr};
-
-    void MakeInstanceCurrent(Instance* newContext)
-    {
-        currentInstance = newContext;
-    }
-
-    Instance* GetInstance(Window* window)
-    {
-        return instances[window];
-    }
-
-    Instance::Instance(Window& window) : window{window}
+    Instance::Instance(Window& window) : API::Instance(window)
     {
         DXGI_SWAP_CHAIN_DESC swapChainDesc{};
         swapChainDesc.BufferDesc.Width = 0;
@@ -41,10 +28,10 @@ namespace DX
         swapChainDesc.OutputWindow = glfwGetWin32Window(window.GetHandle());
         swapChainDesc.Windowed = TRUE;
 
-        // swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        // swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         
-        swapChainDesc.Flags = 0;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
         swapChain = CreatePtr<SwapChain>(window);
         window.ResizeSubscribe(std::bind(&Instance::OnResize, this, std::placeholders::_1, std::placeholders::_2));
@@ -76,9 +63,6 @@ namespace DX
         debugger = CreatePtr<Debugger>();
 #endif
 
-        instances[&window] = this;
-        currentInstance = this;
-
         renderTargetView = CreateRef<RenderTargetView>(swapChain.get(), true);
         renderTargetView->Bind();
 
@@ -92,6 +76,11 @@ namespace DX
         dxContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
 
         SetViewport(window.GetWidth(), window.GetHeight());
+    }
+
+    API::Type Instance::GetAPIType() const
+    {
+        return API::Type::DirectX;
     }
 
     void Instance::SetViewport(const UINT width, const UINT height, const UINT x, const UINT y)
@@ -117,27 +106,27 @@ namespace DX
 #ifndef NDEBUG
     Debugger* GetDebugger()
     {
-        return currentInstance->debugger.get();
+        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->debugger.get();
     }
 #endif
 
     ID3D11Device* GetDevice()
     {
-        return currentInstance->dxDevice.Get();
+        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->dxDevice.Get();
     }
 
     ID3D11DeviceContext* GetContext()
     {
-        return currentInstance->dxContext.Get();
+        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->dxContext.Get();
     }
 
     SwapChain* GetSwapChain()
     {
-        return currentInstance->swapChain.get();
+        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->swapChain.get();
     }
 
     Ref<RenderTargetView>& GetRenderTargetView()
     {
-        return currentInstance->renderTargetView;
+        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->renderTargetView;
     }
 }

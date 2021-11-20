@@ -7,30 +7,24 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_glfw.h>
 
-#include <thread>
+#include "API/Buffer.h"
 
-static Ptr<DX::VertexBuffer>   meshVertexBuffer1{nullptr};
-static Ptr<DX::IndexBuffer>    meshIndexBuffer1{nullptr};
-static Ptr<DX::ConstantBuffer> constantBuffer1{nullptr};
-static Ptr<DX::Shader>         shader1{nullptr};
-static Ptr<DX::Sampler>        sampler1{nullptr};
-static Ptr<DX::Texture>        texture1{nullptr};
+static Ptr<API::VertexBuffer>   meshVertexBuffer{nullptr};
+static Ptr<API::IndexBuffer>    meshIndexBuffer{nullptr};
+static Ptr<API::UniformBuffer>  constantBuffer{nullptr};
 
-static Ptr<DX::VertexBuffer>   meshVertexBuffer2{nullptr};
-static Ptr<DX::IndexBuffer>    meshIndexBuffer2{nullptr};
-static Ptr<DX::ConstantBuffer> constantBuffer2{nullptr};
-static Ptr<DX::Shader>         shader2{nullptr};
-static Ptr<DX::Sampler>        sampler2{nullptr};
-static Ptr<DX::Texture>        texture2{nullptr};
+static Ptr<DX::Shader>         shader{nullptr};
+static Ptr<DX::Sampler>        sampler{nullptr};
+static Ptr<DX::Texture>        texture{nullptr};
 
-void RenderMesh1(const float angleX, const float angleY, const unsigned int numIndices)
+void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
 {
-    meshVertexBuffer1->Bind(sizeof(Vertex), 0u);
-    meshIndexBuffer1->Bind();
-    constantBuffer1->Bind();
-    shader1->Bind();
-    sampler1->Bind();
-    texture1->Bind();
+    meshVertexBuffer->Bind(0u);
+    meshIndexBuffer->Bind();
+    constantBuffer->Bind();
+    shader->Bind();
+    sampler->Bind();
+    texture->Bind();
 
     const DX::XMMATRIX transform = 
         DX::XMMatrixScaling(1, 1, 1) *
@@ -40,59 +34,24 @@ void RenderMesh1(const float angleX, const float angleY, const unsigned int numI
         DX::XMMatrixTranslation(0, -5, 10) * 
         DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, static_cast<float>(DX::GetSwapChain()->GetWidth()) / static_cast<float>(DX::GetSwapChain()->GetHeight()), 0.1f, 1000.0f);
 
-    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer1->Map());
+    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
     *data = DX::XMMatrixTranspose(transform);
-    constantBuffer1->Unmap();
+    constantBuffer->Unmap();
 
     DX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     D3D_TRY(DX::GetContext()->DrawIndexed(numIndices, 0u, 0u));
 }
 
-void RenderMesh2(const float angleX, const float angleY, const unsigned int numIndices)
+void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode, const Util::ModelAsset& characterMesh, const Util::ImageAsset& characterTexture)
 {
-    meshVertexBuffer2->Bind(sizeof(Vertex), 0u);
-    meshIndexBuffer2->Bind();
-    constantBuffer2->Bind();
-    shader2->Bind();
-    sampler2->Bind();
-    texture2->Bind();
-
-    const DX::XMMATRIX transform = 
-        DX::XMMatrixScaling(1, 1, 1) *
-        DX::XMMatrixRotationX(angleX) * 
-        DX::XMMatrixRotationY(angleY + M_PI) * 
-        DX::XMMatrixRotationZ(0) * 
-        DX::XMMatrixTranslation(0, -5, 10) * 
-        DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, static_cast<float>(DX::GetSwapChain()->GetWidth()) / static_cast<float>(DX::GetSwapChain()->GetHeight()), 0.1f, 1000.0f);
-
-    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer2->Map());
-    *data = DX::XMMatrixTranspose(transform);
-    constantBuffer2->Unmap();
-
-    DX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    D3D_TRY(DX::GetContext()->DrawIndexed(numIndices, 0u, 0u));
-}
-
-void InitResources1(const Util::TextAsset& vsCode, const Util::TextAsset& psCode, const Util::ModelAsset& characterMesh, const Util::ImageAsset& characterTexture)
-{
-    meshVertexBuffer1 = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
-    meshIndexBuffer1 = CreatePtr<DX::IndexBuffer>(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
-    constantBuffer1 = CreatePtr<DX::ConstantBuffer>(sizeof(DX::XMMATRIX));
-    shader1 = CreatePtr<DX::Shader>(vsCode, psCode);
-    sampler1 = CreatePtr<DX::Sampler>();
-    texture1 = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
-}
-
-void InitResources2(const Util::TextAsset& vsCode, const Util::TextAsset& psCode, const Util::ModelAsset& characterMesh, const Util::ImageAsset& characterTexture)
-{
-    meshVertexBuffer2 = CreatePtr<DX::VertexBuffer>(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
-    meshIndexBuffer2 = CreatePtr<DX::IndexBuffer>(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
-    constantBuffer2 = CreatePtr<DX::ConstantBuffer>(sizeof(DX::XMMATRIX));
-    shader2 = CreatePtr<DX::Shader>(vsCode, psCode);
-    sampler2 = CreatePtr<DX::Sampler>();
-    texture2 = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
+    meshVertexBuffer = API::VertexBuffer::Create(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
+    meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
+    constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
+    
+    shader = CreatePtr<DX::Shader>(vsCode, psCode);
+    sampler = CreatePtr<DX::Sampler>();
+    texture = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
 }
 
 int main()
@@ -104,52 +63,51 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        std::thread thread1([&]()
+        Window window(WindowMode::Windowed, true, 800, 600, "Window 1");
+        Ptr<API::Instance> instance = API::Instance::Create(window, API::Type::DirectX);
+
+        InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGui::StyleColorsDark();
+        ImGui_ImplGlfw_InitForOther(window.GetHandle(), true);
+        ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
+
+        while (window.IsRunning())
         {
-            Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
-            DX::Instance instance1(window1);
-            InitResources1(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+            window.BeginFrame();
+            
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-            while (window1.IsRunning())
-            {
                 static float theta{0};
-
                 theta += 0.05f;
 
-                DX::MakeInstanceCurrent(&instance1);
+                ImGui::ShowDemoWindow();
 
-                window1.BeginFrame();
-                    DX::GetRenderTargetView()->Bind();
-                    DX::GetRenderTargetView()->Clear();
-                    RenderMesh1(0, theta, characterMesh.indices.size());            
-                window1.EndFrame();
-            }
-        });
+                ImGui::Begin("Settings");
+                    if (ImGui::Button("Toggle vsync"))
+                    {
+                        window.SetVSync(!window.GetVSync());
+                    }
+                ImGui::End();
 
-        std::thread thread2([&]()
-        {
-            Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
-            DX::Instance instance1(window1);
-            InitResources2(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+                DX::GetRenderTargetView()->Bind();
+                DX::GetRenderTargetView()->Clear();
+                RenderMesh(0, theta, characterMesh.indices.size());
 
-            while (window1.IsRunning())
-            {
-                static float theta{0};
+                ImGui::Render();
+                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-                theta += 0.05f;
+            window.EndFrame();
+        }
 
-                DX::MakeInstanceCurrent(&instance1);
-
-                window1.BeginFrame();
-                    DX::GetRenderTargetView()->Bind();
-                    DX::GetRenderTargetView()->Clear();
-                    RenderMesh2(0, theta, characterMesh.indices.size());            
-                window1.EndFrame();
-            }
-        });
-
-        thread1.join();
-        thread2.join();
+        ImGui_ImplDX11_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
     catch (const std::runtime_error& exception)
     {

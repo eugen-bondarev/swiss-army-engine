@@ -40,7 +40,7 @@ public:
     void BeginFrame();
     void EndFrame();
 
-    void ResizeSubscribe(const Callback::Resize& NewResizeCallback);
+    void ResizeSubscribe(const Callback::Resize& callback);
     void ResizeClear();
 
     void SetVSync(const bool value);
