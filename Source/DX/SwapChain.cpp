@@ -2,7 +2,7 @@
 
 #include "RenderTargetView.h"
 #include "../Window/RawWindow.h"
-#include "Instance.h"
+#include "GraphicsContext.h"
 
 namespace DX
 {

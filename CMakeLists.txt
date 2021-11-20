@@ -4,6 +4,8 @@ project(direct3d VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Vulkan REQUIRED)
+
 file(GLOB_RECURSE VAR_SRC Source/*.cpp external/imgui/*.cpp)
 
 add_executable(
@@ -27,6 +29,8 @@ target_link_libraries(${PROJECT_NAME}
     d3d11
     dxguid
     d3dcompiler
+    
+    ${Vulkan_LIBRARIES}
 
     assimp
     glfw
@@ -34,6 +38,8 @@ target_link_libraries(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
+
+	${Vulkan_INCLUDE_DIR} 
     
     "external/glfw/include"
     "external/assimp/include"

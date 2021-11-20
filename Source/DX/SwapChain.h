@@ -12,7 +12,7 @@ namespace DX
 {
     class SwapChain : public Base::SwapChain
     {
-    friend class Instance;
+    friend class GraphicsContext;
 
     public:
         SwapChain(const RawWindow& window);

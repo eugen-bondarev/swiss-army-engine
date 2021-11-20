@@ -4,7 +4,7 @@
 #pragma once
 
 #include "../Window/RawWindow.h"
-#include "Instance.h"
+#include "GraphicsContext.h"
 
 namespace API
 {
@@ -14,13 +14,15 @@ namespace API
         template <typename... Args>
         Window(const Type type, Args&&... args) : RawWindow(std::forward<Args&&>(args)...)
         {
-            instance = Instance::Create(*this, type);
+            graphicsContext = GraphicsContext::Create(*this, type);
         }
 
        ~Window() = default;
+
+        GraphicsContext* GetGraphicsContext();
     
     private:
-        Ptr<Instance> instance;
+        Ptr<GraphicsContext> graphicsContext;
 
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;

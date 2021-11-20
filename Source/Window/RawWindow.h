@@ -3,6 +3,8 @@
 
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#define GLFW_INCLUDE_VULKAN
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
@@ -13,7 +15,7 @@
 
 namespace DX
 {
-    FORWARD_DECLARE(Instance);
+    FORWARD_DECLARE(GraphicsContext);
 }
 
 namespace Base
@@ -30,7 +32,7 @@ enum class WindowMode
 
 class RawWindow
 {
-friend class DX::Instance;
+friend class DX::GraphicsContext;
 friend class CallbackManager;
 
 public:

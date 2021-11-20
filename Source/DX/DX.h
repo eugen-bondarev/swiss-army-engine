@@ -4,7 +4,7 @@
 #pragma once
 
 #include "RenderTargetView.h"
-#include "Instance.h"
+#include "GraphicsContext.h"
 #include "Debugger.h"
 #include "Texture.h"
 #include "Sampler.h"

@@ -59,18 +59,18 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::DirectX);
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 800, 600);
 
-        InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+        // InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
         while (window->IsRunning())
         {
             window->BeginFrame();
-                static float theta{0}; theta += 0.05f;
-                DX::GetRenderTargetView()->Bind();
-                DX::GetRenderTargetView()->Clear();
-                RenderMesh(0, theta, characterMesh.indices.size());
-            window->EndFrame();
+            //     static float theta{0}; theta += 0.05f;
+            //     DX::GetRenderTargetView()->Bind();
+            //     DX::GetRenderTargetView()->Clear();
+            //     RenderMesh(0, theta, characterMesh.indices.size());
+            // window->EndFrame();
         }
     }
     catch (const std::runtime_error& exception)

@@ -5,7 +5,7 @@
 
 #include "DepthBuffer.h"
 #include "SwapChain.h"
-#include "Instance.h"
+#include "GraphicsContext.h"
 #include "Texture.h"
 
 namespace DX

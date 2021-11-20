@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Instance.h"
+#include "GraphicsContext.h"
 
 #include "../API/Sampler.h"
 

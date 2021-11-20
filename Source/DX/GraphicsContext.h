@@ -1,9 +1,9 @@
-#ifndef __DX_Instance_h__
-#define __DX_Instance_h__
+#ifndef __DX_GraphicsContext_h__
+#define __DX_GraphicsContext_h__
 
 #pragma once
 
-#include "../API/Instance.h"
+#include "../API/GraphicsContext.h"
 
 #include "SwapChain.h"
 #include "Debugger.h"
@@ -21,7 +21,7 @@ namespace DX
     SwapChain* GetSwapChain();
     Ref<RenderTargetView>& GetRenderTargetView();
 
-    class Instance final : public API::Instance
+    class GraphicsContext final : public API::GraphicsContext
     {
     friend class RawWindow;
 
@@ -32,8 +32,8 @@ namespace DX
     friend Ref<RenderTargetView>& GetRenderTargetView();
 
     public:
-        Instance(RawWindow& window);
-       ~Instance() = default;
+        GraphicsContext(RawWindow& window);
+       ~GraphicsContext() = default;
 
         void SetViewport(const UINT width, const UINT height, const UINT x = 0u, const UINT y = 0u);
         void OnResize(const unsigned int width, const unsigned int height);
@@ -50,8 +50,8 @@ namespace DX
         Ptr<Debugger>               debugger;
 #endif
 
-        Instance(const Instance&) = delete;
-        Instance& operator=(const Instance&) = delete;
+        GraphicsContext(const GraphicsContext&) = delete;
+        GraphicsContext& operator=(const GraphicsContext&) = delete;
     };
 }
 

@@ -1,11 +1,11 @@
-#include "Instance.h"
+#include "GraphicsContext.h"
 
 #include "../Window/RawWindow.h"
 #include "RenderTargetView.h"
 
 namespace DX
 {
-    Instance::Instance(RawWindow& window) : API::Instance(window)
+    GraphicsContext::GraphicsContext(RawWindow& window) : API::GraphicsContext(window)
     {
         DXGI_SWAP_CHAIN_DESC swapChainDesc{};
         swapChainDesc.BufferDesc.Width = 0;
@@ -34,7 +34,7 @@ namespace DX
         swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
         swapChain = CreatePtr<SwapChain>(window);
-        window.ResizeSubscribe(std::bind(&Instance::OnResize, this, std::placeholders::_1, std::placeholders::_2));
+        window.ResizeSubscribe(std::bind(&GraphicsContext::OnResize, this, std::placeholders::_1, std::placeholders::_2));
         window.SetSwapChain(swapChain.get());
 
         const UINT flags =
@@ -78,12 +78,12 @@ namespace DX
         SetViewport(window.GetWidth(), window.GetHeight());
     }
 
-    API::Type Instance::GetAPIType() const
+    API::Type GraphicsContext::GetAPIType() const
     {
         return API::Type::DirectX;
     }
 
-    void Instance::SetViewport(const UINT width, const UINT height, const UINT x, const UINT y)
+    void GraphicsContext::SetViewport(const UINT width, const UINT height, const UINT x, const UINT y)
     {
         D3D11_VIEWPORT viewport;
         viewport.Width = width;
@@ -95,7 +95,7 @@ namespace DX
         dxContext->RSSetViewports(1u, &viewport);
     }
 
-    void Instance::OnResize(const unsigned int width, const unsigned int height)
+    void GraphicsContext::OnResize(const unsigned int width, const unsigned int height)
     {
         renderTargetView.reset();
         swapChain->Resize(window.GetWidth(), window.GetHeight());
@@ -106,27 +106,27 @@ namespace DX
 #ifndef NDEBUG
     Debugger* GetDebugger()
     {
-        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->debugger.get();
+        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->debugger.get();
     }
 #endif
 
     ID3D11Device* GetDevice()
     {
-        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->dxDevice.Get();
+        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->dxDevice.Get();
     }
 
     ID3D11DeviceContext* GetContext()
     {
-        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->dxContext.Get();
+        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->dxContext.Get();
     }
 
     SwapChain* GetSwapChain()
     {
-        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->swapChain.get();
+        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain.get();
     }
 
     Ref<RenderTargetView>& GetRenderTargetView()
     {
-        return dynamic_cast<DX::Instance*>(API::GetCurrentInstance())->renderTargetView;
+        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->renderTargetView;
     }
 }
