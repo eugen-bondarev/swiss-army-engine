@@ -13,4 +13,9 @@ namespace VK
     {
         vkDestroySurfaceKHR(instance.GetVkInstance(), vkSurface, nullptr);
     }
+
+    const VkSurfaceKHR& Surface::GetVkSurface() const
+    {
+        return vkSurface;
+    }
 }

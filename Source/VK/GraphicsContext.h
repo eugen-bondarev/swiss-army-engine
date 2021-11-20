@@ -6,6 +6,7 @@
 #include "../API/GraphicsContext.h"
 #include "Entities/Instance/Instance.h"
 #include "Entities/Surface/Surface.h"
+#include "Entities/Device/Device.h"
 #include "Common.h"
 
 FORWARD_DECLARE(RawWindow);
@@ -23,6 +24,7 @@ namespace VK
     private:
         Ptr<Instance> instance;
         Ptr<Surface> surface;
+        Ptr<Device> device;
     };
 }
 

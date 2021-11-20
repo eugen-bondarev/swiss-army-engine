@@ -6,6 +6,7 @@ namespace VK
     {
         instance = CreatePtr<Instance>();
         surface = CreatePtr<Surface>(*instance, window);
+        device = CreatePtr<Device>(*instance, *surface);
     }
 
     API::Type GraphicsContext::GetAPIType() const
