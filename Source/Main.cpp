@@ -71,6 +71,8 @@ int main()
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOther(window.GetHandle(), true);
         ImGui_ImplDX11_Init(DX::GetDevice(), DX::GetContext());
@@ -78,7 +80,7 @@ int main()
         while (window.IsRunning())
         {
             window.BeginFrame();
-            
+
             ImGui_ImplDX11_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
@@ -101,6 +103,13 @@ int main()
 
                 ImGui::Render();
                 ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+            // Update and Render additional Platform Windows
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
 
             window.EndFrame();
         }
