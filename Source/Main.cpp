@@ -7,6 +7,8 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_glfw.h>
 
+#include <thread>
+
 static Ptr<DX::VertexBuffer>   meshVertexBuffer1{nullptr};
 static Ptr<DX::IndexBuffer>    meshIndexBuffer1{nullptr};
 static Ptr<DX::ConstantBuffer> constantBuffer1{nullptr};
@@ -102,24 +104,52 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
-        DX::Instance instance1(window1);
-        InitResources1(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
-
-        while (window1.IsRunning())
+        std::thread thread1([&]()
         {
-            static float theta{0};
+            Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
+            DX::Instance instance1(window1);
+            InitResources1(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
-            theta += 0.05f;
+            while (window1.IsRunning())
+            {
+                static float theta{0};
 
-            DX::MakeInstanceCurrent(&instance1);
+                theta += 0.05f;
 
-            window1.BeginFrame();
-                DX::GetRenderTargetView()->Bind();
-                DX::GetRenderTargetView()->Clear();
-                RenderMesh1(0, theta, characterMesh.indices.size());            
-            window1.EndFrame();
-        }
+                DX::MakeInstanceCurrent(&instance1);
+
+                window1.BeginFrame();
+                    DX::GetRenderTargetView()->Bind();
+                    DX::GetRenderTargetView()->Clear();
+                    RenderMesh1(0, theta, characterMesh.indices.size());            
+                window1.EndFrame();
+            }
+        });
+
+        std::thread thread2([&]()
+        {
+            Window window1(WindowMode::Windowed, true, 800, 600, "Window 1");
+            DX::Instance instance1(window1);
+            InitResources2(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+
+            while (window1.IsRunning())
+            {
+                static float theta{0};
+
+                theta += 0.05f;
+
+                DX::MakeInstanceCurrent(&instance1);
+
+                window1.BeginFrame();
+                    DX::GetRenderTargetView()->Bind();
+                    DX::GetRenderTargetView()->Clear();
+                    RenderMesh2(0, theta, characterMesh.indices.size());            
+                window1.EndFrame();
+            }
+        });
+
+        thread1.join();
+        thread2.join();
     }
     catch (const std::runtime_error& exception)
     {
