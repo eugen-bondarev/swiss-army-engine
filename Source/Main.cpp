@@ -12,8 +12,7 @@ static Ptr<API::IndexBuffer> meshIndexBuffer{nullptr};
 static Ptr<API::UniformBuffer> constantBuffer{nullptr};
 static Ptr<API::Shader> shader{nullptr};
 static Ptr<API::Sampler> sampler{nullptr};
-
-static Ptr<DX::Texture> texture{nullptr};
+static Ptr<API::Texture> texture{nullptr};
 
 void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
 {
@@ -48,10 +47,7 @@ void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode,
     constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
     shader = API::Shader::Create(vsCode, psCode);
     sampler = API::Sampler::Create();
-    
-    // shader = CreatePtr<DX::Shader>(vsCode, psCode);
-    // sampler = CreatePtr<DX::Sampler>();
-    texture = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
+    texture = API::Texture::Create(characterTexture.width, characterTexture.height, characterTexture.data);
 }
 
 int main()
