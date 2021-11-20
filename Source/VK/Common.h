@@ -3,9 +3,23 @@
 
 #include "../Common/Common.h"
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#define GLFW_INCLUDE_VULKAN
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 namespace VK
 {
-
+    
 }
+
+#ifndef NDEBUG
+#   define VK_TRY(exp)\
+        MY_ASSERT(exp == VK_SUCCESS)
+#else
+#   define VK_TRY(exp)\
+        exp
+#endif
 
 #endif
