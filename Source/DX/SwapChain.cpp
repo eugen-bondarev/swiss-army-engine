@@ -1,12 +1,12 @@
 #include "SwapChain.h"
 
 #include "RenderTargetView.h"
-#include "../Window/Window.h"
+#include "../Window/RawWindow.h"
 #include "Instance.h"
 
 namespace DX
 {
-    SwapChain::SwapChain(const Window& window) : Base::SwapChain(window)
+    SwapChain::SwapChain(const RawWindow& window) : Base::SwapChain(window)
     {
     }
 

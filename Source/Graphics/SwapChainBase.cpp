@@ -1,9 +1,9 @@
-#include "../Window/Window.h"
+#include "../Window/RawWindow.h"
 #include "SwapChainBase.h"
 
 namespace Base
 {
-    SwapChain::SwapChain(const Window &window) : window{window}
+    SwapChain::SwapChain(const RawWindow& window) : window{window}
     {
     }
 

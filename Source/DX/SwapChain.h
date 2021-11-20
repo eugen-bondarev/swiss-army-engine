@@ -6,7 +6,7 @@
 #include "../Graphics/SwapChainBase.h"
 #include "Common.h"
 
-FORWARD_DECLARE(Window);
+FORWARD_DECLARE(RawWindow);
 
 namespace DX
 {
@@ -15,7 +15,7 @@ namespace DX
     friend class Instance;
 
     public:
-        SwapChain(const Window& window);
+        SwapChain(const RawWindow& window);
        ~SwapChain() = default;
 
         void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;

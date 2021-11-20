@@ -1,13 +1,16 @@
-#include "Window/Window.h"
+#include "Window/RawWindow.h"
 #include "Common/Vertex.h"
 #include "Util/Assets.h"
+#include "API/Window.h"
 #include "API/Buffer.h"
+#include "API/Shader.h"
 #include "DX/DX.h"
 
 static Ptr<API::VertexBuffer> meshVertexBuffer{nullptr};
 static Ptr<API::IndexBuffer> meshIndexBuffer{nullptr};
 static Ptr<API::UniformBuffer> constantBuffer{nullptr};
-static Ptr<DX::Shader> shader{nullptr};
+static Ptr<API::Shader> shader{nullptr};
+
 static Ptr<DX::Sampler> sampler{nullptr};
 static Ptr<DX::Texture> texture{nullptr};
 
@@ -42,8 +45,9 @@ void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode,
     meshVertexBuffer = API::VertexBuffer::Create(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
     meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
     constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
+    shader = API::Shader::Create(vsCode, psCode);
     
-    shader = CreatePtr<DX::Shader>(vsCode, psCode);
+    // shader = CreatePtr<DX::Shader>(vsCode, psCode);
     sampler = CreatePtr<DX::Sampler>();
     texture = CreatePtr<DX::Texture>(characterTexture.width, characterTexture.height, characterTexture.data);
 }
@@ -57,8 +61,7 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<Window> window = CreatePtr<Window>();
-        Ptr<API::Instance> instance = API::Instance::Create(*window, API::Type::DirectX);
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::DirectX);
 
         InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 

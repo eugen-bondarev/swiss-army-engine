@@ -6,16 +6,16 @@
     
 namespace API
 {
-    static thread_local std::map<Window*, Instance*>     instances;
+    static thread_local std::map<RawWindow*, Instance*>     instances;
     static thread_local Instance*                        currentInstance{nullptr};
 
-    Instance::Instance(Window& window) : window{window}
+    Instance::Instance(RawWindow& window) : window{window}
     {
         instances[&window] = this;
         currentInstance = this;
     }
 
-    Ptr<Instance> Instance::Create(Window& window, const Type type)
+    Ptr<Instance> Instance::Create(RawWindow& window, const Type type)
     {
         if (type == Type::DirectX) return CreatePtr<DX::Instance>(window);
         return nullptr;
@@ -26,7 +26,7 @@ namespace API
         currentInstance = newContext;
     }
 
-    Instance* GetInstance(Window* window)
+    Instance* GetInstance(RawWindow* window)
     {
         return instances[window];
     }

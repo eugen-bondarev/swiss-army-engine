@@ -9,7 +9,7 @@
 #include "Debugger.h"
 #include "Common.h"
 
-FORWARD_DECLARE(Window);
+FORWARD_DECLARE(RawWindow);
 
 namespace DX
 {
@@ -23,7 +23,7 @@ namespace DX
 
     class Instance final : public API::Instance
     {
-    friend class Window;
+    friend class RawWindow;
 
     friend ID3D11Device* GetDevice();
     friend ID3D11DeviceContext* GetContext();
@@ -32,7 +32,7 @@ namespace DX
     friend Ref<RenderTargetView>& GetRenderTargetView();
 
     public:
-        Instance(Window& window);
+        Instance(RawWindow& window);
        ~Instance() = default;
 
         void SetViewport(const UINT width, const UINT height, const UINT x = 0u, const UINT y = 0u);

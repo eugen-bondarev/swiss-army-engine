@@ -1,11 +1,11 @@
 #include "Instance.h"
 
+#include "../Window/RawWindow.h"
 #include "RenderTargetView.h"
-#include "../Window/Window.h"
 
 namespace DX
 {
-    Instance::Instance(Window& window) : API::Instance(window)
+    Instance::Instance(RawWindow& window) : API::Instance(window)
     {
         DXGI_SWAP_CHAIN_DESC swapChainDesc{};
         swapChainDesc.BufferDesc.Width = 0;

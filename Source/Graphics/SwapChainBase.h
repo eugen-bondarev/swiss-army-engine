@@ -6,17 +6,17 @@
 #include "../Common/Common.h"
 
 FORWARD_DECLARE(CallbackManager);
-FORWARD_DECLARE(Window);
+FORWARD_DECLARE(RawWindow);
 
 namespace Base
 {
     class SwapChain
     {
     friend class ::CallbackManager;
-    friend class ::Window;
+    friend class ::RawWindow;
 
     public:
-        SwapChain(const Window& window);
+        SwapChain(const RawWindow& window);
        ~SwapChain() = default;
 
         virtual void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) = 0;
@@ -26,7 +26,7 @@ namespace Base
         unsigned int GetHeight() const;
 
     protected:
-        const Window& window;
+        const RawWindow& window;
     };
 }
 

@@ -1,7 +1,4 @@
-#include "Window.h"
-
-#include "../DX/Instance.h"
-#include "../DX/SwapChain.h"
+#include "RawWindow.h"
 
 #include <mutex>
 
@@ -22,7 +19,7 @@ public:
 
     static void SizeCallback(GLFWwindow* handle, int width, int height)
     {
-        Window* window = static_cast<Window*>(glfwGetWindowUserPointer(handle));
+        RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
         window->width = width; window->height = height;
         Issue(window->resizeCallbacks, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
     }
@@ -41,7 +38,7 @@ static void GetMonitorResolution(unsigned int& width, unsigned int& height)
     height = mode->height;
 }
 
-Window::Window(const WindowMode mode, const bool vSync, const unsigned int width, const unsigned int height, const std::string& title) : vSync{vSync}
+RawWindow::RawWindow(const WindowMode mode, const bool vSync, const unsigned int width, const unsigned int height, const std::string& title) : vSync{vSync}
 {
     {
         static std::mutex glfwInitMutex;
@@ -107,7 +104,7 @@ Window::Window(const WindowMode mode, const bool vSync, const unsigned int width
     numWindows++;
 }
 
-Window::~Window()
+RawWindow::~RawWindow()
 {
     numWindows--;
 
@@ -120,63 +117,63 @@ Window::~Window()
     }
 }
 
-void Window::BeginFrame()
+void RawWindow::BeginFrame()
 {
     glfwPollEvents();
 }
 
-void Window::EndFrame()
+void RawWindow::EndFrame()
 {
     MY_ASSERT(swapChain != nullptr);
     swapChain->Present(static_cast<unsigned int>(vSync), 0u);
 }
 
-bool Window::IsRunning() const
+bool RawWindow::IsRunning() const
 {
     return !glfwWindowShouldClose(handle) && running;
 }
 
-void Window::Destroy()
+void RawWindow::Destroy()
 {
     running = false;
 }
 
-void Window::SetVSync(const bool value)
+void RawWindow::SetVSync(const bool value)
 {
     vSync = value;
 }
 
-bool Window::GetVSync() const
+bool RawWindow::GetVSync() const
 {
     return vSync;
 }
 
-unsigned int Window::GetWidth() const
+unsigned int RawWindow::GetWidth() const
 {
     return width;
 }
 
-unsigned int Window::GetHeight() const
+unsigned int RawWindow::GetHeight() const
 {
     return height;
 }
 
-void Window::SetSwapChain(Base::SwapChain* swapChain)
+void RawWindow::SetSwapChain(Base::SwapChain* swapChain)
 {
     this->swapChain = swapChain;
 }
 
-GLFWwindow* Window::GetHandle()
+GLFWwindow* RawWindow::GetHandle()
 {
     return handle;
 }
 
-void Window::ResizeSubscribe(const Callback::Resize& callback)
+void RawWindow::ResizeSubscribe(const Callback::Resize& callback)
 {
     resizeCallbacks.push_back(callback);
 }
 
-void Window::ResizeClear()
+void RawWindow::ResizeClear()
 {
     resizeCallbacks.clear();
 }

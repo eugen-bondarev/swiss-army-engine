@@ -4,7 +4,7 @@
 
 namespace DX
 {
-    Shader::Shader(const std::string &vsCode, const std::string &psCode)
+    Shader::Shader(const std::string& vsCode, const std::string& psCode)
     {
         ComPtr<ID3D10Blob> vsBlob;
         ComPtr<ID3D10Blob> psBlob;

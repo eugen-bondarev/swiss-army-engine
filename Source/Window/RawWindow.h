@@ -28,14 +28,14 @@ enum class WindowMode
     Borderless
 };
 
-class Window
+class RawWindow
 {
 friend class DX::Instance;
 friend class CallbackManager;
 
 public:
-    Window(const WindowMode mode = WindowMode::Windowed, const bool vSync = true, const unsigned int width = 0u, const unsigned int height = 0u, const std::string& title = "Window");
-   ~Window();
+    RawWindow(const WindowMode mode = WindowMode::Windowed, const bool vSync = true, const unsigned int width = 0u, const unsigned int height = 0u, const std::string& title = "Window");
+   ~RawWindow();
 
     void BeginFrame();
     void EndFrame();
@@ -64,8 +64,8 @@ private:
     Base::SwapChain* swapChain;
     void SetSwapChain(Base::SwapChain* swapChain);
 
-    Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
+    RawWindow(const RawWindow&) = delete;
+    RawWindow& operator=(const RawWindow&) = delete;
 };
 
 #endif

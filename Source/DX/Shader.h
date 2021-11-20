@@ -5,15 +5,17 @@
 
 #include "Instance.h"
 
+#include "../API/Shader.h"
+
 namespace DX
 {
-    class Shader
+    class Shader : public API::Shader
     {
     public:
         Shader(const std::string& vsCode, const std::string& psCode);
        ~Shader() = default;
 
-        void Bind();
+        void Bind() override;
 
     private:
         ComPtr<ID3D11InputLayout> dxInputLayout;

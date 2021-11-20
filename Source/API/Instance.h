@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include "../Window/RawWindow.h"
 #include "../Common/Common.h"
-#include "../Window/Window.h"
 
 namespace API
 {
@@ -18,18 +18,18 @@ namespace API
     class Instance
     {
     public:
-        Instance(Window& window);
+        Instance(RawWindow& window);
        ~Instance() = default;
 
-        static Ptr<Instance> Create(Window& window, const Type type);
+        static Ptr<Instance> Create(RawWindow& window, const Type type);
         virtual Type GetAPIType() const = 0;
 
     protected:
-        const Window& window;
+        const RawWindow& window;
     };
 
     void MakeInstanceCurrent(Instance* newContext);
-    Instance* GetInstance(Window* window);
+    Instance* GetInstance(RawWindow* window);
     Instance* GetCurrentInstance();
 }
 
