@@ -68,7 +68,11 @@ Window::Window(const WindowMode mode, const bool vSync, const unsigned int width
         case WindowMode::Windowed:
         {
             handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), nullptr, nullptr);
-            // glfwMaximizeWindow(handle);
+
+            if (width == 0 || height == 0)
+            {
+                glfwMaximizeWindow(handle);
+            }
             break;
         }
 
@@ -112,6 +116,7 @@ Window::~Window()
     if (numWindows == 0)
     {
         glfwTerminate();
+        glfwInitialized = false;
     }
 }
 
