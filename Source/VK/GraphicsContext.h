@@ -10,6 +10,7 @@
 #include "Entities/Commands/CommandPool.h"
 #include "Entities/SwapChain/SwapChain.h"
 #include "Entities/Instance/Instance.h"
+#include "Entities/Pipeline/Pipeline.h"
 #include "Entities/Surface/Surface.h"
 #include "Entities/Device/Device.h"
 
@@ -36,6 +37,7 @@ namespace VK
         Ptr<SwapChain> swapChain;
         Ptr<CommandPool> commandPool;
         Ptr<CommandBuffer> commandBuffer;
+        Ptr<Pipeline> pipeline;
     };
 }
 

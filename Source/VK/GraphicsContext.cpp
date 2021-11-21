@@ -1,4 +1,5 @@
 #include "GraphicsContext.h"
+#include "Entities/Vertex.h"
 
 namespace VK
 {
@@ -10,6 +11,21 @@ namespace VK
         swapChain = CreatePtr<SwapChain>(window, *surface, *device);
         commandPool = CreatePtr<CommandPool>();
         commandBuffer = CreatePtr<CommandBuffer>(*commandPool);
+
+		const VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
+		const VK::BindingDescriptions binding_descriptors = VK::Vertex::GetBindingDescriptions();
+		const VK::AttributeDescriptions attribute_descriptors = VK::Vertex::GetAttributeDescriptions();
+		// const std::vector<VkDescriptorSetLayout> descriptor_set_layouts = { descriptorSetLayout->GetVkDescriptorSetLayout() };
+
+        // pipeline = CreatePtr<Pipeline>(
+        //  "", ""
+		// 	vs_code.GetContent(), fs_code.GetContent(), 
+		// 	800, 600,
+		// 	attachments,
+		// 	binding_descriptors, 
+		// 	attribute_descriptors,
+		// 	descriptor_set_layouts
+        // );
         
         window.SetSwapChain(swapChain.get());
     }
