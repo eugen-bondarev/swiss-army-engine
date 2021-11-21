@@ -1,6 +1,7 @@
 #include "Device.h"
 
 #include "QueueFamily.h"
+#include "../SwapChain/SupportDetails.h"
 
 #include <set>
 
@@ -119,20 +120,19 @@ namespace VK
     {
         Queues::indices = Queues::FindQueueFamilies(surface, physicalDevice);
 
-        bool extensions_supported{CheckDeviceExtensionSupport(physicalDevice)};
-        // bool swap_chain_adequate{false};
-        bool swap_chain_adequate{true};
+        bool extensionsSupported{CheckDeviceExtensionSupport(physicalDevice)};
+        bool swapChainAdequate{false};
 
-        // if (extensions_supported)
-        // {
-        //     SupportDetails swap_chain_support_details = QuerySwapChainSupport(device);
-        //     swap_chain_adequate = !swap_chain_support_details.formats.empty() && !swap_chain_support_details.presentModes.empty();
-        // }
+        if (extensionsSupported)
+        {
+            SupportDetails swapChainSupportDetails = QuerySwapChainSupport(surface, physicalDevice);
+            swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
+        }
 
         VkPhysicalDeviceFeatures supported_features;
         vkGetPhysicalDeviceFeatures(physicalDevice, &supported_features);
 
-        return Queues::indices.IsComplete() && swap_chain_adequate && supported_features.samplerAnisotropy;
+        return Queues::indices.IsComplete() && swapChainAdequate && supported_features.samplerAnisotropy;
     }
 
     const VkPhysicalDevice& Device::GetVkPhysicalDevice() const
