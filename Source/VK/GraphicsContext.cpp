@@ -9,6 +9,7 @@ namespace VK
         device = CreatePtr<Device>(*instance, *surface);
         swapChain = CreatePtr<SwapChain>(window, *surface, *device);
         commandPool = CreatePtr<CommandPool>();
+        commandBuffer = CreatePtr<CommandBuffer>(*commandPool);
         
         window.SetSwapChain(swapChain.get());
     }

@@ -6,7 +6,8 @@
 #include "../API/GraphicsContext.h"
 #include "Common.h"
 
-#include "Entities/CommandPool/CommandPool.h"
+#include "Entities/Commands/CommandBuffer.h"
+#include "Entities/Commands/CommandPool.h"
 #include "Entities/SwapChain/SwapChain.h"
 #include "Entities/Instance/Instance.h"
 #include "Entities/Surface/Surface.h"
@@ -34,6 +35,7 @@ namespace VK
         Ptr<Device> device;
         Ptr<SwapChain> swapChain;
         Ptr<CommandPool> commandPool;
+        Ptr<CommandBuffer> commandBuffer;
     };
 }
 

@@ -1,5 +1,5 @@
-#ifndef __VK_Entities_CommandPool_CommandPool_h__
-#define __VK_Entities_CommandPool_CommandPool_h__
+#ifndef __VK_Entities_Commands_CommandPool_h__
+#define __VK_Entities_Commands_CommandPool_h__
 
 #pragma once
 
