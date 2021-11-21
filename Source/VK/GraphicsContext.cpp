@@ -8,6 +8,7 @@ namespace VK
         surface = CreatePtr<Surface>(*instance, window);
         device = CreatePtr<Device>(*instance, *surface);
         swapChain = CreatePtr<SwapChain>(window, *surface, *device);
+        commandPool = CreatePtr<CommandPool>();
         
         window.SetSwapChain(swapChain.get());
     }
