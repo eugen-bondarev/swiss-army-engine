@@ -1,7 +1,4 @@
-#ifndef __VK_Common_h__
-#define __VK_Common_h__
-
-#include "../Common/Common.h"
+#pragma once
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -9,18 +6,21 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-namespace VK
+#include "../Common/Common.h"
+
+namespace Engine
 {
-    
+    namespace Vk
+    {
+        struct Vec2
+        {
+            float x{0}, y{0};
+        };
+    }
 }
 
-#ifndef NDEBUG
-#   define VK_TRY(exp)\
-        if (exp != VK_SUCCESS) throw std::runtime_error(#exp)
-        // MY_ASSERT(exp == VK_SUCCESS)
-#else
-#   define VK_TRY(exp)\
-        exp
-#endif
+#define VK_TRY(exp)\
+    if (exp != VK_SUCCESS) throw std::runtime_error(#exp)
 
-#endif
+#define VK_ASSERT(exp)\
+    assert(exp)
