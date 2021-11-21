@@ -16,8 +16,11 @@ namespace VK
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appDesc;
 
-        createInfo.enabledExtensionCount = 0u;
-        createInfo.ppEnabledExtensionNames = nullptr;
+        uint32_t numExtensions{0u};
+        const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&numExtensions);
+
+        createInfo.enabledExtensionCount = numExtensions;
+        createInfo.ppEnabledExtensionNames = glfwExtensions;
         
         createInfo.enabledLayerCount = 0u;
         createInfo.ppEnabledLayerNames = nullptr;

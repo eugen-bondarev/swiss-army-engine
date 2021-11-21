@@ -18,7 +18,7 @@ namespace VK
     }
 
     void Device::PickPhysicalDevice()
-    {        
+    {
         uint32_t numDevices{0};
         vkEnumeratePhysicalDevices(instance.GetVkInstance(), &numDevices, nullptr);
 
@@ -27,19 +27,19 @@ namespace VK
             throw EXCEPTION_WHAT("Failed to find GPUs with Vulkan support.");
         }
 
-        std::vector<VkPhysicalDevice> devices(numDevices);
-        vkEnumeratePhysicalDevices(instance.GetVkInstance(), &numDevices, devices.data());
+        std::vector<VkPhysicalDevice> physicalDevices(numDevices);
+        vkEnumeratePhysicalDevices(instance.GetVkInstance(), &numDevices, physicalDevices.data());
 
-        for (const auto &device : devices)
+        for (const VkPhysicalDevice& physicalDevice : physicalDevices)
         {
-            if (IsDeviceSuitable(device))
+            if (IsDeviceSuitable(physicalDevice))
             {
-            //     vkPhysicalDevice = device;
+                vkPhysicalDevice = physicalDevice;
 
-            //     vkGetPhysicalDeviceProperties(vkPhysicalDevice, &properties);
-            //     Util::Mem::Aligned::minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
+                vkGetPhysicalDeviceProperties(vkPhysicalDevice, &properties);
+                // Util::Mem::Aligned::minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
 
-            //     break;
+                break;
             }
         }
 
@@ -51,7 +51,50 @@ namespace VK
 
     void Device::CreateLogicalDevice()
     {
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        const std::set<uint32_t> uniqueQueueFamilies =
+        {
+            Queues::indices.graphicsFamily.value(), Queues::indices.presentFamily.value()
+        };
 
+        float queuePriority = 1.0f;
+        for (const uint32_t queueFamily : uniqueQueueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+
+        createInfo.pEnabledFeatures = &deviceFeatures;
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+        // if (Validation::enableValidationLayers)
+        // {
+            // create_info.enabledLayerCount = static_cast<uint32_t>(Validation::validationLayers.size());
+            // create_info.ppEnabledLayerNames = Validation::validationLayers.data();
+        // }
+        // else
+        // {
+            createInfo.enabledLayerCount = 0;
+        // }
+
+        VK_TRY(vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &vkDevice));
+
+        vkGetDeviceQueue(vkDevice, Queues::indices.graphicsFamily.value(), 0, &Queues::graphicsQueue);
+        vkGetDeviceQueue(vkDevice, Queues::indices.presentFamily.value(), 0, &Queues::presentQueue);
     }
 
     bool Device::CheckDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice)

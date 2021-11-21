@@ -26,8 +26,10 @@ namespace VK
     private:
         const Instance& instance;
         const Surface& surface;
-        VkPhysicalDevice vkPhysicalDevice;
-        VkDevice vkDevice;
+        VkPhysicalDevice vkPhysicalDevice{VK_NULL_HANDLE};
+        VkDevice vkDevice{VK_NULL_HANDLE};
+
+        VkPhysicalDeviceProperties properties;
 
         bool CheckDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice);
         bool IsDeviceSuitable(const VkPhysicalDevice& physicalDevice);
