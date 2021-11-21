@@ -32,6 +32,8 @@ namespace VK
         const VkPipeline& GetVkPipeline() const;
         const VkPipelineLayout& GetVkPipelineLayout() const;
 
+        RenderPass* GetRenderPass();
+
     private:
         const Device& device;
         VkPipeline vkPipeline;

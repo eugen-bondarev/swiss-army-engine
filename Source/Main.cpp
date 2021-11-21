@@ -6,9 +6,13 @@
 #include "API/Buffer.h"
 #include "API/Shader.h"
 
+#include "VK/GraphicsContext.h"
+
 #include "DX/DX.h"
 
 #include "VK/Entities/Buffer/Buffer.h"
+#include "VK/Entities/Frames/Frame.h"
+#include "VK/Entities/Device/QueueFamily.h"
 
 static Ptr<VK::VertexBuffer> meshVertexBuffer{nullptr};
 static Ptr<VK::IndexBuffer> meshIndexBuffer{nullptr};
@@ -72,15 +76,50 @@ int main()
 
         InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
+        VK::FrameManager frameManager(0, 1, 2, 2);
+
+        VK::GraphicsContext* vk = dynamic_cast<VK::GraphicsContext*>(API::GetCurrentGraphicsContext());
+        vk->swapChain->InitFramebuffers(vk->pipeline->GetRenderPass()->GetVkRenderPass());
+
         while (window->IsRunning())
         {
             window->BeginFrame();
+
+            frameManager.AcquireSwapChainImage();
+            
+            // vkAcquireNextImageKHR(VK::GetDevice()->GetVkDevice(), VK::GetSwapChain()->GetVkSwapChain(), UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &VK::GetSwapChain()->imageIndex);
             //     static float theta{0}; theta += 0.05f;
             //     DX::GetRenderTargetView()->Bind();
             //     DX::GetRenderTargetView()->Clear();
             //     RenderMesh(0, theta, characterMesh.indices.size());
-            window->EndFrame();
+            // window->EndFrame();
+            VkSemaphore* wait = &frameManager.GetCurrentFrame()->GetSemaphore(0);
+            VkSemaphore* signal = &frameManager.GetCurrentFrame()->GetSemaphore(1);
+	        VkFence fence = frameManager.GetCurrentFrame()->GetInFlightFence();
+
+            VK::CommandBuffer* cmd = VK::GetCommandBuffer();
+            VK::CommandPool* pool = VK::GetCommandPool();
+
+            pool->Reset();
+                cmd->Begin();
+                    cmd->BeginRenderPass(vk->pipeline->GetRenderPass(), vk->swapChain->GetCurrentScreenFramebuffer());                                
+			            cmd->BindPipeline(vk->pipeline.get());
+                            cmd->BindIndexBuffer(meshIndexBuffer.get());
+                            cmd->BindDescriptorSets(vk->pipeline.get(), 1, &vk->descriptorSet->GetVkDescriptorSet());
+                                cmd->BindVertexBuffers({meshVertexBuffer.get()}, {0});
+                                    // cmd->DrawIndexed(characterMesh.indices.size(), 1, 0, 0, 0);
+                                    vkCmdDrawIndexed(cmd->GetVkCommandBuffer(), characterMesh.indices.size(), 1, 0, 0, 0);
+                    cmd->EndRenderPass();
+                cmd->End();
+
+	        vkResetFences(VK::GetDevice()->GetVkDevice(), 1, &fence);
+            VK::GetCommandBuffer()->SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
+
+            frameManager.Present();
+
+            // throw std::runtime_error("");
         }
+        VK::GetDevice()->WaitIdle();
     }
     catch (const std::runtime_error& exception)
     {

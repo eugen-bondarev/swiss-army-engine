@@ -120,6 +120,17 @@ namespace VK
         }
     }
 
+    uint32_t SwapChain::AcquireImage(VkSemaphore semaphore)
+    {
+        vkAcquireNextImageKHR(device.GetVkDevice(), vkSwapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
+        return imageIndex;
+    }
+
+    const std::vector<VkImageView>& SwapChain::GetImageViews() const
+    {
+        return imageViews;
+    }
+
     SwapChain::SwapChain(RawWindow& window, const Surface& surface, const Device& device) : Base::SwapChain(window), surface{surface}, device{device}
     {
         SupportDetails supportDetails = QuerySwapChainSupport(surface, device.GetVkPhysicalDevice());
@@ -188,9 +199,35 @@ namespace VK
 
         vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
 
-        // for (auto& framebuffer : framebuffers)
-        //     delete framebuffer;
+        for (auto& framebuffer : framebuffers)
+            delete framebuffer;
     }
+
+    void SwapChain::InitFramebuffers(const VkRenderPass& render_pass)
+    {
+        for (auto& framebuffer : framebuffers)
+            delete framebuffer;
+        framebuffers.clear();
+
+        // glm::vec2 viewport_size = { extent.width, extent.height };
+
+
+        for (const VkImageView& image_view : GetImageViews())
+        {
+            framebuffers.push_back(new Framebuffer(image_view, render_pass, GetWidth(), GetHeight()));
+        }
+    }
+
+    Framebuffer* SwapChain::GetCurrentScreenFramebuffer()
+    {
+        return framebuffers[imageIndex];
+    }
+
+    std::vector<Framebuffer*>& SwapChain::GetFramebuffers()
+    {
+        return framebuffers;
+    }
+
 
     const VkSwapchainKHR& SwapChain::GetVkSwapChain() const
     {
@@ -204,6 +241,22 @@ namespace VK
 
         presentInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
         presentInfo.pWaitSemaphores = waitSemaphores.data();
+
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &vkSwapChain;
+        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pResults = nullptr;
+
+        VK_TRY(vkQueuePresentKHR(Queues::presentQueue, &presentInfo));
+    }
+
+    void SwapChain::Present1(VkSemaphore* semaphores, const uint32_t numSemaphores)
+    {
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = numSemaphores;
+        presentInfo.pWaitSemaphores = semaphores;
 
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &vkSwapChain;

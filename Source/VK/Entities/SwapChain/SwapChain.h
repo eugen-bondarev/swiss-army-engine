@@ -6,6 +6,7 @@
 #include "../../Common.h"
 #include "../Surface/Surface.h"
 #include "../Device/Device.h"
+#include "../Framebuffer/Framebuffer.h"
 #include "../../../Graphics/SwapChainBase.h"
 
 namespace VK
@@ -20,14 +21,25 @@ namespace VK
         std::vector<VkSemaphore> waitSemaphores;
         uint32_t imageIndex{0};
 
+        uint32_t AcquireImage(VkSemaphore semaphore);
+
         void Present(const unsigned int syncInterval, const unsigned int flags) override;
+        void Present1(VkSemaphore* semaphores, const uint32_t numSemaphores);
         void Resize(const unsigned int width, const unsigned int height) override;
 
-       const VkSwapchainKHR& GetVkSwapChain() const;
+        const std::vector<VkImageView>& GetImageViews() const;
+
+        const VkSwapchainKHR& GetVkSwapChain() const;
+
+        void InitFramebuffers(const VkRenderPass& render_pass);
+        Framebuffer* GetCurrentScreenFramebuffer();
+        std::vector<Framebuffer*>& GetFramebuffers();
 
     private:
         const Surface& surface;
         const Device& device;
+
+        std::vector<Framebuffer*> framebuffers;
 
         VkSwapchainKHR vkSwapChain;
 

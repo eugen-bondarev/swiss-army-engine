@@ -8,15 +8,15 @@ namespace VK
     {		
         VkShaderModule CreateShaderModule(const std::string& code, const Device& device)
         {
-            VkShaderModuleCreateInfo create_info{};
-            create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-            create_info.codeSize = code.size();
-            create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+            VkShaderModuleCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            createInfo.codeSize = code.size();
+            createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-            VkShaderModule shader_module;
-            VK_TRY(vkCreateShaderModule(device.GetVkDevice(), &create_info, nullptr, &shader_module));
+            VkShaderModule shaderModule;
+            VK_TRY(vkCreateShaderModule(device.GetVkDevice(), &createInfo, nullptr, &shaderModule));
 
-            return shader_module;
+            return shaderModule;
         }
     }
     
@@ -25,20 +25,20 @@ namespace VK
         vkShaderModules[0] = Util::CreateShaderModule(vsCode, this->device);
         vkShaderModules[1] = Util::CreateShaderModule(fsCode, this->device);
 
-        VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
-        vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vert_shader_stage_info.module = vkShaderModules[0];
-        vert_shader_stage_info.pName = "main";
+        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        vertShaderStageInfo.module = vkShaderModules[0];
+        vertShaderStageInfo.pName = "main";
 
-        VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
-        frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        frag_shader_stage_info.module = vkShaderModules[1];
-        frag_shader_stage_info.pName = "main";
+        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        fragShaderStageInfo.module = vkShaderModules[1];
+        fragShaderStageInfo.pName = "main";
 
-        vkShaderStages[0] = vert_shader_stage_info;
-        vkShaderStages[1] = frag_shader_stage_info;        
+        vkShaderStages[0] = vertShaderStageInfo;
+        vkShaderStages[1] = fragShaderStageInfo;        
     }
 
     Shader::~Shader()

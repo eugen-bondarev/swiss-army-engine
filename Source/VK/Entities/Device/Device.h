@@ -22,6 +22,8 @@ namespace VK
 
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
+        void WaitIdle() const;
+
         const VkPhysicalDevice& GetVkPhysicalDevice() const;
         const VkDevice& GetVkDevice() const;
 

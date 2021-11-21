@@ -153,6 +153,11 @@ namespace VK
         return Queues::indices.IsComplete() && swapChainAdequate && supported_features.samplerAnisotropy;
     }
 
+    void Device::WaitIdle() const
+    {
+        vkDeviceWaitIdle(vkDevice);
+    }
+
     const VkPhysicalDevice& Device::GetVkPhysicalDevice() const
     {
         return vkPhysicalDevice;

@@ -12,9 +12,19 @@
 
 namespace Util
 {
-    TextAsset LoadTextFile(const std::string& filePath)
+    TextAsset LoadTextFile(const std::string& filePath, const bool binary)
     {
-        std::ifstream file(filePath);
+        std::ifstream file;
+        
+        if (binary)
+        {
+            file.open(filePath, std::ios::binary);
+        }
+        else
+        {
+            file.open(filePath);
+        }
+        // std::ifstream file(filePath, std::ios::binary);
 
         if (!file.is_open())
         {
