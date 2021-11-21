@@ -5,9 +5,13 @@
 #include "API/Window.h"
 #include "API/Buffer.h"
 #include "API/Shader.h"
+
 #include "DX/DX.h"
 
-static Ptr<API::VertexBuffer> meshVertexBuffer{nullptr};
+#include "VK/Entities/Buffer/Buffer.h"
+
+static Ptr<VK::Buffer> meshVertexBuffer{nullptr};
+// static Ptr<API::VertexBuffer> meshVertexBuffer{nullptr};
 static Ptr<API::IndexBuffer> meshIndexBuffer{nullptr};
 static Ptr<API::UniformBuffer> constantBuffer{nullptr};
 static Ptr<API::Shader> shader{nullptr};
@@ -16,7 +20,7 @@ static Ptr<API::Texture> texture{nullptr};
 
 void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
 {
-    meshVertexBuffer->Bind(0u);
+    // meshVertexBuffer->Bind(0u);
     meshIndexBuffer->Bind();
     constantBuffer->Bind();
     shader->Bind();
@@ -42,12 +46,14 @@ void RenderMesh(const float angleX, const float angleY, const unsigned int numIn
 
 void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode, const Util::ModelAsset& characterMesh, const Util::ImageAsset& characterTexture)
 {
-    meshVertexBuffer = API::VertexBuffer::Create(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
-    meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
-    constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
-    shader = API::Shader::Create(vsCode, psCode);
-    sampler = API::Sampler::Create();
-    texture = API::Texture::Create(characterTexture.width, characterTexture.height, characterTexture.data);
+    meshVertexBuffer = CreatePtr<VK::Buffer>(sizeof(Vertex) * characterMesh.vertices.size(), characterMesh.vertices.data());
+
+    // meshVertexBuffer = API::VertexBuffer::Create(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
+    // meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
+    // constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
+    // shader = API::Shader::Create(vsCode, psCode);
+    // sampler = API::Sampler::Create();
+    // texture = API::Texture::Create(characterTexture.width, characterTexture.height, characterTexture.data);
 }
 
 int main()
@@ -61,7 +67,7 @@ int main()
 
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 800, 600);
 
-        // InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
+        InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
         while (window->IsRunning())
         {

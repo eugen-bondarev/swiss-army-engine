@@ -18,6 +18,24 @@ namespace VK
         vkDestroyDevice(vkDevice, nullptr);
     }
 
+    uint32_t Device::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
+    {
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(vkPhysicalDevice, &memProperties);
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+        {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) 
+            {
+                return i;
+            }
+        }
+
+        throw EXCEPTION_WHAT("Failed to find suitable memory type.");
+
+        return 0;
+    }
+
     void Device::PickPhysicalDevice()
     {
         uint32_t numDevices{0};

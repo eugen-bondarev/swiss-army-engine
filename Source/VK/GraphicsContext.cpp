@@ -16,4 +16,9 @@ namespace VK
     {
         return API::Type::Vulkan;
     }
+
+    Device* GetDevice()
+    {
+        return dynamic_cast<VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device.get();
+    }
 }

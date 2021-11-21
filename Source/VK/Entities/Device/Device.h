@@ -20,6 +20,8 @@ namespace VK
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
         const VkPhysicalDevice& GetVkPhysicalDevice() const;
         const VkDevice& GetVkDevice() const;
 

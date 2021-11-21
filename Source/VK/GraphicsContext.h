@@ -14,8 +14,12 @@ FORWARD_DECLARE(RawWindow);
 
 namespace VK
 {
+    Device* GetDevice();
+
     class GraphicsContext : public API::GraphicsContext
     {
+    friend Device* GetDevice();
+
     public:
         GraphicsContext(RawWindow& window);
        ~GraphicsContext() = default;
