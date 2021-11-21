@@ -15,7 +15,7 @@ namespace VK
 
     Device::~Device()
     {
-
+        vkDestroyDevice(vkDevice, nullptr);
     }
 
     void Device::PickPhysicalDevice()
