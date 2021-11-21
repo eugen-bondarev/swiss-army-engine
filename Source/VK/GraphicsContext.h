@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../API/GraphicsContext.h"
+#include "Entities/SwapChain/SwapChain.h"
 #include "Entities/Instance/Instance.h"
 #include "Entities/Surface/Surface.h"
 #include "Entities/Device/Device.h"
@@ -25,6 +26,7 @@ namespace VK
         Ptr<Instance> instance;
         Ptr<Surface> surface;
         Ptr<Device> device;
+        Ptr<SwapChain> swapChain;
     };
 }
 

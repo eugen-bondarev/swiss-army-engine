@@ -16,7 +16,8 @@ namespace VK
 
 #ifndef NDEBUG
 #   define VK_TRY(exp)\
-        MY_ASSERT(exp == VK_SUCCESS)
+        if (exp != VK_SUCCESS) throw std::runtime_error(#exp)
+        // MY_ASSERT(exp == VK_SUCCESS)
 #else
 #   define VK_TRY(exp)\
         exp

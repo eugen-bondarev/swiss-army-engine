@@ -7,6 +7,9 @@ namespace VK
         instance = CreatePtr<Instance>();
         surface = CreatePtr<Surface>(*instance, window);
         device = CreatePtr<Device>(*instance, *surface);
+        swapChain = CreatePtr<SwapChain>(window, *surface, *device);
+        
+        window.SetSwapChain(swapChain.get());
     }
 
     API::Type GraphicsContext::GetAPIType() const

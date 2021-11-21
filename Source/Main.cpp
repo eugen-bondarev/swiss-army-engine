@@ -70,7 +70,7 @@ int main()
             //     DX::GetRenderTargetView()->Bind();
             //     DX::GetRenderTargetView()->Clear();
             //     RenderMesh(0, theta, characterMesh.indices.size());
-            // window->EndFrame();
+            window->EndFrame();
         }
     }
     catch (const std::runtime_error& exception)

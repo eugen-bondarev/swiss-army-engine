@@ -18,6 +18,11 @@ namespace DX
     FORWARD_DECLARE(GraphicsContext);
 }
 
+namespace VK
+{
+    FORWARD_DECLARE(GraphicsContext);
+}
+
 namespace Base
 {
     FORWARD_DECLARE(SwapChain);
@@ -33,6 +38,7 @@ enum class WindowMode
 class RawWindow
 {
 friend class DX::GraphicsContext;
+friend class VK::GraphicsContext;
 friend class CallbackManager;
 
 public:
