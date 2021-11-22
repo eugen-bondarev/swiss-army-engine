@@ -119,6 +119,19 @@ namespace VK
 
         renderPass = new RenderPass(attachments);
 
+        VkPipelineDepthStencilStateCreateInfo depthStencil{};
+        depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depthStencil.depthTestEnable = VK_TRUE;
+        depthStencil.depthWriteEnable = VK_TRUE;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.minDepthBounds = 0.0f; // Optional
+        depthStencil.maxDepthBounds = 1.0f; // Optional
+        depthStencil.stencilTestEnable = VK_FALSE;
+        depthStencil.front = {}; // Optional
+        depthStencil.back = {}; // Optional
+
+
         VkGraphicsPipelineCreateInfo pipeline_info{};
         pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipeline_info.stageCount = static_cast<uint32_t>(shader->GetStages().size());
@@ -128,7 +141,7 @@ namespace VK
         pipeline_info.pViewportState = &viewport_state;
         pipeline_info.pRasterizationState = &rasterizer;
         pipeline_info.pMultisampleState = &multisampling;
-        pipeline_info.pDepthStencilState = nullptr; // Optional
+        pipeline_info.pDepthStencilState = &depthStencil; // Optional
         pipeline_info.pColorBlendState = &color_blending;
         pipeline_info.pDynamicState = nullptr; // Optional
         pipeline_info.layout = vkPipelineLayout;
@@ -154,7 +167,7 @@ namespace VK
 
     void Pipeline::SetAsOutput()
     {
-        Global::swapChain->InitFramebuffers(renderPass->GetVkRenderPass());
+        Global::swapChain->InitFramebuffers(renderPass->GetVkRenderPass(), VK_NULL_HANDLE);
     }
 
     VkPipelineLayout Pipeline::GetVkPipelineLayout() const

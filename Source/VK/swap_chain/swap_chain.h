@@ -25,7 +25,7 @@ namespace VK
             VkSurfaceFormatKHR GetSurfaceFormat() const;
             VkExtent2D GetExtent() const;
 
-            void InitFramebuffers(VkRenderPass& render_pass);
+            void InitFramebuffers(VkRenderPass& render_pass, const VkImageView& depthImageView);
             VK::Framebuffer* GetCurrentScreenFramebuffer();
             std::vector<VK::Framebuffer*>& GetFramebuffers();
 

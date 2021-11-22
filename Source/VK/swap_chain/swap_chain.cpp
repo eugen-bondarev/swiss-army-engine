@@ -93,15 +93,19 @@ namespace VK
             return framebuffers[imageIndex];
         }
 
-        void SwapChain::InitFramebuffers(VkRenderPass& render_pass)
+        void SwapChain::InitFramebuffers(VkRenderPass& render_pass, const VkImageView& depthImageView)
         {
             for (auto& framebuffer : framebuffers)
                 delete framebuffer;
             framebuffers.clear();
 
             Vec2 viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
-            for (const VkImageView& image_view : VK::Global::swapChain->GetImageViews())
-                framebuffers.push_back(new VK::Framebuffer(image_view, render_pass, viewport_size));
+
+            // for (const VkImageView& image_view : VK::Global::swapChain->GetImageViews())
+            for (size_t i = 0; i < VK::Global::swapChain->GetImageViews().size(); ++i)
+            {
+                framebuffers.push_back(new VK::Framebuffer(VK::Global::swapChain->GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView));
+            }
         }
 
         uint32_t SwapChain::AcquireImage(VkSemaphore semaphore)

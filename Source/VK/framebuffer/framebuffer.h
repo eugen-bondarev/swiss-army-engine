@@ -7,7 +7,8 @@ namespace VK
     class Framebuffer
     {
     public:
-        Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2 &size);
+        Framebuffer(VkImageView image_view, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView = VK_NULL_HANDLE);
+        Framebuffer(VkImageView image_view, VkRenderPass renderPass, const Vec2 &size);
         ~Framebuffer();
 
         VkFramebuffer GetVkFramebuffer() const;

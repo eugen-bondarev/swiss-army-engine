@@ -72,10 +72,14 @@ namespace VK
         submit_info.renderPass = render_pass->GetVkRenderPass();
         submit_info.framebuffer = framebuffer->GetVkFramebuffer();
         submit_info.renderArea.extent = {static_cast<uint32_t>(framebuffer->GetSize().x), static_cast<uint32_t>(framebuffer->GetSize().y)};
-        submit_info.clearValueCount = 1;
+
         VkClearValue clear_color;
         memcpy(&clear_color, color.data(), sizeof(VkClearValue));
-        submit_info.pClearValues = &clear_color;
+
+        std::array<VkClearValue, 2> clearValues{clear_color, { 1.0f, 0.0f }};
+        
+        submit_info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        submit_info.pClearValues = clearValues.data();
         
         vkCmdBeginRenderPass(vkCommandBuffer, &submit_info, VK_SUBPASS_CONTENTS_INLINE);
     }

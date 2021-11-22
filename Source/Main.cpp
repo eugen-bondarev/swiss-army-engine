@@ -37,17 +37,27 @@ int main()
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
-        VK::RenderPass renderPass(
-            {
-                VK::Util::CreateAttachment(
-                    VK::Global::swapChain->GetImageFormat(), 
-                    VK_IMAGE_LAYOUT_UNDEFINED, 
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-                    VK_ATTACHMENT_LOAD_OP_CLEAR, 
-                    VK_ATTACHMENT_STORE_OP_STORE
-                )
-            }
-        );
+        // VK::RenderPass renderPass(
+        //     {
+        //         VK::Util::CreateAttachment(
+        //             VK::Global::swapChain->GetImageFormat(), 
+        //             VK_IMAGE_LAYOUT_UNDEFINED, 
+        //             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
+        //             VK_ATTACHMENT_LOAD_OP_CLEAR, 
+        //             VK_ATTACHMENT_STORE_OP_STORE
+        //         ),
+        //         VK::Util::CreateAttachment(
+        //             VK::Global::device->FindDepthFormat(), 
+        //             VK_IMAGE_LAYOUT_UNDEFINED, 
+        //             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+        //             VK_ATTACHMENT_LOAD_OP_CLEAR, 
+        //             VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        //             VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        //             VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        //             VK_SAMPLE_COUNT_1_BIT
+        //         )
+        //     }
+        // );
 
         std::vector<VK::CommandPool*> commandPools;
         std::vector<VK::CommandBuffer*> commandBuffers;
@@ -58,8 +68,6 @@ int main()
             commandBuffers.push_back(new VK::CommandBuffer(pool));
             commandPools.push_back(pool);
         }
-
-	    VK::Global::swapChain->InitFramebuffers(renderPass.GetVkRenderPass());
 
         std::vector<VkDescriptorSetLayoutBinding> bindings = 
         {
@@ -79,11 +87,23 @@ int main()
             VK::Vec2{800, 600},
             std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
                 VK::Global::swapChain->GetImageFormat()
-            ) },
+            ),            
+            VK::Util::CreateAttachment(
+                VK::Global::device->FindDepthFormat(), 
+                VK_IMAGE_LAYOUT_UNDEFINED, 
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+                VK_ATTACHMENT_LOAD_OP_CLEAR, 
+                VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                VK_SAMPLE_COUNT_1_BIT
+            )},
             binding_descriptors,
             attribute_descriptors,
             descriptor_set_layouts
         );
+
+	    VK::Global::swapChain->InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
 
 		VK::Buffer stagingVertexBuffer(characterMesh.vertices);
 		VK::Buffer vertexBuffer(&stagingVertexBuffer);
@@ -146,7 +166,7 @@ int main()
             
             pool->Reset();
                 cmd->Begin();
-                    cmd->BeginRenderPass(&renderPass, framebuffer);
+                    cmd->BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
                         cmd->BindPipeline(&pipeline);
                             cmd->BindVertexBuffers({ &vertexBuffer }, { 0 });
                             cmd->BindIndexBuffer(&indexBuffer);
