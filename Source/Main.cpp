@@ -37,15 +37,9 @@ int main()
             {
                 VK::Util::CreateAttachment(
                     VK::Global::swapChain->GetImageFormat(), 
-
-                    // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 
                     VK_IMAGE_LAYOUT_UNDEFINED, 
-
                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-
-                    // VK_ATTACHMENT_LOAD_OP_LOAD, 
                     VK_ATTACHMENT_LOAD_OP_CLEAR, 
-
                     VK_ATTACHMENT_STORE_OP_STORE
                 )
             }
@@ -99,8 +93,9 @@ int main()
 		VK::Buffer stagingIndexBuffer(characterMesh.indices);
 		VK::Buffer indexBuffer(&stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
-        // uboData.proj = glm::mat4x4(1);
-        uboData.proj = glm::perspective(glm::radians(70.0f), 800.0f / 600.0f, 0.1f, 1000.0f) * glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10));
+        glm::mat4 pre = glm::mat4(1);
+        pre[1][1] = -1.0f;
+        uboData.proj = pre * glm::perspective(glm::radians(70.0f), 800.0f / 600.0f, 0.1f, 1000.0f) * glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10));
 
         VK::Buffer ubo(
 			sizeof(UBO),
@@ -140,6 +135,16 @@ int main()
             VK::CommandPool* pool = commandPools[VK::Global::swapChain->GetCurrentImageIndex()];
             VK::CommandBuffer* cmd = commandBuffers[VK::Global::swapChain->GetCurrentImageIndex()];
             VK::Framebuffer* framebuffer = VK::Global::swapChain->GetCurrentScreenFramebuffer();
+
+            static float theta{0}; theta += 0.01f;
+            
+            glm::mat4 pre = glm::mat4(1);
+            pre[1][1] = -1.0f;
+            uboData.proj = pre * 
+                glm::perspective(glm::radians(70.0f), 800.0f / 600.0f, 0.1f, 1000.0f) * 
+                glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10)) *
+                glm::rotate(glm::mat4x4(1), glm::radians(theta), glm::vec3(0, 1, 0));
+            ubo.Update(&uboData);
             
             pool->Reset();
                 cmd->Begin();

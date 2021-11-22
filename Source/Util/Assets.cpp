@@ -73,7 +73,7 @@ namespace Util
             const aiMesh* mesh{scene->mMeshes[meshIndex]};
 	        result.vertices.resize(mesh->mNumVertices);
 
-            for (size_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; vertexIndex++)
+            for (size_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
             {
                 const aiVector3D& position = mesh->mVertices[vertexIndex];
                 const aiVector2D& texCoords = { mesh->mTextureCoords[0][vertexIndex].x, mesh->mTextureCoords[0][vertexIndex].y };
