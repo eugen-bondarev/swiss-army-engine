@@ -18,8 +18,8 @@ namespace VK
     private:
         VkCommandPool vkCommandPool;
 
-        CommandPool(const CommandPool &) = delete;
-        CommandPool &operator=(const CommandPool &) = delete;
+        // CommandPool(const CommandPool &) = delete;
+        // CommandPool &operator=(const CommandPool &) = delete;
     };
 
     namespace Global

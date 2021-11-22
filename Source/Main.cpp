@@ -50,14 +50,13 @@ int main()
 
         for (size_t i = 0; i < VK::Global::swapChain->GetImageViews().size(); ++i)
         {
-            VK::CommandPool* commandPool = new VK::CommandPool();
-            commandPools.push_back(commandPool);
-            commandBuffers.push_back(new VK::CommandBuffer(commandPool));
+            VK::CommandPool* pool = new VK::CommandPool();
+            commandBuffers.push_back(new VK::CommandBuffer(pool));
+            commandPools.push_back(pool);
         }
 
 	    VK::Global::swapChain->InitFramebuffers(renderPass.GetVkRenderPass());
 
-        
         std::vector<VkDescriptorSetLayoutBinding> bindings = 
         {
             VK::CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -75,12 +74,7 @@ int main()
             vertexShaderCode, pixelShaderCode,
             VK::Vec2{800, 600},
             std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
-                VK::Global::swapChain->GetImageFormat()//, 
-                // VK_IMAGE_LAYOUT_UNDEFINED, 
-                // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                /**
-                 * NOTE: Get rid of this if I don't render ImGui above.
-                 */
+                VK::Global::swapChain->GetImageFormat()
             ) },
             binding_descriptors,
             attribute_descriptors,
@@ -164,16 +158,23 @@ int main()
             cmd->SubmitToQueue(VK::Global::Queues::graphicsQueue, wait, signal, fence);
 
             frameManager.Present();
-
             // window->EndFrame();
         }
 
-        VK::Shutdown();
+        VK::Global::device->WaitIdle();
+
+        for (size_t i = 0; i < commandPools.size(); ++i)
+        {
+            delete commandBuffers[i];
+            delete commandPools[i];
+        }
     }
     catch (const std::runtime_error& exception)
     {
         MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
+
+    VK::Shutdown();
 
     return 0;
 }
