@@ -44,6 +44,13 @@ namespace VK
                 return sizeof(T);
             }
 
+
+            // Find supported format for depth buffer.
+            VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+            VkFormat FindDepthFormat() const;
+            static bool HasStencilComponent(const VkFormat format);
+
+
         private:
             VkPhysicalDevice vkPhysicalDevice;
             VkDevice vkDevice;

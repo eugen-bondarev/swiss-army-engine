@@ -116,7 +116,47 @@ namespace VK
         }
     }
 
-    Image::Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags)
+    Image::Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags) : vkFormat{format}
+    {
+        VkImageCreateInfo image_info{};
+        image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_info.imageType = VK_IMAGE_TYPE_2D;
+        image_info.extent.width = static_cast<uint32_t>(width);
+        image_info.extent.height = static_cast<uint32_t>(height);
+        image_info.extent.depth = 1;
+        image_info.mipLevels = 1;
+        image_info.arrayLayers = 1;
+        // image_info.format = VK_FORMAT_R8G8B8A8_SRGB;
+        image_info.format = format;
+        image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+        image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_info.usage = usageFlags;
+        image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+        image_info.flags = 0; // Optional
+        VK_TRY(vkCreateImage(Global::device->GetVkDevice(), &image_info, nullptr, &vkImage));
+
+        VkMemoryRequirements mem_requirements;
+        vkGetImageMemoryRequirements(Global::device->GetVkDevice(), vkImage, &mem_requirements);
+
+        VkMemoryAllocateInfo alloc_info{};
+        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        alloc_info.allocationSize = mem_requirements.size;
+        alloc_info.memoryTypeIndex = Global::device->FindMemoryType(mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        VK_TRY(vkAllocateMemory(Global::device->GetVkDevice(), &alloc_info, nullptr, &vkMemory));
+
+        vkBindImageMemory(Global::device->GetVkDevice(), vkImage, vkMemory, 0);
+
+        if (buffer != nullptr)
+        {
+            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }
+    }
+
+    Image::Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags) : vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
     {
         VkImageCreateInfo image_info{};
         image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -148,10 +188,12 @@ namespace VK
 
         vkBindImageMemory(Global::device->GetVkDevice(), vkImage, vkMemory, 0);
 
-        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
-        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        
+        if (buffer != nullptr)
+        {
+            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
+            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }        
     }
 
     Image::~Image()
@@ -169,5 +211,10 @@ namespace VK
     VkDeviceMemory& Image::GetVkDeviceMemory()
     {
         return vkMemory;
+    }
+
+    VkFormat Image::GetVkFormat() const
+    {
+        return vkFormat;
     }
 }

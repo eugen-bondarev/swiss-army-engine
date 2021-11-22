@@ -2,13 +2,14 @@
 #include "API/Window.h"
 #include "VK/vk.h"
 #include "VK/frame/frame.h"
+#include "VK/image/image.h"
+#include "VK/image/texture2d.h"
 #include "VK/pipeline/pipeline.h"
 #include "VK/device/queue_family.h"
 #include "VK/pipeline/render_pass.h"
 #include "VK/commands/command_buffer.h"
 #include "VK/descriptors/descriptor_set.h"
 #include "VK/descriptors/descriptor_set_layout.h"
-#include "VK/image/texture2d.h"
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -31,6 +32,9 @@ int main()
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 800, 600);
 
         VK::Bootstrap(window->GetHandle());
+
+        VK::Image depthImage(nullptr, 800, 600, VK::Global::device->FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
         VK::RenderPass renderPass(
