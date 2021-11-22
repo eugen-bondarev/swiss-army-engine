@@ -3,30 +3,27 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		class CommandPool
-		{
-		public:
-			CommandPool();
-			~CommandPool();
+    class CommandPool
+    {
+    public:
+        CommandPool();
+        ~CommandPool();
 
-			void Reset() const;
+        void Reset() const;
 
-			VkCommandPool GetVkCommandPool() const;
+        VkCommandPool GetVkCommandPool() const;
 
-		private:
-			VkCommandPool vkCommandPool;
+    private:
+        VkCommandPool vkCommandPool;
 
-			CommandPool(const CommandPool &) = delete;
-			CommandPool &operator=(const CommandPool &) = delete;
-		};
+        CommandPool(const CommandPool &) = delete;
+        CommandPool &operator=(const CommandPool &) = delete;
+    };
 
-		namespace Global
-		{
-			extern CommandPool *commandPool;
-		}
-	}
+    namespace Global
+    {
+        extern CommandPool *commandPool;
+    }
 }

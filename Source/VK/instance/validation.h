@@ -2,36 +2,33 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		namespace Validation
-		{
+    namespace Validation
+    {
 
-			const std::vector<const char *> validationLayers =
-				{
-					"VK_LAYER_KHRONOS_validation"};
+        const std::vector<const char *> validationLayers =
+            {
+                "VK_LAYER_KHRONOS_validation"};
 
 #ifdef NDEBUG
-			constexpr bool enableValidationLayers = false;
+        constexpr bool enableValidationLayers = false;
 #else
-			constexpr bool enableValidationLayers = true;
+        constexpr bool enableValidationLayers = true;
 #endif
 
-			bool CheckValidationSupport();
+        bool CheckValidationSupport();
 
-			std::vector<const char *> GetRequestedExtensions();
+        std::vector<const char *> GetRequestedExtensions();
 
-			static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
+        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
 
-			extern VkDebugUtilsMessengerEXT debugMessenger;
+        extern VkDebugUtilsMessengerEXT debugMessenger;
 
-			void SetupDebugMessenger(VkInstance instance);
-			VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
-			void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
-			void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-			void Destroy(VkInstance instance);
-		}
-	}
+        void SetupDebugMessenger(VkInstance instance);
+        VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
+        void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
+        void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+        void Destroy(VkInstance instance);
+    }
 }

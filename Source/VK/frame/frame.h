@@ -2,58 +2,55 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		class Frame
-		{
-		friend class FrameManager;
+    class Frame
+    {
+    friend class FrameManager;
 
-		public:
-			Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores);
-			~Frame();
+    public:
+        Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores);
+        ~Frame();
 
-			VkSemaphore& GetSemaphore(int semaphore_id);
+        VkSemaphore& GetSemaphore(int semaphore_id);
 
-			VkFence& GetInFlightFence();
+        VkFence& GetInFlightFence();
 
-			std::vector<VkSemaphore> semaphores;
+        std::vector<VkSemaphore> semaphores;
 
-		private:
-			int firstSemaphore;
-			int lastSemaphore;
+    private:
+        int firstSemaphore;
+        int lastSemaphore;
 
-			VkFence inFlightFence;
+        VkFence inFlightFence;
 
-			Frame(const Frame&) = delete;
-			Frame& operator=(const Frame&) = delete;
-		};
+        Frame(const Frame&) = delete;
+        Frame& operator=(const Frame&) = delete;
+    };
 
-		class FrameManager
-		{
-		public:
-			FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count);
-			~FrameManager();
+    class FrameManager
+    {
+    public:
+        FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count);
+        ~FrameManager();
 
-			void NextFrame();
-			Frame* GetCurrentFrame();
+        void NextFrame();
+        Frame* GetCurrentFrame();
 
-			int GetAmountOfFrames() const;
-			int GetCurrentFrameIndex() const;
+        int GetAmountOfFrames() const;
+        int GetCurrentFrameIndex() const;
 
-			uint32_t AcquireSwapChainImage();
-			void Present();
+        uint32_t AcquireSwapChainImage();
+        void Present();
 
-			std::vector<VkFence> imagesInFlight;
-			
-		private:
-			int framesCount = 0;
-			int currentFrame = 0;
-			std::vector<Frame*> frames;
+        std::vector<VkFence> imagesInFlight;
+        
+    private:
+        int framesCount = 0;
+        int currentFrame = 0;
+        std::vector<Frame*> frames;
 
-			FrameManager(const FrameManager&) = delete;
-			FrameManager& operator=(const FrameManager&) = delete;
-		};
-	}
+        FrameManager(const FrameManager&) = delete;
+        FrameManager& operator=(const FrameManager&) = delete;
+    };
 }

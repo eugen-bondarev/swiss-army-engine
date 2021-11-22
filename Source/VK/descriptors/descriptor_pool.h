@@ -2,28 +2,25 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		class DescriptorPool
-		{
-		public:
-			DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes);
-			~DescriptorPool();
+    class DescriptorPool
+    {
+    public:
+        DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes);
+        ~DescriptorPool();
 
-			VkDescriptorPool& GetVkDescriptorPool();
+        VkDescriptorPool& GetVkDescriptorPool();
 
-		private:
-			VkDescriptorPool vkDescriptorPool;
+    private:
+        VkDescriptorPool vkDescriptorPool;
 
-			DescriptorPool(const DescriptorPool&) = delete;
-			DescriptorPool& operator=(const DescriptorPool&) = delete;
-		};
+        DescriptorPool(const DescriptorPool&) = delete;
+        DescriptorPool& operator=(const DescriptorPool&) = delete;
+    };
 
-		namespace Global
-		{
-			extern DescriptorPool* descriptorPool;
-		}
-	}
+    namespace Global
+    {
+        extern DescriptorPool* descriptorPool;
+    }
 }

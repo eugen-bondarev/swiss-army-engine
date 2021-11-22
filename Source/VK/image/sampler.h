@@ -2,29 +2,26 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		class Sampler
-		{
-		public:
-			Sampler(VkFilter filter);
-			~Sampler();
+    class Sampler
+    {
+    public:
+        Sampler(VkFilter filter);
+        ~Sampler();
 
-			VkSampler& GetVkSampler();
+        VkSampler& GetVkSampler();
 
-		private:
-			VkSampler vkSampler;
+    private:
+        VkSampler vkSampler;
 
-			Sampler(const Sampler&) = delete;
-			Sampler& operator=(const Sampler&) = delete;
-		};
+        Sampler(const Sampler&) = delete;
+        Sampler& operator=(const Sampler&) = delete;
+    };
 
-		namespace Global
-		{
-			extern Sampler* constantInterpolationSampler;
-			extern Sampler* linearInterpolationSampler;
-		}
-	}
+    namespace Global
+    {
+        extern Sampler* constantInterpolationSampler;
+        extern Sampler* linearInterpolationSampler;
+    }
 }

@@ -8,15 +8,12 @@
 
 #include "../Common/Common.h"
 
-namespace Engine
+namespace VK
 {
-    namespace Vk
+    struct Vec2
     {
-        struct Vec2
-        {
-            float x{0}, y{0};
-        };
-    }
+        float x{0}, y{0};
+    };
 }
 
 #define VK_TRY(exp)\

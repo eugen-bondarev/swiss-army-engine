@@ -2,28 +2,25 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		namespace Global
-		{
-			class Instance
-			{
-			public:
-				Instance();
-				~Instance();
+    namespace Global
+    {
+        class Instance
+        {
+        public:
+            Instance();
+            ~Instance();
 
-				VkInstance GetVkInstance() const;
+            VkInstance GetVkInstance() const;
 
-			private:
-				VkInstance vkInstance;
+        private:
+            VkInstance vkInstance;
 
-				Instance(const Instance &) = delete;
-				Instance &operator=(const Instance &) = delete;
-			};
+            Instance(const Instance &) = delete;
+            Instance &operator=(const Instance &) = delete;
+        };
 
-			extern Instance *instance;
-		}
-	}
+        extern Instance *instance;
+    }
 }

@@ -2,30 +2,27 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		namespace Util
-		{
-			VkShaderModule CreateShaderModule(const std::string& code);
-		}
+    namespace Util
+    {
+        VkShaderModule CreateShaderModule(const std::string& code);
+    }
 
-		class Shader
-		{
-		public:
-			Shader(const std::string& vs_code, const std::string& fs_code);
-			~Shader();
+    class Shader
+    {
+    public:
+        Shader(const std::string& vs_code, const std::string& fs_code);
+        ~Shader();
 
-			const std::array<VkShaderModule, 2>& GetModules() const;
-			const std::array<VkPipelineShaderStageCreateInfo, 2>& GetStages() const;
+        const std::array<VkShaderModule, 2>& GetModules() const;
+        const std::array<VkPipelineShaderStageCreateInfo, 2>& GetStages() const;
 
-		private:
-			std::array<VkShaderModule, 2> modules;
-			std::array<VkPipelineShaderStageCreateInfo, 2> stages;
+    private:
+        std::array<VkShaderModule, 2> modules;
+        std::array<VkPipelineShaderStageCreateInfo, 2> stages;
 
-			Shader(const Shader&) = delete;
-			Shader& operator=(const Shader&) = delete;
-		};
-	}
+        Shader(const Shader&) = delete;
+        Shader& operator=(const Shader&) = delete;
+    };
 }

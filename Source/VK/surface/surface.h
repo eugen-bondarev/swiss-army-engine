@@ -2,25 +2,22 @@
 
 #include "../Common.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		namespace Global
-		{
-			class Surface
-			{
-			public:
-				Surface(GLFWwindow* handle);
-				~Surface();
+    namespace Global
+    {
+        class Surface
+        {
+        public:
+            Surface(GLFWwindow* handle);
+            ~Surface();
 
-				VkSurfaceKHR GetVkSurface() const;
+            VkSurfaceKHR GetVkSurface() const;
 
-			private:
-				VkSurfaceKHR vkSurface;
-			};
+        private:
+            VkSurfaceKHR vkSurface;
+        };
 
-			extern Surface *surface;
-		}
-	}
+        extern Surface *surface;
+    }
 }

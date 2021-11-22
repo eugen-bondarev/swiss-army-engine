@@ -4,17 +4,14 @@
 
 #include "../surface/surface.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		struct SupportDetails
-		{
-			VkSurfaceCapabilitiesKHR capabilities;
-			std::vector<VkSurfaceFormatKHR> formats;
-			std::vector<VkPresentModeKHR> presentModes;
-		};
+    struct SupportDetails
+    {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
 
-		SupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-	}
+    SupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 }

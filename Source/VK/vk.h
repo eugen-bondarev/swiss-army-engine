@@ -8,11 +8,8 @@
 #include "image/sampler.h"
 #include "descriptors/descriptor_pool.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		void Bootstrap(GLFWwindow* handle);
-		void Shutdown();
-	}
+    void Bootstrap(GLFWwindow* handle);
+    void Shutdown();
 }

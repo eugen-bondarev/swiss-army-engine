@@ -2,33 +2,32 @@
 
 #include "../../common.h"
 
-namespace Engine
+#include <glm.hpp>
+
+namespace VK
 {
-	namespace Vk
-	{
-		struct Vertex
-		{
-			Vec2 Position;
-			Vec2 TextureCoords;
+    struct Vertex
+    {
+        glm::vec3 Position;
+        glm::vec2 TextureCoords;
 
-			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
-			static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
-		};
+        static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+    };
 
-		// struct PerInstanceVertex
-		// {
-		// 	glm::vec4 Position;
+    // struct PerInstanceVertex
+    // {
+    // 	glm::vec4 Position;
 
-		// 	static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
-		// 	static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
-		// };
+    // 	static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+    // 	static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+    // };
 
-		struct PerInstanceVertex2D
-		{
-			Vec2 Position;
+    struct PerInstanceVertex2D
+    {
+        Vec2 Position;
 
-			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
-			static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
-		};
-	}
+        static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+    };
 }

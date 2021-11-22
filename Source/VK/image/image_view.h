@@ -6,30 +6,27 @@
 
 #include "sampler.h"
 
-namespace Engine
+namespace VK
 {
-	namespace Vk
-	{
-		class ImageView
-		{
-		public:
-			ImageView(Image* image);
-			~ImageView();
+    class ImageView
+    {
+    public:
+        ImageView(Image* image);
+        ~ImageView();
 
-			VkImageView& GetVkImageView();
+        VkImageView& GetVkImageView();
 
-			VkDescriptorImageInfo& GetDescriptor();
+        VkDescriptorImageInfo& GetDescriptor();
 
-			void SetupDescriptor(VkImageLayout image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VkSampler sampler = Global::constantInterpolationSampler->GetVkSampler());
+        void SetupDescriptor(VkImageLayout image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VkSampler sampler = Global::constantInterpolationSampler->GetVkSampler());
 
-		private:
-			VkImageView vkImageView;
+    private:
+        VkImageView vkImageView;
 
-			VkDescriptorImageInfo descriptor;
-			void SetupDefaultDescriptor();
+        VkDescriptorImageInfo descriptor;
+        void SetupDefaultDescriptor();
 
-			ImageView(const ImageView&) = delete;
-			ImageView& operator=(const ImageView&) = delete;
-		};
-	}
+        ImageView(const ImageView&) = delete;
+        ImageView& operator=(const ImageView&) = delete;
+    };
 }

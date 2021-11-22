@@ -42,6 +42,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${Vulkan_INCLUDE_DIR} 
     
     "external/glfw/include"
+    "external/glm/glm"
     "external/assimp/include"
     "external/stb_image"
     "external/imgui"
