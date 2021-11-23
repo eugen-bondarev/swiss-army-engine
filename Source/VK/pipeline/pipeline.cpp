@@ -3,6 +3,8 @@
 #include "../device/device.h"
 #include "../swap_chain/swap_chain.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     Pipeline::Pipeline(
@@ -12,8 +14,9 @@ namespace VK
         const AttachmentDescriptions& attachments,
         const BindingDescriptions& binding_descriptions,
         const AttributeDescriptions& attribute_descriptions,
-        const SetLayouts& set_layouts
-    )
+        const SetLayouts& set_layouts,
+        const Global::Device* device
+    ) : device{device ? *device : GetDevice()}
     {
         shader = new Shader(vs_code, fs_code);
 
@@ -115,7 +118,7 @@ namespace VK
         pipeline_layout_info.pushConstantRangeCount = 0;								 // Optional
         pipeline_layout_info.pPushConstantRanges = nullptr;								 // Optional
 
-        VK_TRY(vkCreatePipelineLayout(Global::device->GetVkDevice(), &pipeline_layout_info, nullptr, &vkPipelineLayout));
+        VK_TRY(vkCreatePipelineLayout(this->device.GetVkDevice(), &pipeline_layout_info, nullptr, &vkPipelineLayout));
 
         renderPass = new RenderPass(attachments);
 
@@ -150,19 +153,15 @@ namespace VK
         pipeline_info.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipeline_info.basePipelineIndex = -1;			   // Optional
 
-        VK_TRY(vkCreateGraphicsPipelines(Global::device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &vkPipeline));
-
-        
+        VK_TRY(vkCreateGraphicsPipelines(this->device.GetVkDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &vkPipeline));        
     }
 
     Pipeline::~Pipeline()
     {
-        vkDestroyPipeline(Global::device->GetVkDevice(), vkPipeline, nullptr);
+        vkDestroyPipeline(device.GetVkDevice(), vkPipeline, nullptr);
         delete renderPass;
-        vkDestroyPipelineLayout(Global::device->GetVkDevice(), vkPipelineLayout, nullptr);
-        delete shader;
-
-        
+        vkDestroyPipelineLayout(device.GetVkDevice(), vkPipelineLayout, nullptr);
+        delete shader;        
     }
 
     void Pipeline::SetAsOutput()

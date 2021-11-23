@@ -7,20 +7,16 @@ namespace VK
 {
     namespace Global
     {
-        Surface* surface;
+        // Surface* surface;
 
-        Surface::Surface(GLFWwindow* handle)
+        Surface::Surface(const Instance& instance, GLFWwindow* handle) : instance{instance}
         {
-            VK_TRY(glfwCreateWindowSurface(instance->GetVkInstance(), handle, nullptr, &vkSurface));
-
-            
+            VK_TRY(glfwCreateWindowSurface(instance.GetVkInstance(), handle, nullptr, &vkSurface));
         }
 
         Surface::~Surface()
         {
-            vkDestroySurfaceKHR(instance->GetVkInstance(), vkSurface, nullptr);
-
-            
+            vkDestroySurfaceKHR(instance.GetVkInstance(), vkSurface, nullptr);
         }
 
         VkSurfaceKHR Surface::GetVkSurface() const

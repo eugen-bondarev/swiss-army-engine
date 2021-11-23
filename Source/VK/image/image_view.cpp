@@ -2,9 +2,11 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
-    ImageView::ImageView(Image* image, const VkImageAspectFlags aspectFlags)
+    ImageView::ImageView(Image* image, const VkImageAspectFlags aspectFlags, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
         VkImageViewCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -18,7 +20,7 @@ namespace VK
         create_info.subresourceRange.baseArrayLayer = 0;
         create_info.subresourceRange.layerCount = 1;
 
-        VK_TRY(vkCreateImageView(Global::device->GetVkDevice(), &create_info, nullptr, &vkImageView));
+        VK_TRY(vkCreateImageView(this->device.GetVkDevice(), &create_info, nullptr, &vkImageView));
 
         SetupDefaultDescriptor();
 
@@ -27,7 +29,7 @@ namespace VK
 
     ImageView::~ImageView()
     {
-        vkDestroyImageView(Global::device->GetVkDevice(), vkImageView, nullptr);
+        vkDestroyImageView(device.GetVkDevice(), vkImageView, nullptr);
         
     }
 

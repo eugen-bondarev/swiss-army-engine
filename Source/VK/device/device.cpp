@@ -14,12 +14,10 @@ namespace VK
     {
         Device *device;
 
-        Device::Device()
+        Device::Device(const Instance& instance) : instance{instance}
         {
             PickPhysicalDevice();
             CreateLogicalDevice();
-
-            
         }
 
         Device::~Device()
@@ -50,7 +48,7 @@ namespace VK
         void Device::PickPhysicalDevice()
         {
             uint32_t deviceCount = 0;
-            vkEnumeratePhysicalDevices(instance->GetVkInstance(), &deviceCount, nullptr);
+            vkEnumeratePhysicalDevices(instance.GetVkInstance(), &deviceCount, nullptr);
 
             if (deviceCount == 0)
             {
@@ -58,7 +56,7 @@ namespace VK
             }
 
             std::vector<VkPhysicalDevice> devices(deviceCount);
-            vkEnumeratePhysicalDevices(instance->GetVkInstance(), &deviceCount, devices.data());
+            vkEnumeratePhysicalDevices(instance.GetVkInstance(), &deviceCount, devices.data());
 
             for (const auto &device : devices)
             {

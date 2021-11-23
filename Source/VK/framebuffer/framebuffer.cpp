@@ -2,9 +2,11 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
-    Framebuffer::Framebuffer(VkImageView imageView, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView) : size{static_cast<float>(width), static_cast<float>(height)}
+    Framebuffer::Framebuffer(VkImageView imageView, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView, const Global::Device* device) : device{device ? *device : GetDevice()}, size{static_cast<float>(width), static_cast<float>(height)}
     {
         std::vector<VkImageView> attachments = {imageView};
 
@@ -22,10 +24,10 @@ namespace VK
         framebuffer_info.height = static_cast<uint32_t>(size.y);
         framebuffer_info.layers = 1;
 
-        VK_TRY(vkCreateFramebuffer(Global::device->GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
+        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
     }
     
-    Framebuffer::Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2& size) : size { size }
+    Framebuffer::Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2& size, const Global::Device* device) : size{size}, device{device ? *device : GetDevice()}
     {
         VkFramebufferCreateInfo framebuffer_info{};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -36,14 +38,12 @@ namespace VK
         framebuffer_info.height = static_cast<uint32_t>(size.y);
         framebuffer_info.layers = 1;
 
-        VK_TRY(vkCreateFramebuffer(Global::device->GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
+        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
     }
 
     Framebuffer::~Framebuffer()
     {
-        vkDestroyFramebuffer(Global::device->GetVkDevice(), vkFramebuffer, nullptr);
-
-        
+        vkDestroyFramebuffer(device.GetVkDevice(), vkFramebuffer, nullptr);
     }
 
     VkFramebuffer Framebuffer::GetVkFramebuffer() const

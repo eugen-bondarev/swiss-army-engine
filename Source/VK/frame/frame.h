@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 namespace VK
 {
@@ -9,7 +10,7 @@ namespace VK
     friend class FrameManager;
 
     public:
-        Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores);
+        Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores, const Global::Device* device = nullptr);
         ~Frame();
 
         VkSemaphore& GetSemaphore(int semaphore_id);
@@ -19,6 +20,7 @@ namespace VK
         std::vector<VkSemaphore> semaphores;
 
     private:
+        const Global::Device& device;
         int firstSemaphore;
         int lastSemaphore;
 
@@ -31,7 +33,7 @@ namespace VK
     class FrameManager
     {
     public:
-        FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count);
+        FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count, const Global::Device* device = nullptr);
         ~FrameManager();
 
         void NextFrame();
@@ -46,6 +48,7 @@ namespace VK
         std::vector<VkFence> imagesInFlight;
         
     private:
+        const Global::Device& device;
         int framesCount = 0;
         int currentFrame = 0;
         std::vector<Frame*> frames;

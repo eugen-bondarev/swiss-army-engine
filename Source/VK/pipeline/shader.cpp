@@ -2,11 +2,13 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Util
     {		
-        VkShaderModule CreateShaderModule(const std::string& code)
+        VkShaderModule CreateShaderModule(const std::string& code, const Global::Device* device)
         {
             VkShaderModuleCreateInfo create_info{};
             create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -14,16 +16,16 @@ namespace VK
             create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
             VkShaderModule shader_module;
-            VK_TRY(vkCreateShaderModule(Global::device->GetVkDevice(), &create_info, nullptr, &shader_module));
+            VK_TRY(vkCreateShaderModule(device->GetVkDevice(), &create_info, nullptr, &shader_module));
 
             return shader_module;
         }
     }
 
-    Shader::Shader(const std::string& vs_code, const std::string& fs_code)
+    Shader::Shader(const std::string& vs_code, const std::string& fs_code, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
-        modules[0] = Util::CreateShaderModule(vs_code);
-        modules[1] = Util::CreateShaderModule(fs_code);
+        modules[0] = Util::CreateShaderModule(vs_code, &this->device);
+        modules[1] = Util::CreateShaderModule(fs_code, &this->device);
 
         VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
         vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -39,14 +41,12 @@ namespace VK
 
         stages[0] = vert_shader_stage_info;
         stages[1] = frag_shader_stage_info;
-
-        
     }
 
     Shader::~Shader()
     {
         for (const auto& module : modules)
-            vkDestroyShaderModule(Global::device->GetVkDevice(), module, nullptr);
+            vkDestroyShaderModule(device.GetVkDevice(), module, nullptr);
 
         
     }

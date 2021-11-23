@@ -3,9 +3,11 @@
 #include "../device/device.h"
 #include "../swap_chain/swap_chain.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
-    Frame::Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores) : firstSemaphore { first_semaphore }, lastSemaphore { last_semaphore }
+    Frame::Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores, const Global::Device* device) : firstSemaphore { first_semaphore }, lastSemaphore { last_semaphore }, device{device ? *device : GetDevice()}
     {
         VkSemaphoreCreateInfo semaphore_info{};
         semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -18,18 +20,18 @@ namespace VK
 
         for (int i = 0; i < amount_of_semaphores; i++)
         {
-            VK_TRY(vkCreateSemaphore(Global::device->GetVkDevice(), &semaphore_info, nullptr, &semaphores[i]));
+            VK_TRY(vkCreateSemaphore(this->device.GetVkDevice(), &semaphore_info, nullptr, &semaphores[i]));
         }
         
-        VK_TRY(vkCreateFence(Global::device->GetVkDevice(), &fence_info, nullptr, &inFlightFence));
+        VK_TRY(vkCreateFence(this->device.GetVkDevice(), &fence_info, nullptr, &inFlightFence));
     }
 
     Frame::~Frame()
     {
         for (auto& semaphore : semaphores)
-            vkDestroySemaphore(Global::device->GetVkDevice(), semaphore, nullptr);
+            vkDestroySemaphore(device.GetVkDevice(), semaphore, nullptr);
 
-        vkDestroyFence(Global::device->GetVkDevice(), inFlightFence, nullptr);
+        vkDestroyFence(device.GetVkDevice(), inFlightFence, nullptr);
     }
 
     VkSemaphore& Frame::GetSemaphore(int semaphore_id)
@@ -42,7 +44,7 @@ namespace VK
         return inFlightFence;
     }
 
-    FrameManager::FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count) : framesCount { frames_count }
+    FrameManager::FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count, const Global::Device* device) : device{device ? *device : GetDevice()}, framesCount{frames_count}
     {		
         for (int i = 0; i < frames_count; i++)
         {
@@ -67,11 +69,11 @@ namespace VK
 
         if (imagesInFlight[image_index] != VK_NULL_HANDLE)
         {
-            vkWaitForFences(Global::device->GetVkDevice(), 1, &imagesInFlight[image_index], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[image_index], VK_TRUE, UINT64_MAX);
         }
         
-        vkWaitForFences(Global::device->GetVkDevice(), 1, &frame->GetInFlightFence(), VK_TRUE, UINT64_MAX);
-        vkResetFences(Global::device->GetVkDevice(), 1, &frame->GetInFlightFence());
+        vkWaitForFences(device.GetVkDevice(), 1, &frame->GetInFlightFence(), VK_TRUE, UINT64_MAX);
+        vkResetFences(device.GetVkDevice(), 1, &frame->GetInFlightFence());
         imagesInFlight[image_index] = frame->GetInFlightFence();
 
         return image_index;

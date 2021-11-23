@@ -1,6 +1,9 @@
+#ifndef __VK_Commands_CommandPool_h__
+#define __VK_Commands_CommandPool_h__
+
 #pragma once
 
-
+#include "../Objects.h"
 #include "../Common.h"
 
 namespace VK
@@ -8,7 +11,7 @@ namespace VK
     class CommandPool
     {
     public:
-        CommandPool();
+        CommandPool(const Global::Device* device = nullptr);
         ~CommandPool();
 
         void Reset() const;
@@ -16,6 +19,8 @@ namespace VK
         VkCommandPool GetVkCommandPool() const;
 
     private:
+        const Global::Device& device;
+
         VkCommandPool vkCommandPool;
 
         // CommandPool(const CommandPool &) = delete;
@@ -25,5 +30,7 @@ namespace VK
     namespace Global
     {
         extern CommandPool *commandPool;
-    }
-}
+    } // namespace Global
+} // namespace VK
+
+#endif

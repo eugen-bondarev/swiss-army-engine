@@ -2,6 +2,8 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Util
@@ -32,7 +34,7 @@ namespace VK
         }
     }
 
-    RenderPass::RenderPass(const AttachmentDescriptions& attachments)
+    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
@@ -67,16 +69,12 @@ namespace VK
         render_pass_info.dependencyCount = static_cast<uint32_t>(dependencies.size());
         render_pass_info.pDependencies = dependencies.data();
 
-        VK_TRY(vkCreateRenderPass(Global::device->GetVkDevice(), &render_pass_info, nullptr, &vkRenderPass));
-
-        
+        VK_TRY(vkCreateRenderPass(this->device.GetVkDevice(), &render_pass_info, nullptr, &vkRenderPass));
     }
 
     RenderPass::~RenderPass()
     {
-        vkDestroyRenderPass(Global::device->GetVkDevice(), vkRenderPass, nullptr);
-
-        
+        vkDestroyRenderPass(device.GetVkDevice(), vkRenderPass, nullptr);
     }
 
     VkRenderPass& RenderPass::GetVkRenderPass()

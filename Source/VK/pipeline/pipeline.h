@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 #include "shader.h"
 #include "render_pass.h"
@@ -23,7 +24,8 @@ namespace VK
             const AttachmentDescriptions& attachments,
             const BindingDescriptions &binding_descriptions = {},
             const AttributeDescriptions &attribute_descriptions = {},
-            const SetLayouts &set_layouts = {}
+            const SetLayouts &set_layouts = {},
+            const Global::Device* device = nullptr
         );
 
         ~Pipeline();
@@ -35,6 +37,7 @@ namespace VK
         RenderPass *GetRenderPass();
 
     private:
+        const Global::Device& device;
         Shader* shader;
         RenderPass* renderPass;
 

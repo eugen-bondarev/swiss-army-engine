@@ -10,9 +10,9 @@ namespace VK
         {
         public:
             Instance();
-            ~Instance();
+           ~Instance();
 
-            VkInstance GetVkInstance() const;
+            const VkInstance GetVkInstance() const;
 
         private:
             VkInstance vkInstance;
@@ -21,6 +21,6 @@ namespace VK
             Instance &operator=(const Instance &) = delete;
         };
 
-        extern Instance *instance;
+        // extern Instance *instance;
     }
 }

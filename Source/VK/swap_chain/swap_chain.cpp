@@ -7,15 +7,17 @@
 
 #include <algorithm>
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Global
     {
         SwapChain *swapChain;
 
-        SwapChain::SwapChain(GLFWwindow* handle) : handle{handle}
+        SwapChain::SwapChain(GLFWwindow* handle, const Global::Device* device) : device{device ? *device : GetDevice()}, handle{handle}
         {
-            SupportDetails support_details = QuerySwapChainSupport(device->GetVkPhysicalDevice());
+            SupportDetails support_details = QuerySwapChainSupport(this->device.GetVkPhysicalDevice());
 
             surfaceFormat = ChooseSurfaceFormat(support_details.formats);
             // surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
@@ -31,7 +33,7 @@ namespace VK
 
             VkSwapchainCreateInfoKHR create_info{};
             create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-            create_info.surface = surface->GetVkSurface();
+            create_info.surface = GetSurface().GetVkSurface();
             create_info.minImageCount = image_count;
             create_info.imageFormat = surfaceFormat.format;
             create_info.imageColorSpace = surfaceFormat.colorSpace;
@@ -63,29 +65,25 @@ namespace VK
             create_info.clipped = VK_TRUE;
             create_info.oldSwapchain = VK_NULL_HANDLE;
 
-            VK_TRY(vkCreateSwapchainKHR(device->GetVkDevice(), &create_info, nullptr, &vkSwapChain));
+            VK_TRY(vkCreateSwapchainKHR(this->device.GetVkDevice(), &create_info, nullptr, &vkSwapChain));
 
-            vkGetSwapchainImagesKHR(device->GetVkDevice(), vkSwapChain, &image_count, nullptr);
+            vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &image_count, nullptr);
             images.resize(image_count);
-            vkGetSwapchainImagesKHR(device->GetVkDevice(), vkSwapChain, &image_count, images.data());
+            vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &image_count, images.data());
 
             imageFormat = surfaceFormat.format;
 
             CreateImageViews();
-
-            
         }
 
         SwapChain::~SwapChain()
         {
             DestroyImageViews();
 
-            vkDestroySwapchainKHR(device->GetVkDevice(), vkSwapChain, nullptr);
+            vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
 
             for (auto& framebuffer : framebuffers)
                 delete framebuffer;
-
-            
         }
 
         VK::Framebuffer* SwapChain::GetCurrentScreenFramebuffer()
@@ -110,8 +108,7 @@ namespace VK
 
         uint32_t SwapChain::AcquireImage(VkSemaphore semaphore)
         {
-            vkAcquireNextImageKHR(device->GetVkDevice(), vkSwapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
-
+            vkAcquireNextImageKHR(device.GetVkDevice(), vkSwapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
             return imageIndex;
         }
 
@@ -144,11 +141,11 @@ namespace VK
 
             // Get list of supported surface formats
             uint32_t formatCount;
-            vkGetPhysicalDeviceSurfaceFormatsKHR(Global::device->GetVkPhysicalDevice(), Global::surface->GetVkSurface(), &formatCount, NULL);				
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device.GetVkPhysicalDevice(), GetSurface().GetVkSurface(), &formatCount, NULL);				
             assert(formatCount > 0);
 
             std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(Global::device->GetVkPhysicalDevice(), Global::surface->GetVkSurface(), &formatCount, surfaceFormats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device.GetVkPhysicalDevice(), GetSurface().GetVkSurface(), &formatCount, surfaceFormats.data());
 
             // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
             // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
@@ -256,7 +253,7 @@ namespace VK
                 createInfo.subresourceRange.baseArrayLayer = 0;
                 createInfo.subresourceRange.layerCount = 1;
 
-                VK_TRY(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &imageViews[i]));
+                VK_TRY(vkCreateImageView(device.GetVkDevice(), &createInfo, nullptr, &imageViews[i]));
             }
         }
 
@@ -264,7 +261,7 @@ namespace VK
         {
             for (const auto &imageView : imageViews)
             {
-                vkDestroyImageView(device->GetVkDevice(), imageView, nullptr);
+                vkDestroyImageView(device.GetVkDevice(), imageView, nullptr);
             }
         }
 

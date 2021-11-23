@@ -2,6 +2,8 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorBufferInfo* descriptor_buffer_info)
@@ -32,14 +34,14 @@ namespace VK
         return descriptor_write;
     }
 
-    DescriptorSet::DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts)
+    DescriptorSet::DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
         VkDescriptorSetAllocateInfo alloc_info{};
         alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         alloc_info.descriptorPool = descriptor_pool->GetVkDescriptorPool();			
         alloc_info.descriptorSetCount = 1;
         alloc_info.pSetLayouts = layouts.data();
-        VK_TRY(vkAllocateDescriptorSets(Global::device->GetVkDevice(), &alloc_info, &vkDescriptorSet));
+        VK_TRY(vkAllocateDescriptorSets(this->device.GetVkDevice(), &alloc_info, &vkDescriptorSet));
     }
 
     DescriptorSet::~DescriptorSet()
@@ -48,7 +50,7 @@ namespace VK
 
     void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& write_descriptor_sets)
     {
-        vkUpdateDescriptorSets(VK::Global::device->GetVkDevice(), static_cast<uint32_t>(write_descriptor_sets.size()), write_descriptor_sets.data(), 0, nullptr);
+        vkUpdateDescriptorSets(device.GetVkDevice(), static_cast<uint32_t>(write_descriptor_sets.size()), write_descriptor_sets.data(), 0, nullptr);
     }
 
     VkDescriptorSet& DescriptorSet::GetVkDescriptorSet()

@@ -6,7 +6,7 @@ namespace VK
 {
     namespace Global
     {
-        Instance *instance;
+        // Instance *instance;
 
         Instance::Instance()
         {
@@ -58,21 +58,16 @@ namespace VK
                 LINE_OUT(ext.extensionName);
             }
 
-            Validation::SetupDebugMessenger(vkInstance);
-
-            
+            Validation::SetupDebugMessenger(vkInstance);            
         }
 
         Instance::~Instance()
         {
             Validation::Destroy(vkInstance);
-
-            vkDestroyInstance(vkInstance, nullptr);
-
-            
+            vkDestroyInstance(vkInstance, nullptr);            
         }
 
-        VkInstance Instance::GetVkInstance() const
+        const VkInstance Instance::GetVkInstance() const
         {
             return vkInstance;
         }

@@ -29,11 +29,11 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Fullscreen, true);
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 1024, 768);
 
         VK::Bootstrap(window->GetHandle());
 
-        VK::Image depthImage(nullptr, window->GetWidth(), window->GetHeight(), VK::Global::device->FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::Image depthImage(nullptr, window->GetWidth(), window->GetHeight(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
@@ -69,7 +69,7 @@ int main()
                 VK::Global::swapChain->GetImageFormat()
             ),            
             VK::Util::CreateAttachment(
-                VK::Global::device->FindDepthFormat(), 
+                VK::GetDevice().FindDepthFormat(), 
                 VK_IMAGE_LAYOUT_UNDEFINED, 
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
                 VK_ATTACHMENT_LOAD_OP_CLEAR, 
@@ -152,13 +152,13 @@ int main()
                 cmd->End();
 
 	        VkFence fence = frame->GetInFlightFence();
-            vkResetFences(VK::Global::device->GetVkDevice(), 1, &fence);
+            vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
             cmd->SubmitToQueue(VK::Global::Queues::graphicsQueue, wait, signal, fence);
 
             frameManager.Present();
         }
 
-        VK::Global::device->WaitIdle();
+        VK::GetDevice().WaitIdle();
 
         // for (size_t i = 0; i < commandPools.size(); ++i)
         // {

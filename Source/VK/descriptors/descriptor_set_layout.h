@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 namespace VK
 {
@@ -9,12 +10,13 @@ namespace VK
     class DescriptorSetLayout
     {
     public:
-        DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
+        DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Global::Device* device = nullptr);
         ~DescriptorSetLayout();
 
         VkDescriptorSetLayout& GetVkDescriptorSetLayout();
 
     private:
+        const Global::Device& device;
         VkDescriptorSetLayout vkDescriptorSetLayout;
 
         DescriptorSetLayout(const DescriptorSetLayout&) = delete;

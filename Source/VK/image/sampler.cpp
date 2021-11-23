@@ -2,6 +2,8 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Global
@@ -10,7 +12,7 @@ namespace VK
         Sampler* linearInterpolationSampler;
     }
 
-    Sampler::Sampler(VkFilter filter)
+    Sampler::Sampler(VkFilter filter, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
         VkSamplerCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -20,7 +22,7 @@ namespace VK
         create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         create_info.anisotropyEnable = VK_TRUE;
-        create_info.maxAnisotropy = Global::device->properties.limits.maxSamplerAnisotropy;
+        create_info.maxAnisotropy = this->device.properties.limits.maxSamplerAnisotropy;
         create_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 
         create_info.unnormalizedCoordinates = VK_FALSE;
@@ -32,13 +34,13 @@ namespace VK
         create_info.minLod = 0.0f;
         create_info.maxLod = 0.0f;
 
-        VK_TRY(vkCreateSampler(Global::device->GetVkDevice(), &create_info, nullptr, &vkSampler));
+        VK_TRY(vkCreateSampler(this->device.GetVkDevice(), &create_info, nullptr, &vkSampler));
         
     }
 
     Sampler::~Sampler()
     {
-        vkDestroySampler(Global::device->GetVkDevice(), vkSampler, nullptr);
+        vkDestroySampler(device.GetVkDevice(), vkSampler, nullptr);
         
     }
 

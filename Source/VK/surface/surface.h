@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../instance/instance.h"
 
 namespace VK
 {
@@ -9,15 +10,16 @@ namespace VK
         class Surface
         {
         public:
-            Surface(GLFWwindow* handle);
+            Surface(const Instance& instnace, GLFWwindow* handle);
             ~Surface();
 
             VkSurfaceKHR GetVkSurface() const;
 
         private:
+            const Instance& instance;
             VkSurfaceKHR vkSurface;
         };
 
-        extern Surface *surface;
+        // extern Surface *surface;
     }
 }

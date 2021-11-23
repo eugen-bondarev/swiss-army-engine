@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 #include "../framebuffer/framebuffer.h"
 
@@ -25,12 +26,13 @@ namespace VK
     class RenderPass
     {
     public:
-        RenderPass(const AttachmentDescriptions& attachments);
+        RenderPass(const AttachmentDescriptions& attachments, const Global::Device* device = nullptr);
         ~RenderPass();
 
         VkRenderPass& GetVkRenderPass();
 
     private:
+        const Global::Device& device;
         VkRenderPass vkRenderPass;
 
         RenderPass(const RenderPass &) = delete;

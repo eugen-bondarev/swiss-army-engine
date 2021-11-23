@@ -2,6 +2,8 @@
 
 #include "../surface/surface.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Global
@@ -36,7 +38,7 @@ namespace VK
                         newIndices.graphicsFamily = i;
 
                         VkBool32 presentSupport = false;
-                        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface->GetVkSurface(), &presentSupport);
+                        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, GetSurface().GetVkSurface(), &presentSupport);
 
                         if (presentSupport)
                         {

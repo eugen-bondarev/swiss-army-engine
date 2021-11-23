@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 #include "../framebuffer/framebuffer.h"
 
@@ -11,7 +12,7 @@ namespace VK
         class SwapChain
         {
         public:
-            SwapChain(GLFWwindow* handle);
+            SwapChain(GLFWwindow* handle, const Global::Device* device = nullptr);
             ~SwapChain();
 
             uint32_t AcquireImage(VkSemaphore semaphore);
@@ -33,6 +34,8 @@ namespace VK
             const std::vector<VkImageView> &GetImageViews() const;
 
         private:
+            const Global::Device& device;
+
             GLFWwindow* handle;
 
             uint32_t imageIndex { 0 };

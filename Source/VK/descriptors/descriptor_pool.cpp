@@ -2,6 +2,8 @@
 
 #include "../device/device.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
     namespace Global
@@ -9,7 +11,7 @@ namespace VK
         DescriptorPool* descriptorPool;
     }
 
-    DescriptorPool::DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes)
+    DescriptorPool::DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes, const Global::Device* device) : device{device ? *device : GetDevice()}
     {
         // VkDescriptorPoolSize pool_sizes[] =
         // {
@@ -33,12 +35,12 @@ namespace VK
         pool_info.maxSets = 1000 * pool_sizes.size();
         pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
         pool_info.pPoolSizes = pool_sizes.data();
-        VK_TRY(vkCreateDescriptorPool(Global::device->GetVkDevice(), &pool_info, nullptr, &vkDescriptorPool));
+        VK_TRY(vkCreateDescriptorPool(this->device.GetVkDevice(), &pool_info, nullptr, &vkDescriptorPool));
     }
 
     DescriptorPool::~DescriptorPool()
     {
-        vkDestroyDescriptorPool(Global::device->GetVkDevice(), vkDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(device.GetVkDevice(), vkDescriptorPool, nullptr);
     }
 
     VkDescriptorPool& DescriptorPool::GetVkDescriptorPool()

@@ -2,6 +2,8 @@
 
 #include "../common.h"
 
+#include "../instance/instance.h"
+
 namespace VK
 {
     namespace Global
@@ -9,8 +11,8 @@ namespace VK
         class Device
         {
         public:
-            Device();
-            ~Device();
+            Device(const Instance& instance);
+           ~Device();
 
             const std::vector<const char *> deviceExtensions =
             {
@@ -52,6 +54,7 @@ namespace VK
 
 
         private:
+            const Instance& instance;
             VkPhysicalDevice vkPhysicalDevice;
             VkDevice vkDevice;
 
@@ -59,7 +62,6 @@ namespace VK
             Device &operator=(const Device &) = delete;
         };
 
-        extern Device *device;
-
+        // extern Device *device;
     }
 }

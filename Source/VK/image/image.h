@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 #include "../memory/buffer.h"
 
@@ -15,8 +16,8 @@ namespace VK
     class Image
     {
     public:
-        Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-        Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Global::Device* device = nullptr);
+        Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Global::Device* device = nullptr);
         ~Image();
 
         VkFormat GetVkFormat() const;
@@ -25,6 +26,7 @@ namespace VK
         VkDeviceMemory& GetVkDeviceMemory();
 
     private:
+        const Global::Device& device;
         VkImage vkImage;
         VkDeviceMemory vkMemory;
 

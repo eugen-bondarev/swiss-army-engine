@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Common.h"
+#include "../Objects.h"
 
 #include "descriptor_pool.h"
 
@@ -12,7 +13,7 @@ namespace VK
     class DescriptorSet
     {
     public:
-        DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts);
+        DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts, const Global::Device* device = nullptr);
         ~DescriptorSet();
 
         void Update(const std::vector<VkWriteDescriptorSet>& write_descriptor_sets);
@@ -20,6 +21,7 @@ namespace VK
         VkDescriptorSet& GetVkDescriptorSet();
 
     private:
+        const Global::Device& device;
         VkDescriptorSet vkDescriptorSet;
 
         DescriptorSet(const DescriptorSet&) = delete;

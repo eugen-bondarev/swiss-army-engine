@@ -3,9 +3,11 @@
 #include "../device/device.h"
 #include "../memory/buffer.h"
 
+#include "../GraphicsContext.h"
+
 namespace VK
 {
-    CommandBuffer::CommandBuffer(CommandPool *command_pool) : commandPool{command_pool}
+    CommandBuffer::CommandBuffer(CommandPool* command_pool, const Global::Device* device) : commandPool{command_pool}, device{device ? *device : GetDevice()}
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -13,16 +15,12 @@ namespace VK
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
 
-        VK_TRY(vkAllocateCommandBuffers(Global::device->GetVkDevice(), &allocInfo, &vkCommandBuffer));
-
-        
+        VK_TRY(vkAllocateCommandBuffers(this->device.GetVkDevice(), &allocInfo, &vkCommandBuffer));        
     }
 
     CommandBuffer::~CommandBuffer()
     {
         Free();
-
-        
     }
 
     void CommandBuffer::Begin(VkCommandBufferUsageFlags flags) const
@@ -126,7 +124,7 @@ namespace VK
 
     void CommandBuffer::Free() const
     {
-        vkFreeCommandBuffers(Global::device->GetVkDevice(), commandPool->GetVkCommandPool(), 1, &vkCommandBuffer);
+        vkFreeCommandBuffers(device.GetVkDevice(), commandPool->GetVkCommandPool(), 1, &vkCommandBuffer);
     }
 
     VkCommandBuffer &CommandBuffer::GetVkCommandBuffer()
