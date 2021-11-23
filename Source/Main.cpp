@@ -38,14 +38,15 @@ int main()
 
         VK::FrameManager frameManager(0, 1, 2, 2);
 
-        std::vector<VK::CommandPool*> commandPools;
-        std::vector<VK::CommandBuffer*> commandBuffers;
+        std::vector<Ptr<VK::CommandPool>> commandPools;
+        std::vector<Ptr<VK::CommandBuffer>> commandBuffers;
 
         for (size_t i = 0; i < VK::Global::swapChain->GetImageViews().size(); ++i)
         {
-            VK::CommandPool* pool = new VK::CommandPool();
-            commandBuffers.push_back(new VK::CommandBuffer(pool));
-            commandPools.push_back(pool);
+            Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
+
+            commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(pool.get()));
+            commandPools.push_back(std::move(pool));
         }
 
         std::vector<VkDescriptorSetLayoutBinding> bindings = 
@@ -129,8 +130,8 @@ int main()
             VkSemaphore* wait = &frame->GetSemaphore(0);
             VkSemaphore* signal = &frame->GetSemaphore(1);
 
-            VK::CommandPool* pool = commandPools[VK::Global::swapChain->GetCurrentImageIndex()];
-            VK::CommandBuffer* cmd = commandBuffers[VK::Global::swapChain->GetCurrentImageIndex()];
+            VK::CommandPool* pool = commandPools[VK::Global::swapChain->GetCurrentImageIndex()].get();
+            VK::CommandBuffer* cmd = commandBuffers[VK::Global::swapChain->GetCurrentImageIndex()].get();
             VK::Framebuffer* framebuffer = VK::Global::swapChain->GetCurrentScreenFramebuffer();
 
             static float theta{0}; theta += 0.01f;
@@ -165,11 +166,11 @@ int main()
 
         VK::Global::device->WaitIdle();
 
-        for (size_t i = 0; i < commandPools.size(); ++i)
-        {
-            delete commandBuffers[i];
-            delete commandPools[i];
-        }
+        // for (size_t i = 0; i < commandPools.size(); ++i)
+        // {
+        //     delete commandBuffers[i];
+        //     delete commandPools[i];
+        // }
     }
     catch (const std::runtime_error& exception)
     {
