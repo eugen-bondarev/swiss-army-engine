@@ -31,6 +31,8 @@ int main()
 
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 800, 600);
 
+        // API::GetCurrentGraphicsContext()->;
+
         VK::Bootstrap(window->GetHandle());
 
         VK::Image depthImage(nullptr, 800, 600, VK::Global::device->FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
@@ -89,10 +91,6 @@ int main()
 
 		VK::Buffer stagingIndexBuffer(characterMesh.indices);
 		VK::Buffer indexBuffer(&stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-
-        glm::mat4 pre = glm::mat4(1);
-        pre[1][1] = -1.0f;
-        uboData.proj = pre * glm::perspective(glm::radians(70.0f), 800.0f / 600.0f, 0.1f, 1000.0f) * glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10));
 
         VK::Buffer ubo(
 			sizeof(UBO),
