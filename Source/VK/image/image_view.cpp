@@ -1,7 +1,8 @@
 #include "image_view.h"
 
+#include "image.h"
+#include "sampler.h"
 #include "../device/device.h"
-
 #include "../GraphicsContext.h"
 
 namespace VK
@@ -42,13 +43,13 @@ namespace VK
     {
         descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptor.imageView = vkImageView;
-        descriptor.sampler = constantInterpolationSampler->GetVkSampler();
+        descriptor.sampler = GetDefaultConstInterpolationSampler().GetVkSampler();
     }
 
-    void ImageView::SetupDescriptor(VkImageLayout image_layout, VkSampler sampler)
+    void ImageView::SetupDescriptor(VkImageLayout image_layout, const Sampler& sampler)
     {
         descriptor.imageLayout = image_layout;
-        descriptor.sampler = sampler;
+        descriptor.sampler = sampler.GetVkSampler();
     }
 
     VkDescriptorImageInfo& ImageView::GetDescriptor()

@@ -6,6 +6,7 @@
 #include "instance/instance.h"
 #include "surface/surface.h"
 #include "device/device.h"
+#include "image/sampler.h"
 
 namespace VK
 {
@@ -31,6 +32,9 @@ namespace VK
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
             { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
         });
+
+        defaultConstInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_NEAREST);
+        defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
     }
 
     GraphicsContext::~GraphicsContext()
@@ -73,6 +77,21 @@ namespace VK
         return *defaultCommandPool;
     }
 
+    const Sampler& GraphicsContext::GetDefaultConstInterpolationSampler() const
+    {
+        return *defaultConstInterpolationSampler;
+    }
+
+    const Sampler& GraphicsContext::GetDefaultLinearInterpolationSampler() const
+    {
+        return *defaultLinearInterpolationSampler;
+    }
+
+
+
+
+
+
     const Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
@@ -96,5 +115,15 @@ namespace VK
     const CommandPool& GetDefaultCommandPool()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultCommandPool;
+    }
+
+    const Sampler& GetDefaultConstInterpolationSampler()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultConstInterpolationSampler;
+    }
+
+    const Sampler& GetDefaultLinearInterpolationSampler()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultLinearInterpolationSampler;
     }
 }

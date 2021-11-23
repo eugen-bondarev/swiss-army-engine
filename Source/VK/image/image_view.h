@@ -5,10 +5,13 @@
 
 #include "image.h"
 
-#include "sampler.h"
+#include "../GraphicsContext.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Image);
+    FORWARD_DECLARE(Sampler);
+    
     class ImageView
     {
     public:
@@ -19,7 +22,7 @@ namespace VK
 
         VkDescriptorImageInfo& GetDescriptor();
 
-        void SetupDescriptor(VkImageLayout image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VkSampler sampler = constantInterpolationSampler->GetVkSampler());
+        void SetupDescriptor(VkImageLayout image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, const Sampler& sampler = GetDefaultConstInterpolationSampler());
 
     private:
         const Device& device;

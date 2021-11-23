@@ -9,9 +9,9 @@ namespace VK
     {
     public:
         Sampler(VkFilter filter, const Device* device = nullptr);
-        ~Sampler();
+       ~Sampler();
 
-        VkSampler& GetVkSampler();
+        const VkSampler& GetVkSampler() const;
 
     private:
         const Device& device;
@@ -20,7 +20,4 @@ namespace VK
         Sampler(const Sampler&) = delete;
         Sampler& operator=(const Sampler&) = delete;
     };
-
-    extern Sampler* constantInterpolationSampler;
-    extern Sampler* linearInterpolationSampler;
 }

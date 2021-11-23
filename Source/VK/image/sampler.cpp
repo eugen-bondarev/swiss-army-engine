@@ -6,9 +6,6 @@
 
 namespace VK
 {
-    Sampler* constantInterpolationSampler;
-    Sampler* linearInterpolationSampler;
-
     Sampler::Sampler(VkFilter filter, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkSamplerCreateInfo create_info{};
@@ -41,7 +38,7 @@ namespace VK
         
     }
 
-    VkSampler& Sampler::GetVkSampler()
+    const VkSampler& Sampler::GetVkSampler() const
     {
         return vkSampler;
     }
