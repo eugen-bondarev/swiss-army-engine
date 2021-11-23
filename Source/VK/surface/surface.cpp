@@ -1,6 +1,6 @@
-#include "surface.h"
+#include "Surface.h"
 
-#include "../instance/instance.h"
+#include "../Instance/Instance.h"
 
 namespace VK
 {

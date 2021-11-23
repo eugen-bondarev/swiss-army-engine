@@ -1,15 +1,14 @@
 #pragma once
 
+#include "RenderPass.h"
 #include "../Common.h"
-#include "../Objects.h"
-
-#include "shader.h"
-#include "render_pass.h"
-
-#include "vertex_layouts/layouts.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(Shader);
+    FORWARD_DECLARE(RenderPass);
+    
     using BindingDescriptions = std::vector<VkVertexInputBindingDescription>;
     using AttributeDescriptions = std::vector<VkVertexInputAttributeDescription>;
     using SetLayouts = std::vector<VkDescriptorSetLayout>;
@@ -18,13 +17,13 @@ namespace VK
     {
     public:
         Pipeline(
-            const std::string &vs_code,
-            const std::string &fs_code,
-            const Vec2 &viewport_size,
+            const std::string& vsCode,
+            const std::string& fsCode,
+            const Vec2& viewportSize,
             const AttachmentDescriptions& attachments,
-            const BindingDescriptions &binding_descriptions = {},
-            const AttributeDescriptions &attribute_descriptions = {},
-            const SetLayouts &set_layouts = {},
+            const BindingDescriptions& bindingDescriptions = {},
+            const AttributeDescriptions& attributeDescriptions = {},
+            const SetLayouts& setLayouts = {},
             const Device* device = nullptr
         );
 

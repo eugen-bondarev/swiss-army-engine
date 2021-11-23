@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../common.h"
-
-#include "../instance/instance.h"
+#include "../Common.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Instance);
+
     class Device
     {
     public:

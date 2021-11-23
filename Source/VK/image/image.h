@@ -1,13 +1,12 @@
 #pragma once
 
 #include "../Common.h"
-#include "../Objects.h"
-
-#include "../memory/buffer.h"
 
 namespace VK
 {
     FORWARD_DECLARE(CommandPool);
+    FORWARD_DECLARE(Device);    
+    FORWARD_DECLARE(Buffer);
 
     namespace Util
     {

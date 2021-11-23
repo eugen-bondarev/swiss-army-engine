@@ -1,9 +1,8 @@
-#include "image_view.h"
+#include "ImageView.h"
 
-#include "image.h"
-#include "sampler.h"
-#include "../device/device.h"
-#include "../GraphicsContext.h"
+#include "../Device/Device.h"
+#include "Sampler.h"
+#include "Image.h"
 
 namespace VK
 {

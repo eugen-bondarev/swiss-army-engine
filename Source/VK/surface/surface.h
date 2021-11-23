@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../Common.h"
-#include "../instance/instance.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Instance);
+
     class Surface
     {
     public:

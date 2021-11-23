@@ -1,12 +1,12 @@
-#include "swap_chain.h"
+#include "SwapChain.h"
 
-#include "../device/device.h"
-#include "../device/queue_family.h"
-#include "support_details.h"
+#include "../Framebuffer/Framebuffer.h"
+#include "../Device/QueueFamily.h"
+#include "../GraphicsContext.h"
+#include "../Device/Device.h"
+#include "SupportDetails.h"
 
 #include <algorithm>
-
-#include "../GraphicsContext.h"
 
 namespace VK
 {

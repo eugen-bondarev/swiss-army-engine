@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../Common.h"
-#include "../Objects.h"
-
-#include "../framebuffer/framebuffer.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(Framebuffer);
+
     namespace Util
     {
         VkAttachmentDescription CreateAttachment(

@@ -1,8 +1,10 @@
-#include "descriptor_set.h"
-
-#include "../device/device.h"
+#include "DescriptorSet.h"
 
 #include "../GraphicsContext.h"
+// #include "../Image/ImageView.h"
+// #include "../Image/Sampler.h"
+#include "../Device/Device.h"
+#include "DescriptorPool.h"
 
 namespace VK
 {

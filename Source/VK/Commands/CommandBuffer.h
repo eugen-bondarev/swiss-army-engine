@@ -1,15 +1,14 @@
 #pragma once
 
-#include "../Objects.h"
 #include "../Common.h"
-
-#include "command_pool.h"
-#include "../framebuffer/framebuffer.h"
-#include "../pipeline/render_pass.h"
-#include "../pipeline/pipeline.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(CommandPool);
+    FORWARD_DECLARE(Framebuffer);
+    FORWARD_DECLARE(RenderPass);
+    FORWARD_DECLARE(Pipeline);
+    FORWARD_DECLARE(Device);
     FORWARD_DECLARE(Buffer);
 
     class CommandBuffer

@@ -1,9 +1,8 @@
-#include "command_pool.h"
+#include "CommandPool.h"
 
-#include "../device/queue_family.h"
-#include "../device/device.h"
-
+#include "../Device/QueueFamily.h"
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
 
 namespace VK
 {

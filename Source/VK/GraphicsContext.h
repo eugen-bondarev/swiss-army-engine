@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../API/GraphicsContext.h"
-
 #include "Common.h"
 
 FORWARD_DECLARE(RawWindow);
@@ -19,23 +18,24 @@ namespace VK
     FORWARD_DECLARE(CommandPool);
     FORWARD_DECLARE(Sampler);
 
-    const Surface& GetSurface();
-    const Device& GetDevice();
-    SwapChain& GetSwapChain();
+    const Surface&        GetSurface();
+    const Device&         GetDevice();
+          SwapChain&      GetSwapChain();
     const DescriptorPool& GetDefaultDescriptorPool();
-    const CommandPool& GetDefaultCommandPool();
-    const Sampler& GetDefaultConstInterpolationSampler();
-    const Sampler& GetDefaultLinearInterpolationSampler();
+    const CommandPool&    GetDefaultCommandPool();
+    const Sampler&        GetDefaultConstInterpolationSampler();
+    const Sampler&        GetDefaultLinearInterpolationSampler();
 
     class GraphicsContext final : public API::GraphicsContext
     {
-    friend const Surface& GetSurface();
-    friend const Device& GetDevice();
-    friend       SwapChain& GetSwapChain();
+        
+    friend const Surface&        GetSurface();
+    friend const Device&         GetDevice();
+    friend       SwapChain&      GetSwapChain();
     friend const DescriptorPool& GetDefaultDescriptorPool();
-    friend const CommandPool& GetDefaultCommandPool();
-    friend const Sampler& GetDefaultConstInterpolationSampler();
-    friend const Sampler& GetDefaultLinearInterpolationSampler();
+    friend const CommandPool&    GetDefaultCommandPool();
+    friend const Sampler&        GetDefaultConstInterpolationSampler();
+    friend const Sampler&        GetDefaultLinearInterpolationSampler();
 
     public:
         GraphicsContext(RawWindow& window);
@@ -43,14 +43,14 @@ namespace VK
 
         API::Type GetAPIType() const override;
 
-        const Instance& GetInstance() const;
-        const Surface& GetSurface() const;
-        const Device& GetDevice() const;
-        SwapChain& GetSwapChain();
+        const Instance&       GetInstance() const;
+        const Surface&        GetSurface() const;
+        const Device&         GetDevice() const;
+              SwapChain&      GetSwapChain();
         const DescriptorPool& GetDefaultDescriptorPool() const;
-        const CommandPool& GetDefaultCommandPool() const;
-        const Sampler& GetDefaultConstInterpolationSampler() const;
-        const Sampler& GetDefaultLinearInterpolationSampler() const;
+        const CommandPool&    GetDefaultCommandPool() const;
+        const Sampler&        GetDefaultConstInterpolationSampler() const;
+        const Sampler&        GetDefaultLinearInterpolationSampler() const;
 
     private:
         Ptr<Instance> instance;

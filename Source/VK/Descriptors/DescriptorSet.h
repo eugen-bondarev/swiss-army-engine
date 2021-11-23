@@ -1,15 +1,12 @@
 #pragma once
 
 #include "../Common.h"
-#include "../Objects.h"
-
-#include "descriptor_pool.h"
-
-#include "../image/image_view.h"
-#include "../image/sampler.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(DescriptorPool);
+    FORWARD_DECLARE(Device);
+    
     class DescriptorSet
     {
     public:

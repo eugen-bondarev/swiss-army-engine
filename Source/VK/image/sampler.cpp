@@ -1,7 +1,6 @@
 #include "sampler.h"
 
-#include "../device/device.h"
-
+#include "../Device/Device.h"
 #include "../GraphicsContext.h"
 
 namespace VK

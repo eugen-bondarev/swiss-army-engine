@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../Common.h"
-#include "../Objects.h"
+
 
 namespace VK
 {
+    FORWARD_DECLARE(Device);
+    
     class Framebuffer
     {
     public:

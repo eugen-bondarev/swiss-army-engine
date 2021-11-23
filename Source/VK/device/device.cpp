@@ -1,17 +1,14 @@
-#include "device.h"
+#include "Device.h"
 
-#include "../instance/instance.h"
-#include "../instance/validation.h"
-#include "../surface/surface.h"
-#include "../swap_chain/support_details.h"
-#include "queue_family.h"
-
+#include "../Instance/Instance.h"
+#include "../Instance/Validation.h"
+#include "../Surface/Surface.h"
+#include "../SwapChain/SupportDetails.h"
+#include "QueueFamily.h"
 #include <set>
 
 namespace VK
 {
-    Device *device;
-
     Device::Device(const Instance& instance) : instance{instance}
     {
         PickPhysicalDevice();
@@ -21,8 +18,6 @@ namespace VK
     Device::~Device()
     {
         vkDestroyDevice(vkDevice, nullptr);
-
-        
     }
 
     bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device)

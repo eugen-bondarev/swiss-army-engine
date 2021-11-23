@@ -1,8 +1,7 @@
-#include "descriptor_set_layout.h"
-
-#include "../device/device.h"
+#include "DescriptorSetLayout.h"
 
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
 
 namespace VK
 {		

@@ -1,9 +1,12 @@
-#include "command_buffer.h"
+#include "CommandBuffer.h"
 
-#include "../device/device.h"
-#include "../memory/buffer.h"
-
+#include "../Framebuffer/Framebuffer.h"
+#include "../Pipeline/RenderPass.h"
+#include "../Pipeline/Pipeline.h"
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
+#include "../Memory/Buffer.h"
+#include "CommandPool.h"
 
 namespace VK
 {

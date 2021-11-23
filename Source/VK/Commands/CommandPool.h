@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include "../Objects.h"
 #include "../Common.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(Device);
+    
     class CommandPool
     {
     public:

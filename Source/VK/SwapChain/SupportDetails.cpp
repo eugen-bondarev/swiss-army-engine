@@ -1,4 +1,4 @@
-#include "support_details.h"
+#include "SupportDetails.h"
 
 #include "../GraphicsContext.h"
 

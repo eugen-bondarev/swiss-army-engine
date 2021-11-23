@@ -1,8 +1,7 @@
-#include "descriptor_pool.h"
-
-#include "../device/device.h"
+#include "DescriptorPool.h"
 
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
 
 namespace VK
 {

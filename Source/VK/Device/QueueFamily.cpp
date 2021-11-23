@@ -1,7 +1,6 @@
-#include "queue_family.h"
+#include "QueueFamily.h"
 
-#include "../surface/surface.h"
-
+#include "../Surface/Surface.h"
 #include "../GraphicsContext.h"
 
 namespace VK

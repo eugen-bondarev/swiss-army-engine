@@ -1,8 +1,9 @@
 #include "texture2d.h"
 
-#include "../memory/buffer.h"
-
+#include "../Memory/Buffer.h"
 #include "../GraphicsContext.h"
+#include "ImageView.h"
+#include "Image.h"
 
 namespace VK
 {

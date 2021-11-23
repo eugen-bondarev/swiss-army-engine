@@ -1,12 +1,12 @@
 #include "GraphicsContext.h"
 
-#include "descriptors/descriptor_pool.h"
-#include "swap_chain/swap_chain.h"
-#include "commands/command_pool.h"
-#include "instance/instance.h"
-#include "surface/surface.h"
-#include "device/device.h"
-#include "image/sampler.h"
+#include "Descriptors/descriptorPool.h"
+#include "SwapChain/SwapChain.h"
+#include "Commands/CommandPool.h"
+#include "Instance/Instance.h"
+#include "Surface/Surface.h"
+#include "Device/Device.h"
+#include "Image/Sampler.h"
 
 namespace VK
 {

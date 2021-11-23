@@ -1,9 +1,9 @@
-#include "pipeline.h"
+#include "Pipeline.h"
 
-#include "../device/device.h"
-#include "../swap_chain/swap_chain.h"
-
+#include "../SwapChain/SwapChain.h"
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
+#include "Shader.h"
 
 namespace VK
 {

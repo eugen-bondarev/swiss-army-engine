@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../Common.h"
-#include "../Objects.h"
-
-#include "image.h"
-#include "image_view.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(ImageView);
+    FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(Image);
+    
     class Texture2D
     {
     public:

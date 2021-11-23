@@ -1,9 +1,10 @@
-#include "buffer.h"
+#include "Buffer.h"
 
-#include "../device/device.h"
-#include "../device/queue_family.h"
-
+#include "../Commands/CommandBuffer.h"
+#include "../Commands/CommandPool.h"
+#include "../Device/QueueFamily.h"
 #include "../GraphicsContext.h"
+#include "../Device/Device.h"
 
 namespace VK
 {

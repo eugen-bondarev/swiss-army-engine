@@ -1,15 +1,13 @@
 #pragma once
 
-#include "../Common.h"
-#include "../Objects.h"
-
-#include "../commands/command_buffer.h"
-#include "../commands/command_pool.h"
-
 #include "../GraphicsContext.h"
+#include "../Common.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(CommandPool);
+    FORWARD_DECLARE(CommandBuffer);
+
     namespace Util
     {
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const Device& device = GetDevice());

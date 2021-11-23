@@ -1,10 +1,10 @@
 #include "image.h"
 
-#include "../device/device.h"
-#include "../device/queue_family.h"
-
-#include "../commands/command_pool.h"
-#include "../commands/command_buffer.h"
+#include "../Commands/CommandBuffer.h"
+#include "../Commands/CommandPool.h"
+#include "../Device/QueueFamily.h"
+#include "../Memory/Buffer.h"
+#include "../Device/Device.h"
 
 #include "../GraphicsContext.h"
 

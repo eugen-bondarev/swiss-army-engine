@@ -1,16 +1,13 @@
 #pragma once
 
-#include "../Common.h"
-#include "../Objects.h"
-
-#include "image.h"
-
 #include "../GraphicsContext.h"
+#include "../Common.h"
 
 namespace VK
 {
-    FORWARD_DECLARE(Image);
     FORWARD_DECLARE(Sampler);
+    FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(Image);
     
     class ImageView
     {
