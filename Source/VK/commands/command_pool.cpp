@@ -7,16 +7,13 @@
 
 namespace VK
 {
-    namespace Global
-    {
-        CommandPool *commandPool;
-    }
+    CommandPool *commandPool;
 
-    CommandPool::CommandPool(const Global::Device* device) : device{device ? *device : GetDevice()}
+    CommandPool::CommandPool(const Device* device) : device{device ? *device : GetDevice()}
     {
         VkCommandPoolCreateInfo pool_info{};
         pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        pool_info.queueFamilyIndex = Global::Queues::indices.graphicsFamily.value();
+        pool_info.queueFamilyIndex = Queues::indices.graphicsFamily.value();
         pool_info.flags = 0; // Optional
 
         VK_TRY(vkCreateCommandPool(this->device.GetVkDevice(), &pool_info, nullptr, &vkCommandPool));        

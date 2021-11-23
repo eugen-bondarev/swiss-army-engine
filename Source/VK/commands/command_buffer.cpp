@@ -7,7 +7,7 @@
 
 namespace VK
 {
-    CommandBuffer::CommandBuffer(CommandPool* command_pool, const Global::Device* device) : commandPool{command_pool}, device{device ? *device : GetDevice()}
+    CommandBuffer::CommandBuffer(CommandPool* command_pool, const Device* device) : commandPool{command_pool}, device{device ? *device : GetDevice()}
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

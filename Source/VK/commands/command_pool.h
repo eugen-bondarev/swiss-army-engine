@@ -11,7 +11,7 @@ namespace VK
     class CommandPool
     {
     public:
-        CommandPool(const Global::Device* device = nullptr);
+        CommandPool(const Device* device = nullptr);
         ~CommandPool();
 
         void Reset() const;
@@ -19,7 +19,7 @@ namespace VK
         VkCommandPool GetVkCommandPool() const;
 
     private:
-        const Global::Device& device;
+        const Device& device;
 
         VkCommandPool vkCommandPool;
 
@@ -27,10 +27,7 @@ namespace VK
         // CommandPool &operator=(const CommandPool &) = delete;
     };
 
-    namespace Global
-    {
-        extern CommandPool *commandPool;
-    } // namespace Global
+    extern CommandPool *commandPool;
 } // namespace VK
 
 #endif

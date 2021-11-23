@@ -6,7 +6,7 @@
 
 namespace VK
 {
-    Framebuffer::Framebuffer(VkImageView imageView, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView, const Global::Device* device) : device{device ? *device : GetDevice()}, size{static_cast<float>(width), static_cast<float>(height)}
+    Framebuffer::Framebuffer(VkImageView imageView, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView, const Device* device) : device{device ? *device : GetDevice()}, size{static_cast<float>(width), static_cast<float>(height)}
     {
         std::vector<VkImageView> attachments = {imageView};
 
@@ -27,7 +27,7 @@ namespace VK
         VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
     }
     
-    Framebuffer::Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2& size, const Global::Device* device) : size{size}, device{device ? *device : GetDevice()}
+    Framebuffer::Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2& size, const Device* device) : size{size}, device{device ? *device : GetDevice()}
     {
         VkFramebufferCreateInfo framebuffer_info{};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

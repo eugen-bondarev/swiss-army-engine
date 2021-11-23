@@ -6,23 +6,20 @@
 
 namespace VK
 {
-    namespace Global
+    namespace Queues
     {
-        namespace Queues
+        struct QueueFamilyIndices
         {
-            struct QueueFamilyIndices
-            {
-                std::optional<uint32_t> graphicsFamily;
-                std::optional<uint32_t> presentFamily;
+            std::optional<uint32_t> graphicsFamily;
+            std::optional<uint32_t> presentFamily;
 
-                bool IsComplete() const;
-            };
+            bool IsComplete() const;
+        };
 
-            extern QueueFamilyIndices indices;
-            QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+        extern QueueFamilyIndices indices;
+        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
-            extern VkQueue graphicsQueue;
-            extern VkQueue presentQueue;
-        }
+        extern VkQueue graphicsQueue;
+        extern VkQueue presentQueue;
     }
 }

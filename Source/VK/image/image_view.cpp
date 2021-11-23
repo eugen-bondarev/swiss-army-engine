@@ -6,7 +6,7 @@
 
 namespace VK
 {
-    ImageView::ImageView(Image* image, const VkImageAspectFlags aspectFlags, const Global::Device* device) : device{device ? *device : GetDevice()}
+    ImageView::ImageView(Image* image, const VkImageAspectFlags aspectFlags, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkImageViewCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -42,7 +42,7 @@ namespace VK
     {
         descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptor.imageView = vkImageView;
-        descriptor.sampler = Global::constantInterpolationSampler->GetVkSampler();
+        descriptor.sampler = constantInterpolationSampler->GetVkSampler();
     }
 
     void ImageView::SetupDescriptor(VkImageLayout image_layout, VkSampler sampler)

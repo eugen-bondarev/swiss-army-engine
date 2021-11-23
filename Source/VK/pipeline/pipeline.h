@@ -25,7 +25,7 @@ namespace VK
             const BindingDescriptions &binding_descriptions = {},
             const AttributeDescriptions &attribute_descriptions = {},
             const SetLayouts &set_layouts = {},
-            const Global::Device* device = nullptr
+            const Device* device = nullptr
         );
 
         ~Pipeline();
@@ -37,7 +37,7 @@ namespace VK
         RenderPass *GetRenderPass();
 
     private:
-        const Global::Device& device;
+        const Device& device;
         Shader* shader;
         RenderPass* renderPass;
 

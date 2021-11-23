@@ -8,7 +8,7 @@ namespace VK
 {
     namespace Util
     {		
-        VkShaderModule CreateShaderModule(const std::string& code, const Global::Device* device)
+        VkShaderModule CreateShaderModule(const std::string& code, const Device* device)
         {
             VkShaderModuleCreateInfo create_info{};
             create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -22,7 +22,7 @@ namespace VK
         }
     }
 
-    Shader::Shader(const std::string& vs_code, const std::string& fs_code, const Global::Device* device) : device{device ? *device : GetDevice()}
+    Shader::Shader(const std::string& vs_code, const std::string& fs_code, const Device* device) : device{device ? *device : GetDevice()}
     {
         modules[0] = Util::CreateShaderModule(vs_code, &this->device);
         modules[1] = Util::CreateShaderModule(fs_code, &this->device);

@@ -104,7 +104,7 @@ int main()
         );
 
         VK::DescriptorSet descriptorSet(
-            VK::Global::descriptorPool, 
+            VK::descriptorPool, 
             std::vector<VkDescriptorSetLayout> { descriptorSetLayout.GetVkDescriptorSetLayout() }
         );
 
@@ -153,7 +153,7 @@ int main()
 
 	        VkFence fence = frame->GetInFlightFence();
             vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
-            cmd->SubmitToQueue(VK::Global::Queues::graphicsQueue, wait, signal, fence);
+            cmd->SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
 
             frameManager.Present();
         }

@@ -10,13 +10,13 @@ namespace VK
     class DescriptorSetLayout
     {
     public:
-        DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Global::Device* device = nullptr);
+        DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Device* device = nullptr);
         ~DescriptorSetLayout();
 
         VkDescriptorSetLayout& GetVkDescriptorSetLayout();
 
     private:
-        const Global::Device& device;
+        const Device& device;
         VkDescriptorSetLayout vkDescriptorSetLayout;
 
         DescriptorSetLayout(const DescriptorSetLayout&) = delete;

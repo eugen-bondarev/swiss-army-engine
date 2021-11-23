@@ -4,23 +4,18 @@
 
 namespace VK
 {
-    namespace Global
+    class Instance
     {
-        class Instance
-        {
-        public:
-            Instance();
-           ~Instance();
+    public:
+        Instance();
+        ~Instance();
 
-            const VkInstance GetVkInstance() const;
+        const VkInstance GetVkInstance() const;
 
-        private:
-            VkInstance vkInstance;
+    private:
+        VkInstance vkInstance;
 
-            Instance(const Instance &) = delete;
-            Instance &operator=(const Instance &) = delete;
-        };
-
-        // extern Instance *instance;
-    }
+        Instance(const Instance &) = delete;
+        Instance &operator=(const Instance &) = delete;
+    };
 }

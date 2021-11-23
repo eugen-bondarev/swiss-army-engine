@@ -6,12 +6,9 @@
 
 namespace VK
 {
-    namespace Global
-    {			
-        DescriptorPool* descriptorPool;
-    }
+    DescriptorPool* descriptorPool;
 
-    DescriptorPool::DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes, const Global::Device* device) : device{device ? *device : GetDevice()}
+    DescriptorPool::DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes, const Device* device) : device{device ? *device : GetDevice()}
     {
         // VkDescriptorPoolSize pool_sizes[] =
         // {

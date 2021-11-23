@@ -8,22 +8,19 @@ namespace VK
     class Sampler
     {
     public:
-        Sampler(VkFilter filter, const Global::Device* device = nullptr);
+        Sampler(VkFilter filter, const Device* device = nullptr);
         ~Sampler();
 
         VkSampler& GetVkSampler();
 
     private:
-        const Global::Device& device;
+        const Device& device;
         VkSampler vkSampler;
 
         Sampler(const Sampler&) = delete;
         Sampler& operator=(const Sampler&) = delete;
     };
 
-    namespace Global
-    {
-        extern Sampler* constantInterpolationSampler;
-        extern Sampler* linearInterpolationSampler;
-    }
+    extern Sampler* constantInterpolationSampler;
+    extern Sampler* linearInterpolationSampler;
 }

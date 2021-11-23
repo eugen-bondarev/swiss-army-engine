@@ -34,7 +34,7 @@ namespace VK
         }
     }
 
-    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const Global::Device* device) : device{device ? *device : GetDevice()}
+    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;

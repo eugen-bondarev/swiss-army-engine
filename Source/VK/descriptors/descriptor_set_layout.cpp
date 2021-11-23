@@ -18,7 +18,7 @@ namespace VK
         return binding;
     }
 
-    DescriptorSetLayout::DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Global::Device* device) : device{device ? *device : GetDevice()}
+    DescriptorSetLayout::DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkDescriptorSetLayoutCreateInfo layout_info{};
         layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

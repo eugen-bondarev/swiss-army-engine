@@ -15,7 +15,7 @@ namespace VK
         const BindingDescriptions& binding_descriptions,
         const AttributeDescriptions& attribute_descriptions,
         const SetLayouts& set_layouts,
-        const Global::Device* device
+        const Device* device
     ) : device{device ? *device : GetDevice()}
     {
         shader = new Shader(vs_code, fs_code);
@@ -166,7 +166,7 @@ namespace VK
 
     void Pipeline::SetAsOutput()
     {
-        // Global::swapChain->InitFramebuffers(renderPass->GetVkRenderPass(), VK_NULL_HANDLE);
+        // swapChain->InitFramebuffers(renderPass->GetVkRenderPass(), VK_NULL_HANDLE);
     }
 
     VkPipelineLayout Pipeline::GetVkPipelineLayout() const

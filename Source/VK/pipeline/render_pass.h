@@ -26,13 +26,13 @@ namespace VK
     class RenderPass
     {
     public:
-        RenderPass(const AttachmentDescriptions& attachments, const Global::Device* device = nullptr);
+        RenderPass(const AttachmentDescriptions& attachments, const Device* device = nullptr);
         ~RenderPass();
 
         VkRenderPass& GetVkRenderPass();
 
     private:
-        const Global::Device& device;
+        const Device& device;
         VkRenderPass vkRenderPass;
 
         RenderPass(const RenderPass &) = delete;

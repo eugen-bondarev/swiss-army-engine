@@ -9,7 +9,7 @@ namespace VK
 {
     namespace Util 
     {
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory, const Global::Device& device)
+        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory, const Device& device)
         {			
             VkBufferCreateInfo buffer_info{};
             buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -46,7 +46,7 @@ namespace VK
         descriptor.range = range;
     }
 
-    Buffer::Buffer(uint32_t size_of_element, uint32_t amount_of_elements, const void* data, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags property_flags, const Global::Device* device) : device{device ? *device : GetDevice()}, sizeOfElement{size_of_element}, amountOfElements{amount_of_elements}
+    Buffer::Buffer(uint32_t size_of_element, uint32_t amount_of_elements, const void* data, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags property_flags, const Device* device) : device{device ? *device : GetDevice()}, sizeOfElement{size_of_element}, amountOfElements{amount_of_elements}
     {
         VkDeviceSize buffer_size = size_of_element * amount_of_elements;
         
@@ -69,7 +69,7 @@ namespace VK
         SetupDefaultDescriptor();
     }
 
-    Buffer::Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags, const Global::Device* device) : device{device ? *device : GetDevice()}
+    Buffer::Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags, const Device* device) : device{device ? *device : GetDevice()}
     {
         amountOfElements = buffer->amountOfElements;
         sizeOfElement = buffer->sizeOfElement;
@@ -82,13 +82,13 @@ namespace VK
             vkMemory
         );
 
-        CommandBuffer command_buffer(Global::commandPool);
+        CommandBuffer command_buffer(commandPool);
             command_buffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
                 VkBufferCopy copy_region{};
                 copy_region.size = buffer->GetSize();
                 vkCmdCopyBuffer(command_buffer.GetVkCommandBuffer(), buffer->GetVkBuffer(), vkBuffer, 1, &copy_region);			
             command_buffer.End();
-        command_buffer.SubmitToQueue(Global::Queues::graphicsQueue);
+        command_buffer.SubmitToQueue(Queues::graphicsQueue);
         this->device.WaitIdle();
 
         SetupDefaultDescriptor();

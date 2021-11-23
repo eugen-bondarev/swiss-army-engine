@@ -7,11 +7,8 @@
 
 namespace VK
 {
-    namespace Global
-    {
-        FORWARD_DECLARE(Instance);
-        FORWARD_DECLARE(Device);
-    } // namespace Global    
+    FORWARD_DECLARE(Instance);
+    FORWARD_DECLARE(Device);
 } // namespace VK
 
 

@@ -11,23 +11,20 @@ FORWARD_DECLARE(RawWindow);
 
 namespace VK
 {
-    namespace Global
-    {
-        FORWARD_DECLARE(Instance);
-        FORWARD_DECLARE(Surface);
-        FORWARD_DECLARE(Device);
-        FORWARD_DECLARE(SwapChain);
-    }
+    FORWARD_DECLARE(Instance);
+    FORWARD_DECLARE(Surface);
+    FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(SwapChain);
 
-    const Global::Surface& GetSurface();
-    const Global::Device& GetDevice();
-    Global::SwapChain& GetSwapChain();
+    const Surface& GetSurface();
+    const Device& GetDevice();
+    SwapChain& GetSwapChain();
 
     class GraphicsContext final : public API::GraphicsContext
     {
-    friend const Global::Surface& GetSurface();
-    friend const Global::Device& GetDevice();
-    friend       Global::SwapChain& GetSwapChain();
+    friend const Surface& GetSurface();
+    friend const Device& GetDevice();
+    friend       SwapChain& GetSwapChain();
 
     public:
         GraphicsContext(RawWindow& window);
@@ -35,16 +32,16 @@ namespace VK
 
         API::Type GetAPIType() const override;
 
-        const Global::Instance& GetInstance() const;
-        const Global::Surface& GetSurface() const;
-        const Global::Device& GetDevice() const;
-        Global::SwapChain& GetSwapChain();
+        const Instance& GetInstance() const;
+        const Surface& GetSurface() const;
+        const Device& GetDevice() const;
+        SwapChain& GetSwapChain();
 
     private:
-        Ptr<Global::Instance> instance;
-        Ptr<Global::Surface> surface;
-        Ptr<Global::Device> device;
-        Ptr<Global::SwapChain> swapChain;
+        Ptr<Instance> instance;
+        Ptr<Surface> surface;
+        Ptr<Device> device;
+        Ptr<SwapChain> swapChain;
 
         GraphicsContext(const GraphicsContext&) = delete;
         GraphicsContext& operator=(const GraphicsContext&) = delete;

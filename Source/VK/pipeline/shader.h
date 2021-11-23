@@ -7,20 +7,20 @@ namespace VK
 {
     namespace Util
     {
-        VkShaderModule CreateShaderModule(const std::string& code, const Global::Device* device = nullptr);
+        VkShaderModule CreateShaderModule(const std::string& code, const Device* device = nullptr);
     }
 
     class Shader
     {
     public:
-        Shader(const std::string& vsCode, const std::string& fsCode, const Global::Device* device = nullptr);
+        Shader(const std::string& vsCode, const std::string& fsCode, const Device* device = nullptr);
         ~Shader();
 
         const std::array<VkShaderModule, 2>& GetModules() const;
         const std::array<VkPipelineShaderStageCreateInfo, 2>& GetStages() const;
 
     private:
-        const Global::Device& device;
+        const Device& device;
 
         std::array<VkShaderModule, 2> modules;
         std::array<VkPipelineShaderStageCreateInfo, 2> stages;

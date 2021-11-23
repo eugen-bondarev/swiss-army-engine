@@ -6,13 +6,10 @@
 
 namespace VK
 {
-    namespace Global
-    {
-        Sampler* constantInterpolationSampler;
-        Sampler* linearInterpolationSampler;
-    }
+    Sampler* constantInterpolationSampler;
+    Sampler* linearInterpolationSampler;
 
-    Sampler::Sampler(VkFilter filter, const Global::Device* device) : device{device ? *device : GetDevice()}
+    Sampler::Sampler(VkFilter filter, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkSamplerCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

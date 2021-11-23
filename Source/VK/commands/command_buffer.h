@@ -15,7 +15,7 @@ namespace VK
     class CommandBuffer
     {
     public:
-        CommandBuffer(CommandPool* commandPool, const Global::Device* device = nullptr);
+        CommandBuffer(CommandPool* commandPool, const Device* device = nullptr);
         ~CommandBuffer();
 
         void Begin(VkCommandBufferUsageFlags flags = 0) const;
@@ -48,7 +48,7 @@ namespace VK
         VkCommandBuffer &GetVkCommandBuffer();
 
     private:
-        const Global::Device& device;
+        const Device& device;
 
         CommandPool *commandPool;
 

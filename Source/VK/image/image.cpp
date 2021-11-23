@@ -14,7 +14,7 @@ namespace VK
     {			
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
         {
-            CommandBuffer command_buffer(Global::commandPool);
+            CommandBuffer command_buffer(commandPool);
             
             command_buffer.Begin();
 
@@ -76,13 +76,13 @@ namespace VK
             );
 
             command_buffer.End();
-            command_buffer.SubmitToQueue(Global::Queues::graphicsQueue);
-            vkQueueWaitIdle(Global::Queues::graphicsQueue);
+            command_buffer.SubmitToQueue(Queues::graphicsQueue);
+            vkQueueWaitIdle(Queues::graphicsQueue);
         }
 
         void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
         {
-            CommandBuffer command_buffer(Global::commandPool);
+            CommandBuffer command_buffer(commandPool);
             
             command_buffer.Begin();
 
@@ -113,12 +113,12 @@ namespace VK
             );
 
             command_buffer.End();
-            command_buffer.SubmitToQueue(Global::Queues::graphicsQueue);
-            vkQueueWaitIdle(Global::Queues::graphicsQueue);
+            command_buffer.SubmitToQueue(Queues::graphicsQueue);
+            vkQueueWaitIdle(Queues::graphicsQueue);
         }
     }
 
-    Image::Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags, const Global::Device* device) : device{device ? *device : GetDevice()}, vkFormat{format}
+    Image::Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags, const Device* device) : device{device ? *device : GetDevice()}, vkFormat{format}
     {
         VkImageCreateInfo image_info{};
         image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -158,7 +158,7 @@ namespace VK
         }
     }
 
-    Image::Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags, const Global::Device* device) : device{device ? *device : GetDevice()}, vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
+    Image::Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags, const Device* device) : device{device ? *device : GetDevice()}, vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
     {
         VkImageCreateInfo image_info{};
         image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

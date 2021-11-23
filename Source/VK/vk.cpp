@@ -8,12 +8,12 @@ namespace VK
     {
         GraphicsContext* ctx = dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext());
 
-        Global::commandPool = new CommandPool();
-        Global::constantInterpolationSampler = new Sampler(VK_FILTER_NEAREST);
-        Global::linearInterpolationSampler = new Sampler(VK_FILTER_LINEAR);
+        commandPool = new CommandPool();
+        constantInterpolationSampler = new Sampler(VK_FILTER_NEAREST);
+        linearInterpolationSampler = new Sampler(VK_FILTER_LINEAR);
 
         // Not the best idea.
-        Global::descriptorPool = new DescriptorPool({				
+        descriptorPool = new DescriptorPool({				
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
@@ -31,9 +31,9 @@ namespace VK
 
     void Shutdown()
     {
-        delete Global::descriptorPool;
-        delete Global::constantInterpolationSampler;
-        delete Global::linearInterpolationSampler;
-        delete Global::commandPool;
+        delete descriptorPool;
+        delete constantInterpolationSampler;
+        delete linearInterpolationSampler;
+        delete commandPool;
     }
 }

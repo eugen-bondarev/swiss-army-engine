@@ -9,10 +9,10 @@ namespace VK
 {
     GraphicsContext::GraphicsContext(RawWindow& window) : API::GraphicsContext(window)
     {
-        instance = CreatePtr<Global::Instance>();
-        surface = CreatePtr<Global::Surface>(*instance, window.GetHandle());
-        device = CreatePtr<Global::Device>(*instance);
-        swapChain = CreatePtr<Global::SwapChain>(window.GetHandle(), device.get());
+        instance = CreatePtr<Instance>();
+        surface = CreatePtr<Surface>(*instance, window.GetHandle());
+        device = CreatePtr<Device>(*instance);
+        swapChain = CreatePtr<SwapChain>(window.GetHandle(), device.get());
     }
 
     GraphicsContext::~GraphicsContext()
@@ -25,37 +25,37 @@ namespace VK
         return API::Type::Vulkan;
     }
 
-    const Global::Instance& GraphicsContext::GetInstance() const
+    const Instance& GraphicsContext::GetInstance() const
     {
         return *instance;
     }
 
-    const Global::Surface& GraphicsContext::GetSurface() const
+    const Surface& GraphicsContext::GetSurface() const
     {
         return *surface;
     }
     
-    const Global::Device& GraphicsContext::GetDevice() const
+    const Device& GraphicsContext::GetDevice() const
     {
         return *device;
     }
 
-    Global::SwapChain& GraphicsContext::GetSwapChain()
+    SwapChain& GraphicsContext::GetSwapChain()
     {
         return *swapChain;
     }
 
-    const Global::Device& GetDevice()
+    const Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
     }
 
-    const Global::Surface& GetSurface()
+    const Surface& GetSurface()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->surface;
     }
 
-    Global::SwapChain& GetSwapChain()
+    SwapChain& GetSwapChain()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain;
     }

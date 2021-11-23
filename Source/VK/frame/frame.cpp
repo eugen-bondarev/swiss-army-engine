@@ -7,7 +7,7 @@
 
 namespace VK
 {
-    Frame::Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores, const Global::Device* device) : firstSemaphore { first_semaphore }, lastSemaphore { last_semaphore }, device{device ? *device : GetDevice()}
+    Frame::Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores, const Device* device) : firstSemaphore { first_semaphore }, lastSemaphore { last_semaphore }, device{device ? *device : GetDevice()}
     {
         VkSemaphoreCreateInfo semaphore_info{};
         semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -44,14 +44,14 @@ namespace VK
         return inFlightFence;
     }
 
-    FrameManager::FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count, const Global::Device* device) : device{device ? *device : GetDevice()}, framesCount{frames_count}
+    FrameManager::FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count, const Device* device) : device{device ? *device : GetDevice()}, framesCount{frames_count}
     {		
         for (int i = 0; i < frames_count; i++)
         {
             frames.push_back(new Frame(first_semaphore, last_semaphore, amount_of_semaphores_per_frame));
         }
 
-        // imagesInFlight.resize(Global::swapChain->GetImageViews().size());
+        // imagesInFlight.resize(swapChain->GetImageViews().size());
         imagesInFlight.resize(GetSwapChain().GetImageViews().size());
     }
 
