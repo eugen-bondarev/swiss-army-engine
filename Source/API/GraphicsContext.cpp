@@ -37,4 +37,9 @@ namespace API
     {
         return currentGraphicsContext;
     }
+
+    RawWindow& GraphicsContext::GetWindow()
+    {
+        return window;
+    }
 }

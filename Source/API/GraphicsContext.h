@@ -24,8 +24,10 @@ namespace API
         static Ptr<GraphicsContext> Create(RawWindow& window, const Type type);
         virtual Type GetAPIType() const = 0;
 
+        RawWindow& GetWindow();
+
     protected:
-        const RawWindow& window;
+        RawWindow& window;
     };
 
     void MakeGraphicsContextCurrent(GraphicsContext* newContext);

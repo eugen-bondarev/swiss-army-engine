@@ -158,6 +158,11 @@ unsigned int RawWindow::GetHeight() const
     return height;
 }
 
+float RawWindow::GetAspectRatio() const
+{
+    return static_cast<float>(width) / static_cast<float>(height);
+}
+
 void RawWindow::SetSwapChain(Base::SwapChain* swapChain)
 {
     this->swapChain = swapChain;
