@@ -7,8 +7,6 @@
 
 namespace VK
 {
-    CommandPool *commandPool;
-
     CommandPool::CommandPool(const Device* device) : device{device ? *device : GetDevice()}
     {
         VkCommandPoolCreateInfo pool_info{};

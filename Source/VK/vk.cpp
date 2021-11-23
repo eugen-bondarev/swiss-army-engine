@@ -8,7 +8,7 @@ namespace VK
     {
         GraphicsContext* ctx = dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext());
 
-        commandPool = new CommandPool();
+        // commandPool = new CommandPool();
         constantInterpolationSampler = new Sampler(VK_FILTER_NEAREST);
         linearInterpolationSampler = new Sampler(VK_FILTER_LINEAR);
     }
@@ -17,6 +17,6 @@ namespace VK
     {
         delete constantInterpolationSampler;
         delete linearInterpolationSampler;
-        delete commandPool;
+        // delete commandPool;
     }
 }

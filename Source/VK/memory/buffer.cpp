@@ -69,7 +69,7 @@ namespace VK
         SetupDefaultDescriptor();
     }
 
-    Buffer::Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags, const Device* device) : device{device ? *device : GetDevice()}
+    Buffer::Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}
     {
         amountOfElements = buffer->amountOfElements;
         sizeOfElement = buffer->sizeOfElement;

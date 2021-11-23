@@ -50,7 +50,7 @@ namespace VK
             
         }
 
-        Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, const Device* device = nullptr);
+        Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, const Device* device = nullptr, const CommandPool* commandPool = &GetDefaultCommandPool());
         ~Buffer();
 
         void Update(const void* data, uint32_t size) const;

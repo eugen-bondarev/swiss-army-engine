@@ -7,14 +7,13 @@
 
 namespace VK
 {
-    CommandBuffer::CommandBuffer(CommandPool* command_pool, const Device* device) : commandPool{command_pool}, device{device ? *device : GetDevice()}
+    CommandBuffer::CommandBuffer(const CommandPool* commandPool, const Device* device) : commandPool{*commandPool}, device{device ? *device : GetDevice()}
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = command_pool->GetVkCommandPool();
+        allocInfo.commandPool = this->commandPool.GetVkCommandPool();
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
-
         VK_TRY(vkAllocateCommandBuffers(this->device.GetVkDevice(), &allocInfo, &vkCommandBuffer));        
     }
 
@@ -29,7 +28,6 @@ namespace VK
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         begin_info.flags = flags;			   // Optional
         begin_info.pInheritanceInfo = nullptr; // Optional
-
         VK_TRY(vkBeginCommandBuffer(vkCommandBuffer, &begin_info));
     }
 
@@ -124,7 +122,7 @@ namespace VK
 
     void CommandBuffer::Free() const
     {
-        vkFreeCommandBuffers(device.GetVkDevice(), commandPool->GetVkCommandPool(), 1, &vkCommandBuffer);
+        vkFreeCommandBuffers(device.GetVkDevice(), commandPool.GetVkCommandPool(), 1, &vkCommandBuffer);
     }
 
     VkCommandBuffer &CommandBuffer::GetVkCommandBuffer()

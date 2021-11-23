@@ -16,11 +16,13 @@ namespace VK
     FORWARD_DECLARE(Device);
     FORWARD_DECLARE(SwapChain);
     FORWARD_DECLARE(DescriptorPool);
+    FORWARD_DECLARE(CommandPool);
 
     const Surface& GetSurface();
     const Device& GetDevice();
     SwapChain& GetSwapChain();
     const DescriptorPool& GetDefaultDescriptorPool();
+    const CommandPool& GetDefaultCommandPool();
 
     class GraphicsContext final : public API::GraphicsContext
     {
@@ -28,6 +30,7 @@ namespace VK
     friend const Device& GetDevice();
     friend       SwapChain& GetSwapChain();
     friend const DescriptorPool& GetDefaultDescriptorPool();
+    friend const CommandPool& GetDefaultCommandPool();
 
     public:
         GraphicsContext(RawWindow& window);
@@ -40,6 +43,7 @@ namespace VK
         const Device& GetDevice() const;
         SwapChain& GetSwapChain();
         const DescriptorPool& GetDefaultDescriptorPool() const;
+        const CommandPool& GetDefaultCommandPool() const;
 
     private:
         Ptr<Instance> instance;
@@ -47,6 +51,7 @@ namespace VK
         Ptr<Device> device;
         Ptr<SwapChain> swapChain;
         Ptr<DescriptorPool> defaultDescriptorPool;
+        Ptr<CommandPool> defaultCommandPool;
 
         GraphicsContext(const GraphicsContext&) = delete;
         GraphicsContext& operator=(const GraphicsContext&) = delete;

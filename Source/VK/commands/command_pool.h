@@ -26,8 +26,6 @@ namespace VK
         CommandPool(const CommandPool&) = delete;
         CommandPool& operator=(const CommandPool&) = delete;
     };
-
-    extern CommandPool *commandPool;
 } // namespace VK
 
 #endif

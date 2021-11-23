@@ -10,12 +10,12 @@
 
 namespace VK
 {
-    class Buffer;
+    FORWARD_DECLARE(Buffer);
 
     class CommandBuffer
     {
     public:
-        CommandBuffer(CommandPool* commandPool, const Device* device = nullptr);
+        CommandBuffer(const CommandPool* commandPool, const Device* device = nullptr);
         ~CommandBuffer();
 
         void Begin(VkCommandBufferUsageFlags flags = 0) const;
@@ -49,8 +49,7 @@ namespace VK
 
     private:
         const Device& device;
-
-        CommandPool *commandPool;
+        const CommandPool& commandPool;
 
         VkCommandBuffer vkCommandBuffer;
 

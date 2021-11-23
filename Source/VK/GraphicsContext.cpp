@@ -1,10 +1,11 @@
 #include "GraphicsContext.h"
 
+#include "descriptors/descriptor_pool.h"
+#include "swap_chain/swap_chain.h"
+#include "commands/command_pool.h"
 #include "instance/instance.h"
 #include "surface/surface.h"
 #include "device/device.h"
-#include "swap_chain/swap_chain.h"
-#include "descriptors/descriptor_pool.h"
 
 namespace VK
 {
@@ -14,6 +15,7 @@ namespace VK
         surface = CreatePtr<Surface>(*instance, window.GetHandle());
         device = CreatePtr<Device>(*instance);
         swapChain = CreatePtr<SwapChain>(window.GetHandle(), device.get());
+        defaultCommandPool = CreatePtr<CommandPool>(device.get());
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
@@ -66,6 +68,11 @@ namespace VK
         return *defaultDescriptorPool;
     }
 
+    const CommandPool& GraphicsContext::GetDefaultCommandPool() const
+    {
+        return *defaultCommandPool;
+    }
+
     const Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
@@ -84,5 +91,10 @@ namespace VK
     const DescriptorPool& GetDefaultDescriptorPool()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultDescriptorPool;
+    }
+
+    const CommandPool& GetDefaultCommandPool()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultCommandPool;
     }
 }
