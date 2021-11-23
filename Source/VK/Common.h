@@ -1,3 +1,6 @@
+#ifndef __VK_Common_h__
+#define __VK_Common_h__
+
 #pragma once
 
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -21,3 +24,5 @@ namespace VK
 
 #define VK_ASSERT(exp)\
     assert(exp)
+
+#endif

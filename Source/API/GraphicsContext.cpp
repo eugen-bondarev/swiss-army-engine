@@ -1,7 +1,7 @@
 #include "GraphicsContext.h"
 
 #include "../DX/GraphicsContext.h"
-// #include "../VK/GraphicsContext.h"
+#include "../VK/GraphicsContext.h"
 
 #include <map>
     
@@ -19,7 +19,7 @@ namespace API
     Ptr<GraphicsContext> GraphicsContext::Create(RawWindow& window, const Type type)
     {
         if (type == Type::DirectX) return CreatePtr<DX::GraphicsContext>(window);
-        // if (type == Type::Vulkan) return CreatePtr<VK::GraphicsContext>(window);
+        if (type == Type::Vulkan) return CreatePtr<VK::GraphicsContext>(window);
         return nullptr;
     }
 

@@ -37,27 +37,6 @@ int main()
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
-        // VK::RenderPass renderPass(
-        //     {
-        //         VK::Util::CreateAttachment(
-        //             VK::Global::swapChain->GetImageFormat(), 
-        //             VK_IMAGE_LAYOUT_UNDEFINED, 
-        //             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-        //             VK_ATTACHMENT_LOAD_OP_CLEAR, 
-        //             VK_ATTACHMENT_STORE_OP_STORE
-        //         ),
-        //         VK::Util::CreateAttachment(
-        //             VK::Global::device->FindDepthFormat(), 
-        //             VK_IMAGE_LAYOUT_UNDEFINED, 
-        //             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
-        //             VK_ATTACHMENT_LOAD_OP_CLEAR, 
-        //             VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        //             VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        //             VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        //             VK_SAMPLE_COUNT_1_BIT
-        //         )
-        //     }
-        // );
 
         std::vector<VK::CommandPool*> commandPools;
         std::vector<VK::CommandBuffer*> commandBuffers;
@@ -78,9 +57,9 @@ int main()
         VK::DescriptorSetLayout descriptorSetLayout(bindings);
 
 		VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
-		VK::BindingDescriptions binding_descriptors = VK::Vertex::GetBindingDescriptions();
-		VK::AttributeDescriptions attribute_descriptors = VK::Vertex::GetAttributeDescriptions();
-		std::vector<VkDescriptorSetLayout> descriptor_set_layouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
+		VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
+		VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
 
         VK::Pipeline pipeline(
             vertexShaderCode, pixelShaderCode,
@@ -98,9 +77,9 @@ int main()
                 VK_ATTACHMENT_STORE_OP_DONT_CARE,
                 VK_SAMPLE_COUNT_1_BIT
             )},
-            binding_descriptors,
-            attribute_descriptors,
-            descriptor_set_layouts
+            bindingDescriptors,
+            attributeDescriptors,
+            descriptorSetLayouts
         );
 
 	    VK::Global::swapChain->InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
@@ -175,7 +154,6 @@ int main()
 				                // cmd->DrawIndexed(canvas.indexBuffer->GetAmountOfElements(), 1, 0, 0, 0);
                     cmd->EndRenderPass();
                 cmd->End();
-
 
 	        VkFence fence = frame->GetInFlightFence();
             vkResetFences(VK::Global::device->GetVkDevice(), 1, &fence);
