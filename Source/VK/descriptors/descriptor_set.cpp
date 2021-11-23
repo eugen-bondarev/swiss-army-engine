@@ -34,11 +34,11 @@ namespace VK
         return descriptor_write;
     }
 
-    DescriptorSet::DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device) : device{device ? *device : GetDevice()}
+    DescriptorSet::DescriptorSet(const DescriptorPool& descriptorPool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device) : device{device ? *device : GetDevice()}
     {
         VkDescriptorSetAllocateInfo alloc_info{};
         alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        alloc_info.descriptorPool = descriptor_pool->GetVkDescriptorPool();			
+        alloc_info.descriptorPool = descriptorPool.GetVkDescriptorPool();			
         alloc_info.descriptorSetCount = 1;
         alloc_info.pSetLayouts = layouts.data();
         VK_TRY(vkAllocateDescriptorSets(this->device.GetVkDevice(), &alloc_info, &vkDescriptorSet));

@@ -13,7 +13,7 @@ namespace VK
     class DescriptorSet
     {
     public:
-        DescriptorSet(DescriptorPool* descriptor_pool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device = nullptr);
+        DescriptorSet(const DescriptorPool& descriptorPool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device = nullptr);
         ~DescriptorSet();
 
         void Update(const std::vector<VkWriteDescriptorSet>& write_descriptor_sets);

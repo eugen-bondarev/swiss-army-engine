@@ -4,6 +4,7 @@
 #include "surface/surface.h"
 #include "device/device.h"
 #include "swap_chain/swap_chain.h"
+#include "descriptors/descriptor_pool.h"
 
 namespace VK
 {
@@ -13,6 +14,21 @@ namespace VK
         surface = CreatePtr<Surface>(*instance, window.GetHandle());
         device = CreatePtr<Device>(*instance);
         swapChain = CreatePtr<SwapChain>(window.GetHandle(), device.get());
+        
+        defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
+            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+        });
     }
 
     GraphicsContext::~GraphicsContext()
@@ -45,6 +61,11 @@ namespace VK
         return *swapChain;
     }
 
+    const DescriptorPool& GraphicsContext::GetDefaultDescriptorPool() const
+    {
+        return *defaultDescriptorPool;
+    }
+
     const Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
@@ -58,5 +79,10 @@ namespace VK
     SwapChain& GetSwapChain()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain;
+    }
+
+    const DescriptorPool& GetDefaultDescriptorPool()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultDescriptorPool;
     }
 }

@@ -8,10 +8,10 @@ namespace VK
     class DescriptorPool
     {
     public:
-        DescriptorPool(const std::vector<VkDescriptorPoolSize>& pool_sizes, const Device* device = nullptr);
-        ~DescriptorPool();
+        DescriptorPool(const std::vector<VkDescriptorPoolSize>& poolSizes, const Device* device = nullptr);
+       ~DescriptorPool();
 
-        VkDescriptorPool& GetVkDescriptorPool();
+        const VkDescriptorPool& GetVkDescriptorPool() const;
 
     private:
         const Device& device;
@@ -20,6 +20,4 @@ namespace VK
         DescriptorPool(const DescriptorPool&) = delete;
         DescriptorPool& operator=(const DescriptorPool&) = delete;
     };
-
-    extern DescriptorPool* descriptorPool;
 }

@@ -104,7 +104,7 @@ int main()
         );
 
         VK::DescriptorSet descriptorSet(
-            VK::descriptorPool, 
+            VK::GetDefaultDescriptorPool(), 
             std::vector<VkDescriptorSetLayout> { descriptorSetLayout.GetVkDescriptorSetLayout() }
         );
 
