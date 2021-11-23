@@ -1,7 +1,9 @@
+#ifndef __VK_Frame_Frame_h__
+#define __VK_Frame_Frame_h__
+
 #pragma once
 
 #include "../Common.h"
-
 
 namespace VK
 {
@@ -59,3 +61,5 @@ namespace VK
         FrameManager& operator=(const FrameManager&) = delete;
     };
 }
+
+#endif

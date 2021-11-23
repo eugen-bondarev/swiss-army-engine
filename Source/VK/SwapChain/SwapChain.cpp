@@ -3,6 +3,7 @@
 #include "../Framebuffer/Framebuffer.h"
 #include "../Device/QueueFamily.h"
 #include "../GraphicsContext.h"
+#include "../Surface/Surface.h"
 #include "../Device/Device.h"
 #include "SupportDetails.h"
 

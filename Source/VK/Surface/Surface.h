@@ -1,3 +1,6 @@
+#ifndef __VK_Surface_Surface_h__
+#define __VK_Surface_Surface_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -10,7 +13,7 @@ namespace VK
     {
     public:
         Surface(const Instance& instnace, GLFWwindow* handle);
-        ~Surface();
+       ~Surface();
 
         VkSurfaceKHR GetVkSurface() const;
 
@@ -19,3 +22,5 @@ namespace VK
         VkSurfaceKHR vkSurface;
     };
 }
+
+#endif

@@ -1,8 +1,9 @@
+#ifndef __VK_SwapChain_SupportDetails_h__
+#define __VK_SwapChain_SupportDetails_h__
+
 #pragma once
 
 #include "../Common.h"
-
-#include "../surface/surface.h"
 
 namespace VK
 {
@@ -15,3 +16,5 @@ namespace VK
 
     SupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 }
+
+#endif

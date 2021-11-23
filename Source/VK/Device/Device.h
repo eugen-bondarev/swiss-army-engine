@@ -1,3 +1,6 @@
+#ifndef __VK_Device_Device_h__
+#define __VK_Device_Device_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -60,3 +63,5 @@ namespace VK
         Device &operator=(const Device &) = delete;
     };
 }
+
+#endif

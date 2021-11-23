@@ -1,6 +1,7 @@
 #include "SupportDetails.h"
 
 #include "../GraphicsContext.h"
+#include "../Surface/Surface.h"
 
 namespace VK
 {		

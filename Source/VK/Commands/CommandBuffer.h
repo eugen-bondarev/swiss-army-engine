@@ -1,3 +1,6 @@
+#ifndef __VK_Commands_CommandBuffer_h__
+#define __VK_Commands_CommandBuffer_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -56,3 +59,5 @@ namespace VK
         CommandBuffer& operator=(const CommandBuffer&) = delete;
     };
 }
+
+#endif

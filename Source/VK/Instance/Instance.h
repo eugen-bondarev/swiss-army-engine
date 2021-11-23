@@ -1,3 +1,6 @@
+#ifndef __VK_Instance_Instance_h__
+#define __VK_Instance_Instance_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -19,3 +22,5 @@ namespace VK
         Instance &operator=(const Instance &) = delete;
     };
 }
+
+#endif

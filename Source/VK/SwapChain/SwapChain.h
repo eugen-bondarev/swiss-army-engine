@@ -1,3 +1,6 @@
+#ifndef __VK_SwapChain_h__
+#define __VK_SwapChain_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -58,3 +61,5 @@ namespace VK
         void DestroyImageViews();
     };
 }
+
+#endif

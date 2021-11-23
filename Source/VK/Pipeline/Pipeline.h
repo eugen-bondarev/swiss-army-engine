@@ -1,3 +1,6 @@
+#ifndef __VK_Pipeline_Pipeline_h__
+#define __VK_Pipeline_Pipeline_h__
+
 #pragma once
 
 #include "RenderPass.h"
@@ -47,3 +50,5 @@ namespace VK
         Pipeline &operator=(const Pipeline &) = delete;
     };
 }
+
+#endif

@@ -1,7 +1,9 @@
+#ifndef __VK_Pipeline_Shader_h__
+#define __VK_Pipeline_Shader_h__
+
 #pragma once
 
 #include "../Common.h"
-
 
 namespace VK
 {
@@ -31,3 +33,5 @@ namespace VK
         Shader& operator=(const Shader&) = delete;
     };
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef __VK_Image_ImageView_h__
+#define __VK_Image_ImageView_h__
+
 #pragma once
 
 #include "../GraphicsContext.h"
@@ -32,3 +35,5 @@ namespace VK
         ImageView& operator=(const ImageView&) = delete;
     };
 }
+
+#endif

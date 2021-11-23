@@ -1,3 +1,6 @@
+#ifndef __VK_Image_Sampler_h__
+#define __VK_Image_Sampler_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -22,3 +25,5 @@ namespace VK
         Sampler& operator=(const Sampler&) = delete;
     };
 }
+
+#endif

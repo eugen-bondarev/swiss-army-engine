@@ -1,3 +1,6 @@
+#ifndef __VK_Pipeline_VertexLayouts_Layouts_h__
+#define __VK_Pipeline_VertexLayouts_Layouts_h__
+
 #pragma once
 
 #include "../../common.h"
@@ -15,3 +18,5 @@ namespace VK
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
     };
 }
+
+#endif

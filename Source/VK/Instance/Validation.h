@@ -1,3 +1,6 @@
+#ifndef __VK_Instance_Validation_h__
+#define __VK_Instance_Validation_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -32,3 +35,5 @@ namespace VK
         void Destroy(VkInstance instance);
     }
 }
+
+#endif

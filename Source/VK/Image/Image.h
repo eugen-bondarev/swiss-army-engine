@@ -1,3 +1,6 @@
+#ifndef __VK_Image_Image_h__
+#define __VK_Image_Image_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -38,3 +41,5 @@ namespace VK
         Image& operator=(const Image&) = delete;
     };
 }
+
+#endif

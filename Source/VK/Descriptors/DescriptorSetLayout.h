@@ -1,3 +1,6 @@
+#ifndef __VK_Descriptors_DescriptorSetLayout_h__
+#define __VK_Descriptors_DescriptorSetLayout_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -24,3 +27,5 @@ namespace VK
         DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
     };
 }
+
+#endif

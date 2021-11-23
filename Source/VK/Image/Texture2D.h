@@ -1,3 +1,6 @@
+#ifndef __VK_Image_Texture2D_h__
+#define __VK_Image_Texture2D_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -30,3 +33,5 @@ namespace VK
         Texture2D& operator=(const Texture2D&) = delete;			
     };
 }
+
+#endif

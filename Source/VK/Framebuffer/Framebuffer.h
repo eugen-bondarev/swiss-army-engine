@@ -1,7 +1,9 @@
+#ifndef __VK_Framebuffer_Framebuffer_h__
+#define __VK_Framebuffer_Framebuffer_h__
+
 #pragma once
 
 #include "../Common.h"
-
 
 namespace VK
 {
@@ -26,3 +28,5 @@ namespace VK
         Framebuffer &operator=(const Framebuffer &) = delete;
     };
 }
+
+#endif

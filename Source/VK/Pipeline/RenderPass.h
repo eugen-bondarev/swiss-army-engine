@@ -1,3 +1,6 @@
+#ifndef __VK_Pipeline_RenderPass_h__
+#define __VK_Pipeline_RenderPass_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -39,3 +42,5 @@ namespace VK
         RenderPass &operator=(const RenderPass &) = delete;
     };
 }
+
+#endif

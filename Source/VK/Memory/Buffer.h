@@ -1,3 +1,6 @@
+#ifndef __VK_Memory_Buffer_h__
+#define __VK_Memory_Buffer_h__
+
 #pragma once
 
 #include "../GraphicsContext.h"
@@ -80,3 +83,5 @@ namespace VK
         Buffer& operator=(const Buffer&) = delete;
     };
 }
+
+#endif

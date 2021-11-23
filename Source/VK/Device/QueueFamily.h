@@ -1,3 +1,6 @@
+#ifndef __VK_Device_QueueFamily_h__
+#define __VK_Device_QueueFamily_h__
+
 #pragma once
 
 #include "../Common.h"
@@ -22,3 +25,5 @@ namespace VK
         extern VkQueue presentQueue;
     }
 }
+
+#endif

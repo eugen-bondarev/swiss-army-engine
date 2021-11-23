@@ -1,24 +1,9 @@
 #include "Util/Assets.h"
 #include "API/Window.h"
+#include "VK/VK.h"
 
-#include "VK/Frame/Frame.h"
-#include "VK/Image/Image.h"
-#include "VK/Memory/Buffer.h"
-#include "VK/Device/Device.h"
-#include "VK/Image/ImageView.h"
-#include "VK/Image/Texture2D.h"
-#include "VK/Pipeline/Pipeline.h"
-#include "VK/Device/QueueFamily.h"
-#include "VK/Pipeline/RenderPass.h"
-#include "VK/SwapChain/SwapChain.h"
-#include "VK/Commands/CommandPool.h"
-#include "VK/Commands/CommandBuffer.h"
-#include "VK/Descriptors/DescriptorSet.h"
-#include "VK/Pipeline/VertexLayouts/Layouts.h"
-#include "VK/Descriptors/DescriptorSetLayout.h"
-
-#include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
+#include <glm.hpp>
 
 struct UBO
 {
@@ -53,7 +38,7 @@ int main()
             commandPools.push_back(std::move(pool));
         }
 
-        std::vector<VkDescriptorSetLayoutBinding> bindings = 
+        const std::vector<VkDescriptorSetLayoutBinding> bindings = 
         {
             VK::CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
             VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
