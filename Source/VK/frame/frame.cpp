@@ -51,7 +51,8 @@ namespace VK
             frames.push_back(new Frame(first_semaphore, last_semaphore, amount_of_semaphores_per_frame));
         }
 
-        imagesInFlight.resize(Global::swapChain->GetImageViews().size());
+        // imagesInFlight.resize(Global::swapChain->GetImageViews().size());
+        imagesInFlight.resize(GetSwapChain().GetImageViews().size());
     }
 
     FrameManager::~FrameManager()
@@ -65,7 +66,7 @@ namespace VK
     uint32_t FrameManager::AcquireSwapChainImage()
     {
         Frame* frame = GetCurrentFrame();			
-        uint32_t image_index = Global::swapChain->AcquireImage(frame->GetSemaphore(frame->firstSemaphore));
+        uint32_t image_index = GetSwapChain().AcquireImage(frame->GetSemaphore(frame->firstSemaphore));
 
         if (imagesInFlight[image_index] != VK_NULL_HANDLE)
         {
@@ -82,7 +83,7 @@ namespace VK
     void FrameManager::Present()
     {			
         Frame* frame = GetCurrentFrame();
-        Global::swapChain->Present(&frame->GetSemaphore(frame->lastSemaphore), 1);
+        GetSwapChain().Present(&frame->GetSemaphore(frame->lastSemaphore), 1);
         NextFrame();
     }
 

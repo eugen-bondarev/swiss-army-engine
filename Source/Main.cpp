@@ -41,7 +41,7 @@ int main()
         std::vector<Ptr<VK::CommandPool>> commandPools;
         std::vector<Ptr<VK::CommandBuffer>> commandBuffers;
 
-        for (size_t i = 0; i < VK::Global::swapChain->GetImageViews().size(); ++i)
+        for (size_t i = 0; i < VK::GetSwapChain().GetImageViews().size(); ++i)
         {
             Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
 
@@ -66,7 +66,7 @@ int main()
             vertexShaderCode, pixelShaderCode,
             VK::Vec2{static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight())},
             std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
-                VK::Global::swapChain->GetImageFormat()
+                VK::GetSwapChain().GetImageFormat()
             ),            
             VK::Util::CreateAttachment(
                 VK::GetDevice().FindDepthFormat(), 
@@ -83,7 +83,7 @@ int main()
             descriptorSetLayouts
         );
 
-	    VK::Global::swapChain->InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
+	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
 
 		VK::Buffer stagingVertexBuffer(characterMesh.vertices);
 		VK::Buffer vertexBuffer(&stagingVertexBuffer);
@@ -126,9 +126,9 @@ int main()
             VkSemaphore* wait = &frame->GetSemaphore(0);
             VkSemaphore* signal = &frame->GetSemaphore(1);
 
-            VK::CommandPool* pool = commandPools[VK::Global::swapChain->GetCurrentImageIndex()].get();
-            VK::CommandBuffer* cmd = commandBuffers[VK::Global::swapChain->GetCurrentImageIndex()].get();
-            VK::Framebuffer* framebuffer = VK::Global::swapChain->GetCurrentScreenFramebuffer();
+            VK::CommandPool* pool = commandPools[VK::GetSwapChain().GetCurrentImageIndex()].get();
+            VK::CommandBuffer* cmd = commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()].get();
+            VK::Framebuffer* framebuffer = VK::GetSwapChain().GetCurrentScreenFramebuffer();
 
             static float theta{0}; theta += 0.01f;
             

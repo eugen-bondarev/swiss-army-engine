@@ -60,6 +60,6 @@ namespace VK
             void DestroyImageViews();
         };
 
-        extern SwapChain *swapChain;
+        // extern SwapChain *swapChain;
     }
 }

@@ -166,7 +166,7 @@ namespace VK
 
     void Pipeline::SetAsOutput()
     {
-        Global::swapChain->InitFramebuffers(renderPass->GetVkRenderPass(), VK_NULL_HANDLE);
+        // Global::swapChain->InitFramebuffers(renderPass->GetVkRenderPass(), VK_NULL_HANDLE);
     }
 
     VkPipelineLayout Pipeline::GetVkPipelineLayout() const

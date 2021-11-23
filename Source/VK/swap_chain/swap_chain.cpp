@@ -13,7 +13,7 @@ namespace VK
 {
     namespace Global
     {
-        SwapChain *swapChain;
+        // SwapChain *swapChain;
 
         SwapChain::SwapChain(GLFWwindow* handle, const Global::Device* device) : device{device ? *device : GetDevice()}, handle{handle}
         {
@@ -99,10 +99,9 @@ namespace VK
 
             Vec2 viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
 
-            // for (const VkImageView& image_view : VK::Global::swapChain->GetImageViews())
-            for (size_t i = 0; i < VK::Global::swapChain->GetImageViews().size(); ++i)
+            for (size_t i = 0; i < GetImageViews().size(); ++i)
             {
-                framebuffers.push_back(new VK::Framebuffer(VK::Global::swapChain->GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView));
+                framebuffers.push_back(new VK::Framebuffer(GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView));
             }
         }
 

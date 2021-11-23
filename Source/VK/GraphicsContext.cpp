@@ -3,6 +3,7 @@
 #include "instance/instance.h"
 #include "surface/surface.h"
 #include "device/device.h"
+#include "swap_chain/swap_chain.h"
 
 namespace VK
 {
@@ -11,6 +12,7 @@ namespace VK
         instance = CreatePtr<Global::Instance>();
         surface = CreatePtr<Global::Surface>(*instance, window.GetHandle());
         device = CreatePtr<Global::Device>(*instance);
+        swapChain = CreatePtr<Global::SwapChain>(window.GetHandle(), device.get());
     }
 
     GraphicsContext::~GraphicsContext()
@@ -38,6 +40,11 @@ namespace VK
         return *device;
     }
 
+    Global::SwapChain& GraphicsContext::GetSwapChain()
+    {
+        return *swapChain;
+    }
+
     const Global::Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
@@ -46,5 +53,10 @@ namespace VK
     const Global::Surface& GetSurface()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->surface;
+    }
+
+    Global::SwapChain& GetSwapChain()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain;
     }
 }

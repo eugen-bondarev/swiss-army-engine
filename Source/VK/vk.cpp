@@ -8,10 +8,6 @@ namespace VK
     {
         GraphicsContext* ctx = dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext());
 
-        // Global::instance = new Global::Instance();
-        // Global::surface = new Global::Surface(ctx->GetInstance(), handle);
-        // Global::device = new Global::Device(ctx->GetInstance());
-        Global::swapChain = new Global::SwapChain(handle);
         Global::commandPool = new CommandPool();
         Global::constantInterpolationSampler = new Sampler(VK_FILTER_NEAREST);
         Global::linearInterpolationSampler = new Sampler(VK_FILTER_LINEAR);
@@ -39,9 +35,5 @@ namespace VK
         delete Global::constantInterpolationSampler;
         delete Global::linearInterpolationSampler;
         delete Global::commandPool;
-        delete Global::swapChain;
-        // delete Global::device;
-        // delete Global::surface;
-        // delete Global::instance;
     }
 }
