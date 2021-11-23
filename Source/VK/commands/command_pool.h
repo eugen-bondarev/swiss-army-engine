@@ -23,8 +23,8 @@ namespace VK
 
         VkCommandPool vkCommandPool;
 
-        // CommandPool(const CommandPool &) = delete;
-        // CommandPool &operator=(const CommandPool &) = delete;
+        CommandPool(const CommandPool&) = delete;
+        CommandPool& operator=(const CommandPool&) = delete;
     };
 
     extern CommandPool *commandPool;

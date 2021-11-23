@@ -54,7 +54,7 @@ namespace VK
 
         VkCommandBuffer vkCommandBuffer;
 
-        // CommandBuffer(const CommandBuffer &) = delete;
-        // CommandBuffer &operator=(const CommandBuffer &) = delete;
+        CommandBuffer(const CommandBuffer&) = delete;
+        CommandBuffer& operator=(const CommandBuffer&) = delete;
     };
 }
