@@ -9,15 +9,15 @@ namespace VK
 {
     FORWARD_DECLARE(Device);
     
-    VkDescriptorSetLayoutBinding CreateBinding(uint32_t index, VkDescriptorType type, VkShaderStageFlags stage_flags = VK_SHADER_STAGE_VERTEX_BIT);
+    VkDescriptorSetLayoutBinding CreateBinding(uint32_t index, VkDescriptorType type, VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT);
 
     class DescriptorSetLayout
     {
     public:
         DescriptorSetLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const Device* device = nullptr);
-        ~DescriptorSetLayout();
+       ~DescriptorSetLayout();
 
-        VkDescriptorSetLayout& GetVkDescriptorSetLayout();
+        const VkDescriptorSetLayout& GetVkDescriptorSetLayout() const;
 
     private:
         const Device& device;

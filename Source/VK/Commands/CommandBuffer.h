@@ -18,40 +18,41 @@ namespace VK
     {
     public:
         CommandBuffer(const CommandPool* commandPool, const Device* device = nullptr);
-        ~CommandBuffer();
+       ~CommandBuffer();
 
         void Begin(VkCommandBufferUsageFlags flags = 0) const;
         void End() const;
 
+        void SubmitToQueue(const VkQueue& queue, VkSemaphore* waitSemaphore = nullptr, const VkSemaphore* signalSemaphore = nullptr, VkFence fence = VK_NULL_HANDLE) const;
 
-        void SubmitToQueue(const VkQueue &queue, VkSemaphore *wait_semaphore = nullptr, const VkSemaphore *signal_semaphore = nullptr, VkFence fence = nullptr) const;
-
-        void BeginRenderPass(RenderPass *render_pass, Framebuffer *framebuffer, const std::array<float, 4>& color = {0.0f, 0.0f, 0.0f, 1.0f}) const;
+        void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer, const std::array<float, 4>& color = {0.0f, 0.0f, 0.0f, 1.0f}) const;
         void EndRenderPass() const;
-        void BindPipeline(const Pipeline *pipeline) const;
-        void BindVertexBuffers(const std::vector<Buffer *> &buffers, const std::vector<VkDeviceSize> &offsets = {0}) const;
-        void BindIndexBuffer(Buffer *index_buffer, VkIndexType index_type = VK_INDEX_TYPE_UINT32) const;
-        void BindDescriptorSets(const Pipeline *pipeline, uint32_t amount_of_descriptor_sets, VkDescriptorSet *descriptor_sets, uint32_t amount_of_offsets = 0, uint32_t* offsets = nullptr) const;
+
+        void BindPipeline(const Pipeline* pipeline) const;
+
+        void BindVertexBuffers(const std::vector<Buffer*>& buffers, const std::vector<VkDeviceSize>& offsets = {0}) const;
+        void BindIndexBuffer(Buffer* indexBuffer, VkIndexType indexType = VK_INDEX_TYPE_UINT32) const;
+        void BindDescriptorSets(const Pipeline* pipeline, uint32_t numDescriptorSets, const VkDescriptorSet* descriptorSets, uint32_t numOffsets = 0, uint32_t* offsets = nullptr) const;
 
         template <typename... Args>
-        void Draw(Args &&...args) const
+        void Draw(Args&&... args) const
         {
             vkCmdDraw(vkCommandBuffer, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
-        void DrawIndexed(Args &&...args) const
+        void DrawIndexed(Args&&... args) const
         {
             vkCmdDrawIndexed(vkCommandBuffer, std::forward<Args>(args)...);
         }
 
         void Free() const;
 
-        VkCommandBuffer &GetVkCommandBuffer();
+        const VkCommandBuffer &GetVkCommandBuffer() const;
 
     private:
-        const Device& device;
         const CommandPool& commandPool;
+        const Device& device;
 
         VkCommandBuffer vkCommandBuffer;
 

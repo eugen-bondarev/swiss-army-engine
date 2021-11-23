@@ -15,7 +15,7 @@ namespace VK
         create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         create_info.anisotropyEnable = VK_TRUE;
-        create_info.maxAnisotropy = this->device.properties.limits.maxSamplerAnisotropy;
+        create_info.maxAnisotropy = this->device.GetProperties().limits.maxSamplerAnisotropy;
         create_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 
         create_info.unnormalizedCoordinates = VK_FALSE;

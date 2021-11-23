@@ -13,11 +13,11 @@ namespace VK
     {
     public:
         CommandPool(const Device* device = nullptr);
-        ~CommandPool();
+       ~CommandPool();
 
         void Reset() const;
 
-        VkCommandPool GetVkCommandPool() const;
+        const VkCommandPool& GetVkCommandPool() const;
 
     private:
         const Device& device;
@@ -27,6 +27,6 @@ namespace VK
         CommandPool(const CommandPool&) = delete;
         CommandPool& operator=(const CommandPool&) = delete;
     };
-} // namespace VK
+}
 
 #endif

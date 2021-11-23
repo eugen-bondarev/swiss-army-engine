@@ -7,36 +7,38 @@
 
 namespace VK
 {
-    Frame::Frame(int first_semaphore, int last_semaphore, int amount_of_semaphores, const Device* device) : firstSemaphore { first_semaphore }, lastSemaphore { last_semaphore }, device{device ? *device : GetDevice()}
+    Frame::Frame(const uint32_t firstSemaphore, const uint32_t lastSemaphore, const uint32_t numSemaphores, const Device* device) : device{device ? *device : GetDevice()}, firstSemaphore{firstSemaphore}, lastSemaphore{lastSemaphore}
     {
-        VkSemaphoreCreateInfo semaphore_info{};
-        semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VkSemaphoreCreateInfo semaphoreCreateInfo{};
+        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        VkFenceCreateInfo fence_info{};
-        fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        VkFenceCreateInfo fenceCreateInfo{};
+        fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        semaphores.resize(amount_of_semaphores);
+        semaphores.resize(numSemaphores);
 
-        for (int i = 0; i < amount_of_semaphores; i++)
+        for (size_t i = 0; i < numSemaphores; ++i)
         {
-            VK_TRY(vkCreateSemaphore(this->device.GetVkDevice(), &semaphore_info, nullptr, &semaphores[i]));
+            VK_TRY(vkCreateSemaphore(this->device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphores[i]));
         }
         
-        VK_TRY(vkCreateFence(this->device.GetVkDevice(), &fence_info, nullptr, &inFlightFence));
+        VK_TRY(vkCreateFence(this->device.GetVkDevice(), &fenceCreateInfo, nullptr, &inFlightFence));
     }
 
     Frame::~Frame()
     {
-        for (auto& semaphore : semaphores)
+        for (const VkSemaphore& semaphore : semaphores)
+        {
             vkDestroySemaphore(device.GetVkDevice(), semaphore, nullptr);
+        }
 
         vkDestroyFence(device.GetVkDevice(), inFlightFence, nullptr);
     }
 
-    VkSemaphore& Frame::GetSemaphore(int semaphore_id)
+    VkSemaphore& Frame::GetSemaphore(const uint32_t semaphoreID)
     {
-        return semaphores[semaphore_id];
+        return semaphores[semaphoreID];
     }
 
     VkFence& Frame::GetInFlightFence()
@@ -44,23 +46,23 @@ namespace VK
         return inFlightFence;
     }
 
-    FrameManager::FrameManager(int first_semaphore, int last_semaphore, int amount_of_semaphores_per_frame, int frames_count, const Device* device) : device{device ? *device : GetDevice()}, framesCount{frames_count}
+    FrameManager::FrameManager(const uint32_t firstSemaphore, const uint32_t lastSemaphore, const uint32_t numSemaphoresPerFrame, const uint32_t numFrames, const Device* device) : device{device ? *device : GetDevice()}, framesCount{numFrames}
     {		
-        for (int i = 0; i < frames_count; i++)
+        for (size_t i = 0; i < numFrames; ++i)
         {
-            frames.push_back(new Frame(first_semaphore, last_semaphore, amount_of_semaphores_per_frame));
+            Ptr<Frame> frame = CreatePtr<Frame>(firstSemaphore, lastSemaphore, numSemaphoresPerFrame);
+            frames.push_back(std::move(frame));
         }
 
-        // imagesInFlight.resize(swapChain->GetImageViews().size());
         imagesInFlight.resize(GetSwapChain().GetImageViews().size());
     }
 
     FrameManager::~FrameManager()
     {
-        for (int i = 0; i < frames.size(); i++)
-        {
-            delete frames[i];
-        }
+        // for (size_t i = 0; i < frames.size(); ++i)
+        // {
+        //     delete frames[i];
+        // }
     }
 
     uint32_t FrameManager::AcquireSwapChainImage()
@@ -94,15 +96,15 @@ namespace VK
 
     Frame* FrameManager::GetCurrentFrame()
     {
-        return frames[currentFrame];
+        return frames[currentFrame].get();
     }
 
-    int FrameManager::GetAmountOfFrames() const
+    uint32_t FrameManager::GetAmountOfFrames() const
     {
         return framesCount;
     }
 
-    int FrameManager::GetCurrentFrameIndex() const
+    uint32_t FrameManager::GetCurrentFrameIndex() const
     {
         return currentFrame;
     }

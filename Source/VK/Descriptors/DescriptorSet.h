@@ -14,11 +14,11 @@ namespace VK
     {
     public:
         DescriptorSet(const DescriptorPool& descriptorPool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device = nullptr);
-        ~DescriptorSet();
+       ~DescriptorSet();
 
-        void Update(const std::vector<VkWriteDescriptorSet>& write_descriptor_sets);
+        void Update(const std::vector<VkWriteDescriptorSet>& writeDescriptorSets);
 
-        VkDescriptorSet& GetVkDescriptorSet();
+        const VkDescriptorSet& GetVkDescriptorSet() const;
 
     private:
         const Device& device;
@@ -28,8 +28,8 @@ namespace VK
         DescriptorSet& operator=(const DescriptorSet&) = delete;
     };
 
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorBufferInfo* descriptor_buffer_info);
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorImageInfo* descriptor_image_info);
+    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptorSet, uint32_t binding, VkDescriptorType descriptorType, const VkDescriptorBufferInfo* descriptorBufferInfo);
+    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptorSet, uint32_t binding, VkDescriptorType descriptorType, const VkDescriptorImageInfo* descriptorImageInfo);
 }
 
 #endif

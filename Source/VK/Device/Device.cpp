@@ -20,17 +20,17 @@ namespace VK
         vkDestroyDevice(vkDevice, nullptr);
     }
 
-    bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+    bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice physicalDevice) const
     {
         uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-        for (const auto &extension : availableExtensions)
+        for (const auto& extension : availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);
         }
@@ -48,16 +48,15 @@ namespace VK
             throw EXCEPTION_WHAT("Failed to find GPUs with Vulkan support.");
         }
 
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance.GetVkInstance(), &deviceCount, devices.data());
+        std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+        vkEnumeratePhysicalDevices(instance.GetVkInstance(), &deviceCount, physicalDevices.data());
 
-        for (const auto &device : devices)
+        for (const auto& physicalDevice : physicalDevices)
         {
-            if (IsDeviceSuitable(device))
+            if (IsDeviceSuitable(physicalDevice))
             {
-                vkPhysicalDevice = device;
-
-                vkGetPhysicalDeviceProperties(vkPhysicalDevice, &properties);
+                vkPhysicalDevice = physicalDevice;
+                vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkProperties);
                 // Util::Mem::Aligned::minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
 
                 break;
@@ -84,7 +83,6 @@ namespace VK
         }
 
         throw EXCEPTION_WHAT("Failed to find suitable memory type.");
-
         return 0;
     }
 
@@ -169,7 +167,6 @@ namespace VK
     {
         return vkDevice;
     }
-
     
     VkFormat Device::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
     {
@@ -191,7 +188,6 @@ namespace VK
         throw std::runtime_error("failed to find supported format!");
     }
 
-
     VkFormat Device::FindDepthFormat() const
     {            
         return FindSupportedFormat(
@@ -201,9 +197,13 @@ namespace VK
         );
     }
 
-
     bool Device::HasStencilComponent(const VkFormat format)
     {
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+
+    const VkPhysicalDeviceProperties& Device::GetProperties() const
+    {
+        return vkProperties;
     }
 }

@@ -1,8 +1,6 @@
 #include "DescriptorSet.h"
 
 #include "../GraphicsContext.h"
-// #include "../Image/ImageView.h"
-// #include "../Image/Sampler.h"
 #include "../Device/Device.h"
 #include "DescriptorPool.h"
 
@@ -10,52 +8,50 @@ namespace VK
 {
     VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorBufferInfo* descriptor_buffer_info)
     {
-        VkWriteDescriptorSet descriptor_write{};
-        descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptor_write.dstSet = descriptor_set->GetVkDescriptorSet();
-        descriptor_write.dstBinding = binding;
-        descriptor_write.dstArrayElement = 0;
-        descriptor_write.descriptorType = descriptor_type;
-        descriptor_write.descriptorCount = 1;
-        descriptor_write.pBufferInfo = descriptor_buffer_info;
-
-        return descriptor_write;
+        VkWriteDescriptorSet descriptorWrite{};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptor_set->GetVkDescriptorSet();
+        descriptorWrite.dstBinding = binding;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = descriptor_type;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = descriptor_buffer_info;
+        return descriptorWrite;
     }
 
     VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorImageInfo* descriptor_image_info)
     {			
-        VkWriteDescriptorSet descriptor_write = {};
-        descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptor_write.dstSet = descriptor_set->GetVkDescriptorSet();
-        descriptor_write.dstBinding = binding;
-        descriptor_write.dstArrayElement = 0;
-        descriptor_write.descriptorType = descriptor_type;
-        descriptor_write.descriptorCount = 1;
-        descriptor_write.pImageInfo = descriptor_image_info;
-
-        return descriptor_write;
+        VkWriteDescriptorSet descriptorWrite{};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptor_set->GetVkDescriptorSet();
+        descriptorWrite.dstBinding = binding;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = descriptor_type;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pImageInfo = descriptor_image_info;
+        return descriptorWrite;
     }
 
     DescriptorSet::DescriptorSet(const DescriptorPool& descriptorPool, const std::vector<VkDescriptorSetLayout>& layouts, const Device* device) : device{device ? *device : GetDevice()}
     {
-        VkDescriptorSetAllocateInfo alloc_info{};
-        alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        alloc_info.descriptorPool = descriptorPool.GetVkDescriptorPool();			
-        alloc_info.descriptorSetCount = 1;
-        alloc_info.pSetLayouts = layouts.data();
-        VK_TRY(vkAllocateDescriptorSets(this->device.GetVkDevice(), &alloc_info, &vkDescriptorSet));
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = descriptorPool.GetVkDescriptorPool();			
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = layouts.data();
+        VK_TRY(vkAllocateDescriptorSets(this->device.GetVkDevice(), &allocInfo, &vkDescriptorSet));
     }
 
     DescriptorSet::~DescriptorSet()
     {
     }
 
-    void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& write_descriptor_sets)
+    void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& writeDescriptorSets)
     {
-        vkUpdateDescriptorSets(device.GetVkDevice(), static_cast<uint32_t>(write_descriptor_sets.size()), write_descriptor_sets.data(), 0, nullptr);
+        vkUpdateDescriptorSets(device.GetVkDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
     }
 
-    VkDescriptorSet& DescriptorSet::GetVkDescriptorSet()
+    const VkDescriptorSet& DescriptorSet::GetVkDescriptorSet() const
     {
         return vkDescriptorSet;
     }

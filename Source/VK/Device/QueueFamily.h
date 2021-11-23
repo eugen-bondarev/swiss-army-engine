@@ -19,7 +19,7 @@ namespace VK
         };
 
         extern QueueFamilyIndices indices;
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice physicalDevice);
 
         extern VkQueue graphicsQueue;
         extern VkQueue presentQueue;
