@@ -1,12 +1,14 @@
 #include "Util/Assets.h"
 #include "API/Window.h"
-#include "VK/vk.h"
+
 #include "VK/frame/frame.h"
 #include "VK/image/image.h"
+#include "VK/device/device.h"
 #include "VK/image/texture2d.h"
 #include "VK/pipeline/pipeline.h"
 #include "VK/device/queue_family.h"
 #include "VK/pipeline/render_pass.h"
+#include "VK/swap_chain/swap_chain.h"
 #include "VK/commands/command_buffer.h"
 #include "VK/descriptors/descriptor_set.h"
 #include "VK/descriptors/descriptor_set_layout.h"
@@ -30,8 +32,6 @@ int main()
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 1024, 768);
-
-        VK::Bootstrap(window->GetHandle());
 
         VK::Image depthImage(nullptr, window->GetWidth(), window->GetHeight(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -159,19 +159,11 @@ int main()
         }
 
         VK::GetDevice().WaitIdle();
-
-        // for (size_t i = 0; i < commandPools.size(); ++i)
-        // {
-        //     delete commandBuffers[i];
-        //     delete commandPools[i];
-        // }
     }
     catch (const std::runtime_error& exception)
     {
         MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
-
-    VK::Shutdown();
 
     return 0;
 }
