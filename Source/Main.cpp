@@ -29,13 +29,11 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 800, 600);
-
-        // API::GetCurrentGraphicsContext()->;
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Fullscreen, true);
 
         VK::Bootstrap(window->GetHandle());
 
-        VK::Image depthImage(nullptr, 800, 600, VK::Global::device->FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::Image depthImage(nullptr, window->GetWidth(), window->GetHeight(), VK::Global::device->FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
@@ -65,7 +63,7 @@ int main()
 
         VK::Pipeline pipeline(
             vertexShaderCode, pixelShaderCode,
-            VK::Vec2{800, 600},
+            VK::Vec2{static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight())},
             std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
                 VK::Global::swapChain->GetImageFormat()
             ),            
@@ -109,13 +107,13 @@ int main()
             std::vector<VkDescriptorSetLayout> { descriptorSetLayout.GetVkDescriptorSetLayout() }
         );
 
-		std::vector<VkWriteDescriptorSet> offscreen_write_descriptor_sets = 
+		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
 		{
 			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetDescriptor()),
 			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView()->GetDescriptor())
 		};
 
-		descriptorSet.Update(offscreen_write_descriptor_sets);
+		descriptorSet.Update(writeDescriptorSets);
 
         while (window->IsRunning())
         {
@@ -136,7 +134,7 @@ int main()
             glm::mat4 pre = glm::mat4(1);
             pre[1][1] = -1.0f;
             uboData.proj = pre * 
-                glm::perspective(glm::radians(70.0f), 800.0f / 600.0f, 0.1f, 1000.0f) * 
+                glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f) * 
                 glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10)) *
                 glm::rotate(glm::mat4x4(1), glm::radians(theta), glm::vec3(0, 1, 0));
             ubo.Update(&uboData);
@@ -149,7 +147,6 @@ int main()
                             cmd->BindIndexBuffer(&indexBuffer);
 				                cmd->BindDescriptorSets(&pipeline, 1, &descriptorSet.GetVkDescriptorSet());
                                 vkCmdDrawIndexed(cmd->GetVkCommandBuffer(), characterMesh.indices.size(), 1, 0, 0, 0);
-				                // cmd->DrawIndexed(canvas.indexBuffer->GetAmountOfElements(), 1, 0, 0, 0);
                     cmd->EndRenderPass();
                 cmd->End();
 
@@ -158,7 +155,6 @@ int main()
             cmd->SubmitToQueue(VK::Global::Queues::graphicsQueue, wait, signal, fence);
 
             frameManager.Present();
-            // window->EndFrame();
         }
 
         VK::Global::device->WaitIdle();

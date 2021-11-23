@@ -60,6 +60,7 @@ public:
     GLFWwindow* GetHandle();
     unsigned int GetWidth() const;
     unsigned int GetHeight() const;
+    float GetAspectRatio() const;
 
 private:
     unsigned int width;
