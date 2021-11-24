@@ -3,6 +3,7 @@
 #include "../SwapChain/SupportDetails.h"
 #include "../Instance/Instance.h"
 #include "../Surface/Surface.h"
+#include "../../Util/Aligned.h"
 #include "../Instance/Debug.h"
 #include "QueueFamily.h"
 #include <set>
@@ -57,8 +58,7 @@ namespace VK
             {
                 vkPhysicalDevice = physicalDevice;
                 vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkProperties);
-                // Util::Mem::Aligned::minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
-
+                Util::Mem::Aligned::minUniformBufferOffsetAlignment = vkProperties.limits.minUniformBufferOffsetAlignment;
                 break;
             }
         }

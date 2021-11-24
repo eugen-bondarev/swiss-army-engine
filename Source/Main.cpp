@@ -1,3 +1,4 @@
+#include "Util/Aligned.h"
 #include "Util/Assets.h"
 #include "API/Window.h"
 #include "VK/VK.h"
@@ -5,10 +6,60 @@
 #include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
 
-struct UBO
+struct PerSceneUBO
 {
     glm::mat4x4 proj;
-} uboData;
+} perSceneUBO;
+
+struct PerObjectUBO
+{
+    PerObjectUBO(const size_t numInstances) : model{numInstances}
+    {
+    }
+
+    Aligned<glm::mat4x4> model;
+};
+
+struct Mesh
+{
+    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO)
+    {
+        const VK::Buffer stagingVertexBuffer(modelAsset.vertices);
+        vertexBuffer = CreatePtr<VK::Buffer>(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+        const VK::Buffer stagingIndexBuffer(modelAsset.indices);
+        indexBuffer = CreatePtr<VK::Buffer>(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+        texture = CreatePtr<VK::Texture2D>(imageAsset.size, 4, imageAsset.data);
+        
+        numIndices = modelAsset.indices.size();
+
+        descriptorSet = CreatePtr<VK::DescriptorSet>(
+            VK::GetDefaultDescriptorPool(),
+            std::vector<VkDescriptorSetLayout> {descriptorSetLayout.GetVkDescriptorSetLayout()}
+        );
+
+		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
+		{
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &globalUBO.GetVkDescriptor()),
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, &localUBO.GetVkDescriptor()),
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture->GetImageView().GetVkDescriptor())
+		};
+
+		descriptorSet->Update(writeDescriptorSets);
+    }
+
+    Ptr<VK::DescriptorSet> descriptorSet;
+    Ptr<VK::Buffer> vertexBuffer;
+    Ptr<VK::Buffer> indexBuffer;
+    Ptr<VK::Texture2D> texture;
+    unsigned int numIndices;
+
+    Vec3f position{0, -5, -10};
+    Vec3f rotation{0, 1, 0};
+};
+
+constexpr unsigned int numInstances{2};
 
 int main()
 {
@@ -40,7 +91,8 @@ int main()
         const std::vector<VkDescriptorSetLayoutBinding> bindings = 
         {
             VK::CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
-            VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
+            VK::CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
         };
 
         const VK::DescriptorSetLayout descriptorSetLayout(bindings);
@@ -76,28 +128,27 @@ int main()
 
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
-		const VK::Buffer stagingVertexBuffer(characterMesh.vertices);
-		const VK::Buffer vertexBuffer(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-		const VK::Buffer stagingIndexBuffer(characterMesh.indices);
-		const VK::Buffer indexBuffer(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        // perObjectUBO.model = new Aligned<glm::mat4x4>(1);
+        Ptr<PerObjectUBO> perObjectUBO = CreatePtr<PerObjectUBO>(numInstances);
 
-        VK::Buffer ubo(sizeof(UBO), 1, &uboData, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        VK::Buffer localBuffer(numInstances * Aligned<glm::mat4x4>::dynamicAlignment, 1, perObjectUBO->model.data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+		localBuffer.SetDescriptor(Aligned<glm::mat4x4>::dynamicAlignment);
 
-        const VK::Texture2D texture(characterTexture.size, 4, characterTexture.data);
+		// auto& dyn = uboInstanceBuffer->GetDescriptor();
 
-        VK::DescriptorSet descriptorSet(
-            VK::GetDefaultDescriptorPool(), 
-            {descriptorSetLayout.GetVkDescriptorSetLayout()}
-        );
+        // localBuffer.SetDescriptor(Aligned<glm::mat4x4>::dynamicAlignment);
 
-		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
-		{
-			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetVkDescriptor()),
-			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView().GetVkDescriptor())
-		};
+        std::vector<Mesh> meshes;
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer);
 
-		descriptorSet.Update(writeDescriptorSets);
+        meshes[0].position.x -= 3;
+        meshes[1].position.x += 3;
+
+        meshes[0].rotation = {0, 1, 0};
+        meshes[1].rotation = {0, -1, 0};
 
         while (window->IsRunning())
         {
@@ -117,20 +168,30 @@ int main()
             
             glm::mat4 pre = glm::mat4(1);
             pre[1][1] = -1.0f;
-            uboData.proj = pre * 
-                glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f) * 
-                glm::translate(glm::mat4x4(1), glm::vec3(0, -5, -10)) *
-                glm::rotate(glm::mat4x4(1), glm::radians(theta), glm::vec3(0, 1, 0));
-            ubo.Update(&uboData);
+            perSceneUBO.proj = pre * glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
+
+            ubo.Update(&perSceneUBO);
+
+            for (size_t i = 0; i < meshes.size(); ++i)
+            {
+                perObjectUBO->model[i] = glm::translate(glm::mat4x4(1), meshes[i].position) * glm::rotate(glm::mat4x4(1), glm::radians(theta), meshes[i].rotation);
+            }
+            localBuffer.Update(perObjectUBO->model.data);
             
             pool.Reset();
                 cmd.Begin();
                     cmd.BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
                         cmd.BindPipeline(pipeline);
-                            cmd.BindVertexBuffers({ &vertexBuffer }, { 0 });
-                            cmd.BindIndexBuffer(indexBuffer);
-				                cmd.BindDescriptorSets(pipeline, 1, &descriptorSet.GetVkDescriptorSet());
-                                vkCmdDrawIndexed(cmd.GetVkCommandBuffer(), characterMesh.indices.size(), 1, 0, 0, 0);
+
+                            for (size_t i = 0; i < meshes.size(); ++i)
+                            {
+                                uint32_t dynamicOffset = i * Aligned<glm::mat4x4>::dynamicAlignment;
+
+                                cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
+                                cmd.BindIndexBuffer(*meshes[i].indexBuffer);
+                                    cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
+                                        vkCmdDrawIndexed(cmd.GetVkCommandBuffer(), meshes[i].numIndices, 1, 0, 0, 0);
+                            }
                     cmd.EndRenderPass();
                 cmd.End();
 
@@ -147,6 +208,8 @@ int main()
     {
         MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
+
+    // delete perObjectUBO.model;
 
     return 0;
 }
