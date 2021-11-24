@@ -69,12 +69,12 @@ namespace VK
 
         VkBuffer vkBuffer;
         VkDeviceMemory vkMemory;
-
         VkDescriptorBufferInfo vkDescriptor;
-        void SetupDefaultDescriptor();
 
         uint32_t elementSize;
         uint32_t numElements;
+
+        void SetupDefaultDescriptor();
 
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;
