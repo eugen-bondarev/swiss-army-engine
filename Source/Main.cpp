@@ -9,7 +9,7 @@
 struct PerSceneUBO
 {
     glm::mat4x4 proj;
-} perSceneUBO;
+};
 
 struct PerObjectUBO
 {
@@ -22,7 +22,7 @@ struct PerObjectUBO
 
 struct Mesh
 {
-    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO)
+    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO, glm::mat4x4& transform) : transform{transform}
     {
         const VK::Buffer stagingVertexBuffer(modelAsset.vertices);
         vertexBuffer = CreatePtr<VK::Buffer>(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -47,7 +47,20 @@ struct Mesh
 		};
 
 		descriptorSet->Update(writeDescriptorSets);
+
+        ApplyTransform();
     }
+
+    void ApplyTransform()
+    {        
+        transform = glm::translate(glm::mat4x4(1), position);
+        transform = glm::rotate(transform, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+        transform = glm::rotate(transform, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+        transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+    }
+
+    void SetPosition(Vec3f position) { this->position = position; ApplyTransform(); }
+    void SetRotation(Vec3f rotation) { this->rotation = rotation; ApplyTransform(); }
 
     Ptr<VK::DescriptorSet> descriptorSet;
     Ptr<VK::Buffer> vertexBuffer;
@@ -55,8 +68,11 @@ struct Mesh
     Ptr<VK::Texture2D> texture;
     unsigned int numIndices;
 
-    Vec3f position{0, -5, -10};
-    Vec3f rotation{0, 1, 0};
+    glm::mat4x4& transform;
+
+private:
+    Vec3f position{0, -5, -20};
+    Vec3f rotation{0, 0, 0};
 };
 
 constexpr unsigned int numInstances{2};
@@ -71,7 +87,7 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Borderless, true);
 
         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -128,27 +144,22 @@ int main()
 
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
-        VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        Ptr<PerSceneUBO> perSceneUBO = CreatePtr<PerSceneUBO>();
+        VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO->proj[0][0], VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-        // perObjectUBO.model = new Aligned<glm::mat4x4>(1);
         Ptr<PerObjectUBO> perObjectUBO = CreatePtr<PerObjectUBO>(numInstances);
-
         VK::Buffer localBuffer(numInstances * Aligned<glm::mat4x4>::dynamicAlignment, 1, perObjectUBO->model.data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 		localBuffer.SetDescriptor(Aligned<glm::mat4x4>::dynamicAlignment);
 
-		// auto& dyn = uboInstanceBuffer->GetDescriptor();
-
-        // localBuffer.SetDescriptor(Aligned<glm::mat4x4>::dynamicAlignment);
-
         std::vector<Mesh> meshes;
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[0]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[1]);
 
-        meshes[0].position.x -= 3;
-        meshes[1].position.x += 3;
+        meshes[0].SetPosition({-5, -5, -20});
+        meshes[1].SetPosition({ 5, -5, -20});
 
-        meshes[0].rotation = {0, 1, 0};
-        meshes[1].rotation = {0, -1, 0};
+        meshes[0].SetRotation({0,  45, 0});
+        meshes[1].SetRotation({0, -45, 0});
 
         while (window->IsRunning())
         {
@@ -168,13 +179,12 @@ int main()
             
             glm::mat4 pre = glm::mat4(1);
             pre[1][1] = -1.0f;
-            perSceneUBO.proj = pre * glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
-
-            ubo.Update(&perSceneUBO);
+            perSceneUBO->proj = pre * glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
+            ubo.Update(&perSceneUBO->proj[0][0]);
 
             for (size_t i = 0; i < meshes.size(); ++i)
             {
-                perObjectUBO->model[i] = glm::translate(glm::mat4x4(1), meshes[i].position) * glm::rotate(glm::mat4x4(1), glm::radians(theta), meshes[i].rotation);
+                meshes[i].SetRotation({0, theta * (i - 0.5f) * -2.0f, 0});
             }
             localBuffer.Update(perObjectUBO->model.data);
             
@@ -185,8 +195,7 @@ int main()
 
                             for (size_t i = 0; i < meshes.size(); ++i)
                             {
-                                uint32_t dynamicOffset = i * Aligned<glm::mat4x4>::dynamicAlignment;
-
+                                const uint32_t dynamicOffset = i * Aligned<glm::mat4x4>::dynamicAlignment;
                                 cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
                                 cmd.BindIndexBuffer(*meshes[i].indexBuffer);
                                     cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
