@@ -75,7 +75,7 @@ private:
     Vec3f rotation{0, 0, 0};
 };
 
-constexpr unsigned int numInstances{2};
+constexpr unsigned int numInstances{4};
 
 int main()
 {
@@ -154,9 +154,13 @@ int main()
         std::vector<Mesh> meshes;
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[0]);
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[1]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[2]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[3]);
 
-        meshes[0].SetPosition({-5, -5, -20});
-        meshes[1].SetPosition({ 5, -5, -20});
+        meshes[0].SetPosition({-5, -5, -15});
+        meshes[1].SetPosition({-5, -5, -25});
+        meshes[2].SetPosition({ 5, -5, -15});
+        meshes[3].SetPosition({ 5, -5, -25});
 
         meshes[0].SetRotation({0,  45, 0});
         meshes[1].SetRotation({0, -45, 0});
@@ -184,7 +188,7 @@ int main()
 
             for (size_t i = 0; i < meshes.size(); ++i)
             {
-                meshes[i].SetRotation({0, theta * (i - 0.5f) * -2.0f, 0});
+                meshes[i].SetRotation({0, theta, 0});
             }
             localBuffer.Update(perObjectUBO->model.data);
             
