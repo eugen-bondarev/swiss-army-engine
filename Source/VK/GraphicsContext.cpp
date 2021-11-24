@@ -15,7 +15,7 @@ namespace VK
         instance = CreatePtr<Instance>();
         surface = CreatePtr<Surface>(*instance, window.GetHandle());
         device = CreatePtr<Device>(*instance);
-        swapChain = CreatePtr<SwapChain>(window.GetHandle(), device.get());
+        swapChain = CreatePtr<SwapChain>(window, device.get());
         defaultCommandPool = CreatePtr<CommandPool>(device.get());
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				

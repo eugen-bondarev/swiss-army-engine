@@ -16,17 +16,17 @@ namespace Base
     friend class ::RawWindow;
 
     public:
-        SwapChain(const RawWindow& window);
+        SwapChain(RawWindow& window);
        ~SwapChain() = default;
 
         virtual void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) = 0;
-        virtual void Resize(const unsigned int width = 0, const unsigned int height = 0) = 0;
+        virtual void Resize(const unsigned int width = 0u, const unsigned int height = 0u) = 0;
 
         unsigned int GetWidth() const;
         unsigned int GetHeight() const;
 
     protected:
-        const RawWindow& window;
+        RawWindow& window;
     };
 }
 

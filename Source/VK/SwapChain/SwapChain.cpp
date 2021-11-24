@@ -11,31 +11,31 @@
 
 namespace VK
 {
-    SwapChain::SwapChain(GLFWwindow* handle, const Device* device) : device{device ? *device : GetDevice()}, handle{handle}
+    SwapChain::SwapChain(RawWindow& window, const Device* device) : Base::SwapChain(window), device{device ? *device : GetDevice()}
     {
-        SupportDetails support_details = QuerySwapChainSupport(this->device.GetVkPhysicalDevice());
+        SupportDetails supportDetails = QuerySwapChainSupport(this->device.GetVkPhysicalDevice());
 
-        surfaceFormat = ChooseSurfaceFormat(support_details.formats);
         // surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
-        presentMode = ChoosePresentMode(support_details.presentModes);
-        extent = ChooseExtent(support_details.capabilities);
+        surfaceFormat = ChooseSurfaceFormat(supportDetails.formats);
+        presentMode = ChoosePresentMode(supportDetails.presentModes);
+        extent = ChooseExtent(supportDetails.capabilities);
 
-        uint32_t image_count = support_details.capabilities.minImageCount + 1;
+        uint32_t imageCount = supportDetails.capabilities.minImageCount + 1;
 
-        if (support_details.capabilities.maxImageCount > 0 && image_count > support_details.capabilities.maxImageCount)
+        if (supportDetails.capabilities.maxImageCount > 0 && imageCount > supportDetails.capabilities.maxImageCount)
         {
-            image_count = support_details.capabilities.maxImageCount;
+            imageCount = supportDetails.capabilities.maxImageCount;
         }
 
-        VkSwapchainCreateInfoKHR create_info{};
-        create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        create_info.surface = GetSurface().GetVkSurface();
-        create_info.minImageCount = image_count;
-        create_info.imageFormat = surfaceFormat.format;
-        create_info.imageColorSpace = surfaceFormat.colorSpace;
-        create_info.imageExtent = extent;
-        create_info.imageArrayLayers = 1;
-        create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VkSwapchainCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = GetSurface().GetVkSurface();
+        createInfo.minImageCount = imageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         std::array<uint32_t, 2> queueFamilyIndices =
         {
@@ -44,28 +44,28 @@ namespace VK
 
         if (Queues::indices.graphicsFamily != Queues::indices.presentFamily)
         {
-            create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-            create_info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
-            create_info.pQueueFamilyIndices = queueFamilyIndices.data();
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
+            createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
         }
         else
         {
-            create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            create_info.queueFamilyIndexCount = 0;	  // Optional
-            create_info.pQueueFamilyIndices = nullptr; // Optional
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0;	  // Optional
+            createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
-        create_info.preTransform = support_details.capabilities.currentTransform;
-        create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        create_info.presentMode = presentMode;
-        create_info.clipped = VK_TRUE;
-        create_info.oldSwapchain = VK_NULL_HANDLE;
+        createInfo.preTransform = supportDetails.capabilities.currentTransform;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode = presentMode;
+        createInfo.clipped = VK_TRUE;
+        createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        VK_TRY(vkCreateSwapchainKHR(this->device.GetVkDevice(), &create_info, nullptr, &vkSwapChain));
+        VK_TRY(vkCreateSwapchainKHR(this->device.GetVkDevice(), &createInfo, nullptr, &vkSwapChain));
 
-        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &image_count, nullptr);
-        images.resize(image_count);
-        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &image_count, images.data());
+        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &imageCount, nullptr);
+        images.resize(imageCount);
+        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &imageCount, images.data());
 
         imageFormat = surfaceFormat.format;
 
@@ -77,27 +77,38 @@ namespace VK
         DestroyImageViews();
 
         vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
+    }
 
-        for (auto& framebuffer : framebuffers)
-            delete framebuffer;
+    void SwapChain::Present(const unsigned int syncInterval, const unsigned int flags)
+    {
+
+    }
+
+    void SwapChain::Resize(const unsigned int width, const unsigned int height)
+    {
+
     }
 
     VK::Framebuffer* SwapChain::GetCurrentScreenFramebuffer()
     {
-        return framebuffers[imageIndex];
+        return framebuffers[imageIndex].get();
     }
 
     void SwapChain::InitFramebuffers(VkRenderPass& render_pass, const VkImageView& depthImageView)
     {
-        for (auto& framebuffer : framebuffers)
-            delete framebuffer;
+        for (Ref<Framebuffer> framebuffer : framebuffers)
+        {
+            framebuffer.reset();
+        }
+
         framebuffers.clear();
 
         Vec2 viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
 
         for (size_t i = 0; i < GetImageViews().size(); ++i)
         {
-            framebuffers.push_back(new VK::Framebuffer(GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView));
+            Ref<Framebuffer> framebuffer = CreateRef<Framebuffer>(GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView);
+            framebuffers.push_back(std::move(framebuffer));
         }
     }
 
@@ -137,14 +148,14 @@ namespace VK
         // Get list of supported surface formats
         uint32_t formatCount;
         vkGetPhysicalDeviceSurfaceFormatsKHR(device.GetVkPhysicalDevice(), GetSurface().GetVkSurface(), &formatCount, NULL);				
-        assert(formatCount > 0);
+        VK_ASSERT(formatCount > 0);
 
         std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(device.GetVkPhysicalDevice(), GetSurface().GetVkSurface(), &formatCount, surfaceFormats.data());
 
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
         // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
-        if ((formatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED))
+        if (formatCount == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
         {
             colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
             colorSpace = surfaceFormats[0].colorSpace;
@@ -153,21 +164,21 @@ namespace VK
         {
             // iterate over the list of available surface format and
             // check for the presence of VK_FORMAT_B8G8R8A8_UNORM
-            bool found_B8G8R8A8_UNORM = false;
-            for (auto&& surfaceFormat : surfaceFormats)
+            bool B8G8R8A8UNORMFound = false;
+            for (const auto& surfaceFormat : surfaceFormats)
             {
                 if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
                 {
                     colorFormat = surfaceFormat.format;
                     colorSpace = surfaceFormat.colorSpace;
-                    found_B8G8R8A8_UNORM = true;
+                    B8G8R8A8UNORMFound = true;
                     break;
                 }
             }
 
             // in case VK_FORMAT_B8G8R8A8_UNORM is not available
             // select the first available color format
-            if (!found_B8G8R8A8_UNORM)
+            if (!B8G8R8A8UNORMFound)
             {
                 colorFormat = surfaceFormats[0].format;
                 colorSpace = surfaceFormats[0].colorSpace;
@@ -178,16 +189,6 @@ namespace VK
         format.format = colorFormat;
 
         return format;
-
-        // for (const auto &available_format : availalbe_formats)
-        // {
-        // 	if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB && available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-        // 	{
-        // 		return available_format;
-        // 	}
-        // }
-
-        // return availalbe_formats[0];
     }
 
     VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR> &available_present_modes)
@@ -212,18 +213,13 @@ namespace VK
         else
         {
             int width, height;
-            glfwGetFramebufferSize(handle, &width, &height);
+            glfwGetFramebufferSize(window.GetHandle(), &width, &height);
+            VkExtent2D actualExtent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-            VkExtent2D actual_extent =
-            {
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-            };
+            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
-            actual_extent.width = std::clamp(actual_extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-            actual_extent.height = std::clamp(actual_extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-            return actual_extent;
+            return actualExtent;
         }
     }
 
@@ -231,7 +227,7 @@ namespace VK
     {
         imageViews.resize(images.size());
 
-        for (size_t i = 0; i < images.size(); i++)
+        for (size_t i = 0; i < images.size(); ++i)
         {
             VkImageViewCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -247,14 +243,13 @@ namespace VK
             createInfo.subresourceRange.levelCount = 1;
             createInfo.subresourceRange.baseArrayLayer = 0;
             createInfo.subresourceRange.layerCount = 1;
-
             VK_TRY(vkCreateImageView(device.GetVkDevice(), &createInfo, nullptr, &imageViews[i]));
         }
     }
 
     void SwapChain::DestroyImageViews()
     {
-        for (const auto &imageView : imageViews)
+        for (const VkImageView& imageView : imageViews)
         {
             vkDestroyImageView(device.GetVkDevice(), imageView, nullptr);
         }
@@ -280,17 +275,17 @@ namespace VK
         return extent;
     }
 
-    std::vector<VK::Framebuffer*>& SwapChain::GetFramebuffers()
+    std::vector<Ref<VK::Framebuffer>>& SwapChain::GetFramebuffers()
     {
         return framebuffers;
     }
 
-    const std::vector<VkImage> &SwapChain::GetImages() const
+    const std::vector<VkImage>& SwapChain::GetImages() const
     {
         return images;
     }
 
-    const std::vector<VkImageView> &SwapChain::GetImageViews() const
+    const std::vector<VkImageView>& SwapChain::GetImageViews() const
     {
         return imageViews;
     }

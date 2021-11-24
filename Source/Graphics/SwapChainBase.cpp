@@ -3,7 +3,7 @@
 
 namespace Base
 {
-    SwapChain::SwapChain(const RawWindow& window) : window{window}
+    SwapChain::SwapChain(RawWindow& window) : window{window}
     {
     }
 

@@ -6,7 +6,7 @@
 
 namespace DX
 {
-    SwapChain::SwapChain(const RawWindow& window) : Base::SwapChain(window)
+    SwapChain::SwapChain(RawWindow& window) : Base::SwapChain(window)
     {
     }
 

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../Common/Math.h"
 #include <stdexcept>
 #include <assert.h>
 #include <iostream>
@@ -11,8 +12,6 @@
 #include <memory>
 #include <array>
 #include <map>
-
-#include <typeinfo>  //for 'typeid' to work  
 
 #define EXCEPTION()\
     std::runtime_error(std::string(__FILE__) + "\n\nLine: " + std::to_string(__LINE__))

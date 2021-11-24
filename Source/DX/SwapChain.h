@@ -15,7 +15,7 @@ namespace DX
     friend class GraphicsContext;
 
     public:
-        SwapChain(const RawWindow& window);
+        SwapChain(RawWindow& window);
        ~SwapChain() = default;
 
         void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;
