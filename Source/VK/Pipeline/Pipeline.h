@@ -22,7 +22,7 @@ namespace VK
         Pipeline(
             const std::string& vsCode,
             const std::string& fsCode,
-            const Vec2& viewportSize,
+            const Vec2ui& viewportSize,
             const AttachmentDescriptions& attachments,
             const BindingDescriptions& bindingDescriptions = {},
             const AttributeDescriptions& attributeDescriptions = {},

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../API/GraphicsContext.h"
-
 #include "SwapChain.h"
 #include "Debugger.h"
 #include "Common.h"
@@ -36,7 +35,7 @@ namespace DX
        ~GraphicsContext() = default;
 
         void SetViewport(const UINT width, const UINT height, const UINT x = 0u, const UINT y = 0u);
-        void OnResize(const unsigned int width, const unsigned int height);
+        void OnResize(const Vec2ui size);
 
         API::Type GetAPIType() const override;
 

@@ -14,7 +14,7 @@ namespace DX
     {
     public:
         RenderTargetView(SwapChain* swapChain, const bool initDepth = false);
-        RenderTargetView(const unsigned int width, const unsigned int height, const bool initDepth = false);
+        RenderTargetView(const Vec2ui size, const bool initDepth = false);
        ~RenderTargetView() = default;
 
         void Bind();
@@ -25,7 +25,7 @@ namespace DX
         Texture* GetTexture();
 
     private:
-        void Init(const unsigned int width, const unsigned int height, ID3D11Resource *resource, const bool initDepth);
+        void Init(const Vec2ui size, ID3D11Resource *resource, const bool initDepth);
 
     protected:
         ComPtr<ID3D11RenderTargetView> dxRenderTargetView;

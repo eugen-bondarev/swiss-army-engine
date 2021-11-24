@@ -20,9 +20,9 @@ int main()
         const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
         const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, 1024, 768);
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
 
-        VK::Image depthImage(nullptr, window->GetWidth(), window->GetHeight(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::Image depthImage(nullptr, window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
@@ -33,7 +33,6 @@ int main()
         for (size_t i = 0; i < VK::GetSwapChain().GetImageViews().size(); ++i)
         {
             Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
-
             commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(pool.get()));
             commandPools.push_back(std::move(pool));
         }
@@ -53,7 +52,7 @@ int main()
 
         VK::Pipeline pipeline(
             vertexShaderCode, pixelShaderCode,
-            VK::Vec2{static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight())},
+            window->GetSize(),
             std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
                 VK::GetSwapChain().GetImageFormat()
             ),            
@@ -80,17 +79,9 @@ int main()
 		VK::Buffer stagingIndexBuffer(characterMesh.indices);
 		VK::Buffer indexBuffer(&stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
-        VK::Buffer ubo(
-			sizeof(UBO),
-			1,
-			&uboData,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
-        );
+        VK::Buffer ubo(sizeof(UBO), 1, &uboData, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-        VK::Texture2D texture(
-            VK::Vec2{(float)characterTexture.width, (float)characterTexture.height},
-            4, characterTexture.data
-        );
+        VK::Texture2D texture(characterTexture.size, 4, characterTexture.data);
 
         VK::DescriptorSet descriptorSet(
             VK::GetDefaultDescriptorPool(), 

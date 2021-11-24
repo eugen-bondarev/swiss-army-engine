@@ -2,11 +2,11 @@
 
 namespace DX 
 {
-    DepthBuffer::DepthBuffer(const unsigned int width, const unsigned int height)
+    DepthBuffer::DepthBuffer(const Vec2ui size)
     {
         D3D11_TEXTURE2D_DESC depthTextureDesc{};
-        depthTextureDesc.Width = width;
-        depthTextureDesc.Height = height;
+        depthTextureDesc.Width = size.x;
+        depthTextureDesc.Height = size.y;
         depthTextureDesc.MipLevels = 1u;
         depthTextureDesc.ArraySize = 1u;
         depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;

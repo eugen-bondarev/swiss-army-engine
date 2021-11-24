@@ -10,7 +10,7 @@ namespace API
     class Texture
     {
     public:
-        static Ptr<Texture> Create(const unsigned int width, const unsigned int height, const unsigned char* data);
+        static Ptr<Texture> Create(const Vec2ui size, const unsigned char* data);
         virtual void Bind() = 0;
     };
 }

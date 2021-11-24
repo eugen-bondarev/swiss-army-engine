@@ -10,7 +10,7 @@ namespace DX {
 class DepthBuffer
 {
 public:
-    DepthBuffer(const unsigned int width, const unsigned int height);
+    DepthBuffer(const Vec2ui size);
    ~DepthBuffer() = default;
 
     void Clear();

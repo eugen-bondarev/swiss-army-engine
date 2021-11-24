@@ -11,8 +11,8 @@ namespace VK
 {
     struct Vertex
     {
-        glm::vec3 Position;
-        glm::vec2 TextureCoords;
+        Vec3f Position;
+        Vec2f TextureCoords;
 
         static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();

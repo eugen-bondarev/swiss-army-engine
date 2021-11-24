@@ -34,7 +34,7 @@ namespace DX
         swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
         swapChain = CreatePtr<SwapChain>(window);
-        window.ResizeSubscribe(std::bind(&GraphicsContext::OnResize, this, std::placeholders::_1, std::placeholders::_2));
+        window.ResizeSubscribe(std::bind(&GraphicsContext::OnResize, this, std::placeholders::_1));
         window.SetSwapChain(swapChain.get());
 
         const UINT flags =
@@ -75,7 +75,7 @@ namespace DX
 
         dxContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
 
-        SetViewport(window.GetWidth(), window.GetHeight());
+        SetViewport(window.GetSize().x, window.GetSize().y);
     }
 
     API::Type GraphicsContext::GetAPIType() const
@@ -95,12 +95,12 @@ namespace DX
         dxContext->RSSetViewports(1u, &viewport);
     }
 
-    void GraphicsContext::OnResize(const unsigned int width, const unsigned int height)
+    void GraphicsContext::OnResize(const Vec2ui size)
     {
         renderTargetView.reset();
-        swapChain->Resize(window.GetWidth(), window.GetHeight());
+        swapChain->Resize(window.GetSize());
         renderTargetView = CreateRef<DX::RenderTargetView>(swapChain.get(), true);
-        SetViewport(window.GetWidth(), window.GetHeight());
+        SetViewport(window.GetSize().x, window.GetSize().y);
     }
 
 #ifndef NDEBUG

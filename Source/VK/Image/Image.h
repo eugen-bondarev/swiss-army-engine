@@ -20,8 +20,8 @@ namespace VK
     class Image
     {
     public:
-        Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device* device = nullptr, const CommandPool* commandPool = nullptr);
-        Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device* device = nullptr, const CommandPool* commandPool = nullptr);
+        Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device* device = nullptr, const CommandPool* commandPool = nullptr);
+        Image(Buffer* buffer, const Vec2ui size, int numChannels, VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device* device = nullptr, const CommandPool* commandPool = nullptr);
         ~Image();
 
         VkFormat GetVkFormat() const;

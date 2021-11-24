@@ -84,7 +84,7 @@ namespace VK
 
     }
 
-    void SwapChain::Resize(const unsigned int width, const unsigned int height)
+    void SwapChain::Resize(const Vec2ui size)
     {
 
     }
@@ -103,7 +103,7 @@ namespace VK
 
         framebuffers.clear();
 
-        Vec2 viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
+        Vec2ui viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
 
         for (size_t i = 0; i < GetImageViews().size(); ++i)
         {

@@ -12,7 +12,7 @@ namespace DX
     class Texture : public API::Texture
     {
     public:
-        Texture(const unsigned int width, const unsigned int height, const unsigned char* data = nullptr, const UINT bindFlags = D3D11_BIND_SHADER_RESOURCE);
+        Texture(const Vec2ui size, const unsigned char* data = nullptr, const UINT bindFlags = D3D11_BIND_SHADER_RESOURCE);
        ~Texture() = default;
 
         void Bind() override;

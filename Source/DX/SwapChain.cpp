@@ -32,8 +32,8 @@ namespace DX
         return dxSwapChain.Get();
     }
 
-    void SwapChain::Resize(const unsigned int width, const unsigned int height)
+    void SwapChain::Resize(const Vec2ui size)
     {
-        dxSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+        dxSwapChain->ResizeBuffers(0, size.x, size.y, DXGI_FORMAT_UNKNOWN, 0);
     }
 }

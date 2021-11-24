@@ -118,13 +118,13 @@ namespace VK
         }
     }
 
-    Image::Image(Buffer* buffer, const unsigned int width, const unsigned int height, const VkFormat format, const VkImageUsageFlags usageFlags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{format}
+    Image::Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{format}
     {
         VkImageCreateInfo image_info{};
         image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         image_info.imageType = VK_IMAGE_TYPE_2D;
-        image_info.extent.width = static_cast<uint32_t>(width);
-        image_info.extent.height = static_cast<uint32_t>(height);
+        image_info.extent.width = static_cast<uint32_t>(size.x);
+        image_info.extent.height = static_cast<uint32_t>(size.y);
         image_info.extent.depth = 1;
         image_info.mipLevels = 1;
         image_info.arrayLayers = 1;
@@ -153,12 +153,12 @@ namespace VK
         if (buffer != nullptr)
         {
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
-            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height), commandPool);
+            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), commandPool);
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, commandPool);
         }
     }
 
-    Image::Image(Buffer* buffer, Vec2 size, int amount_of_channels, VkImageUsageFlags usage_flags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
+    Image::Image(Buffer* buffer, Vec2ui size, int amount_of_channels, VkImageUsageFlags usage_flags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
     {
         VkImageCreateInfo image_info{};
         image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

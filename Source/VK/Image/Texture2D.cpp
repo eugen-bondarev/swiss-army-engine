@@ -7,7 +7,7 @@
 
 namespace VK
 {
-    Texture2D::Texture2D(Vec2 size, int amount_of_channels, const void* data, VkImageUsageFlags usage_flags, const Device* device) : device{device ? *device : GetDevice()}, size{size}
+    Texture2D::Texture2D(Vec2ui size, int amount_of_channels, const void* data, VkImageUsageFlags usage_flags, const Device* device) : device{device ? *device : GetDevice()}, size{size}
     {
         uint32_t buffer_size = size.x * size.y * amount_of_channels;
 
@@ -32,7 +32,7 @@ namespace VK
         return imageView;
     }
 
-    Vec2 Texture2D::GetSize() const
+    Vec2ui Texture2D::GetSize() const
     {
         return size;
     }

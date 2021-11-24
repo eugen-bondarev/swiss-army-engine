@@ -14,8 +14,7 @@ namespace Util
     {
         using Pixels = unsigned char*;
 
-        unsigned int width{0};
-        unsigned int height{0};
+        Vec2ui       size;
         unsigned int numChannels{0};
         Pixels       data{nullptr};
     };

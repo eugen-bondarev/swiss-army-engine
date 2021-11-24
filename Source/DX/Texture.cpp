@@ -2,11 +2,11 @@
 
 namespace DX
 {
-    Texture::Texture(const unsigned int width, const unsigned int height, const unsigned char* data, const UINT bindFlags)
+    Texture::Texture(const Vec2ui size, const unsigned char* data, const UINT bindFlags)
     {
         D3D11_TEXTURE2D_DESC textureDesc{};
-        textureDesc.Width = width;
-        textureDesc.Height = height;
+        textureDesc.Width = size.x;
+        textureDesc.Height = size.y;
         textureDesc.MipLevels = 1;
         textureDesc.ArraySize = 1;
         textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -21,7 +21,7 @@ namespace DX
         {
             D3D11_SUBRESOURCE_DATA textureSubData{};
             textureSubData.pSysMem = data;
-            textureSubData.SysMemPitch = width * sizeof(unsigned char) * 4;
+            textureSubData.SysMemPitch = size.x * sizeof(unsigned char) * 4;
             D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &dxTexture));
         }
         else

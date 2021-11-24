@@ -10,7 +10,7 @@ namespace VK
     Pipeline::Pipeline(
         const std::string& vs_code,
         const std::string& fs_code,
-        const Vec2& viewport_size,
+        const Vec2ui& viewport_size,
         const AttachmentDescriptions& attachments,
         const BindingDescriptions& binding_descriptions,
         const AttributeDescriptions& attribute_descriptions,

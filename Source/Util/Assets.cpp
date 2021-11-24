@@ -47,8 +47,7 @@ namespace Util
             throw std::runtime_error("Failed to open image file " + filePath);
         }
 
-        result.width = static_cast<unsigned int>(_width);
-        result.height = static_cast<unsigned int>(_height);
+        result.size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
         result.numChannels = static_cast<unsigned int>(_numChannels);
 
         return result;

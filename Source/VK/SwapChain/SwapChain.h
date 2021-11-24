@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../Graphics/SwapChainBase.h"
+#include "../../API/SwapChainBase.h"
 #include "../Common.h"
 
 FORWARD_DECLARE(RawWindow);
@@ -20,7 +20,7 @@ namespace VK
        ~SwapChain();
 
         void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;
-        void Resize(const unsigned int width = 0u, const unsigned int height = 0u) override;
+        void Resize(const Vec2ui size) override;
 
         uint32_t AcquireImage(VkSemaphore semaphore);
 

@@ -20,8 +20,8 @@ public:
     static void SizeCallback(GLFWwindow* handle, int width, int height)
     {
         RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
-        window->width = width; window->height = height;
-        Issue(window->resizeCallbacks, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
+        window->size = {width, height};
+        Issue(window->resizeCallbacks, window->size);
     }
 
 private:
@@ -38,7 +38,7 @@ static void GetMonitorResolution(unsigned int& width, unsigned int& height)
     height = mode->height;
 }
 
-RawWindow::RawWindow(const WindowMode mode, const bool vSync, const unsigned int width, const unsigned int height, const std::string& title) : vSync{vSync}
+RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size, const std::string& title) : vSync{vSync}
 {
     {
         static std::mutex glfwInitMutex;
@@ -53,20 +53,21 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const unsigned int
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    unsigned int finalWidth{width}, finalHeight{height};
+    // unsigned int finalWidth{size.x}, finalHeight{size.y};
+    Vec2ui finalSize{size};
 
-    if (finalWidth == 0u || finalHeight == 0u)
+    if (finalSize.x == 0u || finalSize.y == 0u)
     {
-        GetMonitorResolution(finalWidth, finalHeight);
+        GetMonitorResolution(finalSize.x, finalSize.y);
     }
 
     switch (mode)
     {
         case WindowMode::Windowed:
         {
-            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), nullptr, nullptr);
+            handle = glfwCreateWindow(finalSize.x, finalSize.y, title.c_str(), nullptr, nullptr);
 
-            if (width == 0 || height == 0)
+            if (size.x == 0u || size.y == 0u)
             {
                 glfwMaximizeWindow(handle);
             }
@@ -75,7 +76,7 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const unsigned int
 
         case WindowMode::Fullscreen:
         {
-            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            handle = glfwCreateWindow(finalSize.x, finalSize.y, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
 
@@ -86,15 +87,14 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const unsigned int
             glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, videoMode->refreshRate);
-            handle = glfwCreateWindow(finalWidth, finalHeight, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            handle = glfwCreateWindow(finalSize.x, finalSize.y, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
         }
     }
 
     int _width, _height;
     glfwGetFramebufferSize(handle, &_width, &_height);
-    this->width = static_cast<unsigned int>(_width);
-    this->height = static_cast<unsigned int>(_height);
+    this->size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
 
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
@@ -148,19 +148,14 @@ bool RawWindow::GetVSync() const
     return vSync;
 }
 
-unsigned int RawWindow::GetWidth() const
+Vec2ui RawWindow::GetSize() const
 {
-    return width;
-}
-
-unsigned int RawWindow::GetHeight() const
-{
-    return height;
+    return size;
 }
 
 float RawWindow::GetAspectRatio() const
 {
-    return static_cast<float>(width) / static_cast<float>(height);
+    return static_cast<float>(size.x) / static_cast<float>(size.y);
 }
 
 void RawWindow::SetSwapChain(Base::SwapChain* swapChain)

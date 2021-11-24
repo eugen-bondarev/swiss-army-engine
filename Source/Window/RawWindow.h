@@ -9,7 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include "../Graphics/SwapChainBase.h"
+#include "../API/SwapChainBase.h"
 #include "../Common/Common.h"
 #include "Events/Callback.h"
 
@@ -42,7 +42,7 @@ friend class VK::GraphicsContext;
 friend class CallbackManager;
 
 public:
-    RawWindow(const WindowMode mode = WindowMode::Windowed, const bool vSync = true, const unsigned int width = 0u, const unsigned int height = 0u, const std::string& title = "Window");
+    RawWindow(const WindowMode mode = WindowMode::Windowed, const bool vSync = true, const Vec2ui size = {0u, 0u}, const std::string& title = "Window");
    ~RawWindow();
 
     void BeginFrame();
@@ -58,13 +58,11 @@ public:
 
     bool IsRunning() const;
     GLFWwindow* GetHandle();
-    unsigned int GetWidth() const;
-    unsigned int GetHeight() const;
+    Vec2ui GetSize() const;
     float GetAspectRatio() const;
 
 private:
-    unsigned int width;
-    unsigned int height;
+    Vec2ui size;
     bool vSync;
     bool running{true};
     GLFWwindow* handle;

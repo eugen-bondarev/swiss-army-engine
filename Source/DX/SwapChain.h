@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../Graphics/SwapChainBase.h"
+#include "../API/SwapChainBase.h"
 #include "Common.h"
 
 FORWARD_DECLARE(RawWindow);
@@ -19,7 +19,7 @@ namespace DX
        ~SwapChain() = default;
 
         void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;
-        void Resize(const unsigned int width = 0, const unsigned int height = 0) override;
+        void Resize(const Vec2ui size) override;
 
         IDXGISwapChain* GetSwapChain();
 
