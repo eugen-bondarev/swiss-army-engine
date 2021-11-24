@@ -113,7 +113,7 @@ namespace VK
         pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;								 // Optional
         VK_TRY(vkCreatePipelineLayout(this->device.GetVkDevice(), &pipelineLayoutCreateInfo, nullptr, &vkPipelineLayout));
 
-        renderPass = CreatePtr<RenderPass>(attachments);
+        renderPass = CreatePtr<RenderPass>(attachments, device);
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo{};
         depthStencilCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -164,8 +164,8 @@ namespace VK
         return vkPipeline;
     }
 
-    RenderPass* Pipeline::GetRenderPass()
+    const RenderPass& Pipeline::GetRenderPass() const
     {
-        return renderPass.get();
+        return *renderPass;
     }
 }

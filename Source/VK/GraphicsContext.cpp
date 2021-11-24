@@ -15,6 +15,10 @@ namespace VK
         instance = CreatePtr<Instance>();
         surface = CreatePtr<Surface>(*instance, window.GetHandle());
         device = CreatePtr<Device>(*instance);
+
+        defaultConstInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_NEAREST);
+        defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
+        
         swapChain = CreatePtr<SwapChain>(window, device.get());
         defaultCommandPool = CreatePtr<CommandPool>(device.get());
         
@@ -32,9 +36,6 @@ namespace VK
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
             { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
         });
-
-        defaultConstInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_NEAREST);
-        defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
     }
 
     GraphicsContext::~GraphicsContext()

@@ -3,12 +3,13 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
 {
-    FORWARD_DECLARE(Device);
     FORWARD_DECLARE(Framebuffer);
+    FORWARD_DECLARE(Device);
 
     namespace Util
     {
@@ -29,10 +30,10 @@ namespace VK
     class RenderPass
     {
     public:
-        RenderPass(const AttachmentDescriptions& attachments, const Device* device = nullptr);
-        ~RenderPass();
+        RenderPass(const AttachmentDescriptions& attachments, const Device& device = GetDevice());
+       ~RenderPass();
 
-        VkRenderPass& GetVkRenderPass();
+        const VkRenderPass& GetVkRenderPass() const;
 
     private:
         const Device& device;

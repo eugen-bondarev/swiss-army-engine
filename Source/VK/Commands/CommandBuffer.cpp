@@ -64,11 +64,11 @@ namespace VK
         VK_TRY(vkQueueSubmit(queue, 1, &submitInfo, fence));
     }
 
-    void CommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer, const std::array<float, 4>& color) const
+    void CommandBuffer::BeginRenderPass(const RenderPass& renderPass, Framebuffer* framebuffer, const std::array<float, 4>& color) const
     {
         VkRenderPassBeginInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        submitInfo.renderPass = renderPass->GetVkRenderPass();
+        submitInfo.renderPass = renderPass.GetVkRenderPass();
         submitInfo.framebuffer = framebuffer->GetVkFramebuffer();
         submitInfo.renderArea.extent = {static_cast<uint32_t>(framebuffer->GetSize().x), static_cast<uint32_t>(framebuffer->GetSize().y)};
 

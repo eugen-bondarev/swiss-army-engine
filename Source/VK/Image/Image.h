@@ -14,8 +14,8 @@ namespace VK
 
     namespace Util
     {
-        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool* commandPool);
-        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool* commandPool);
+        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool& commandPool = GetDefaultCommandPool());
+        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool& commandPool = GetDefaultCommandPool());
     }
 
     class Image

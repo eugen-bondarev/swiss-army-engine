@@ -3,18 +3,21 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
 {
+    FORWARD_DECLARE(RenderPass);
+    FORWARD_DECLARE(ImageView);
     FORWARD_DECLARE(Device);
     
     class Framebuffer
     {
     public:
-        Framebuffer(VkImageView image_view, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView = VK_NULL_HANDLE, const Device* device = nullptr);
-        // Framebuffer(VkImageView image_view, VkRenderPass renderPass, const Vec2ui &size, const Device* device = nullptr);
-        ~Framebuffer();
+        Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const Device& device = GetDevice());
+        Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const Device& device = GetDevice());
+       ~Framebuffer();
 
         VkFramebuffer GetVkFramebuffer() const;
         Vec2ui GetSize() const;

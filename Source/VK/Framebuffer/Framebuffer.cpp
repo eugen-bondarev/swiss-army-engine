@@ -1,45 +1,41 @@
 #include "framebuffer.h"
 
-#include "../device/device.h"
-
+#include "../Pipeline/RenderPass.h"
 #include "../GraphicsContext.h"
+#include "../Image/ImageView.h"
+#include "../Device/Device.h"
 
 namespace VK
 {
-    Framebuffer::Framebuffer(VkImageView imageView, VkRenderPass renderPass, const unsigned int width, const unsigned int height, VkImageView depthImageView, const Device* device) : device{device ? *device : GetDevice()}, size{static_cast<float>(width), static_cast<float>(height)}
+    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const Device& device) : device{device}, size{size}
     {
-        std::vector<VkImageView> attachments = {imageView};
+        std::vector<VkImageView> attachments = {imageView.GetVkImageView()};
 
-        if (depthImageView != VK_NULL_HANDLE)
-        {
-            attachments.push_back(depthImageView);
-        }
-
-        VkFramebufferCreateInfo framebuffer_info{};
-        framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass = renderPass;
-        framebuffer_info.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebuffer_info.pAttachments = attachments.data();
-        framebuffer_info.width = static_cast<uint32_t>(size.x);
-        framebuffer_info.height = static_cast<uint32_t>(size.y);
-        framebuffer_info.layers = 1;
-
-        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
+        VkFramebufferCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        createInfo.renderPass = renderPass.GetVkRenderPass();
+        createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        createInfo.pAttachments = attachments.data();
+        createInfo.width = static_cast<uint32_t>(size.x);
+        createInfo.height = static_cast<uint32_t>(size.y);
+        createInfo.layers = 1;
+        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &createInfo, nullptr, &vkFramebuffer));
     }
-    
-    // Framebuffer::Framebuffer(VkImageView image_view, VkRenderPass render_pass, const Vec2& size, const Device* device) : size{size}, device{device ? *device : GetDevice()}
-    // {
-    //     VkFramebufferCreateInfo framebuffer_info{};
-    //     framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    //     framebuffer_info.renderPass = render_pass;
-    //     framebuffer_info.attachmentCount = 1;
-    //     framebuffer_info.pAttachments = &image_view;
-    //     framebuffer_info.width = static_cast<uint32_t>(size.x);
-    //     framebuffer_info.height = static_cast<uint32_t>(size.y);
-    //     framebuffer_info.layers = 1;
 
-    //     VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &framebuffer_info, nullptr, &vkFramebuffer));
-    // }
+    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const Device& device) : device{device}, size{size}
+    {
+        std::vector<VkImageView> attachments = {imageView.GetVkImageView(), depthImageView.GetVkImageView()};
+        
+        VkFramebufferCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        createInfo.renderPass = renderPass.GetVkRenderPass();
+        createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        createInfo.pAttachments = attachments.data();
+        createInfo.width = static_cast<uint32_t>(size.x);
+        createInfo.height = static_cast<uint32_t>(size.y);
+        createInfo.layers = 1;
+        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &createInfo, nullptr, &vkFramebuffer));
+    }
 
     Framebuffer::~Framebuffer()
     {

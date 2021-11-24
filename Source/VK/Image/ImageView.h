@@ -15,11 +15,12 @@ namespace VK
     class ImageView
     {
     public:
-        ImageView(const Image& image, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const Device& device = GetDevice());
-        ~ImageView();
+        ImageView(const VkImageView& vkImageView, const Device& device);
+        ImageView(const Image& image, const VkFormat format, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const Device& device = GetDevice());
+       ~ImageView();
 
         const VkImageView& GetVkImageView() const;
-        const VkDescriptorImageInfo& GetDescriptor() const;
+        const VkDescriptorImageInfo& GetVkDescriptor() const;
 
         void SetupDescriptor(const VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, const Sampler& sampler = GetDefaultConstInterpolationSampler());
 
@@ -27,7 +28,7 @@ namespace VK
         const Device& device;
 
         VkImageView vkImageView;
-        VkDescriptorImageInfo descriptor;
+        VkDescriptorImageInfo vkDescriptor;
 
         void SetupDefaultDescriptor();
 

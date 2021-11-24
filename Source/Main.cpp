@@ -23,7 +23,7 @@ int main()
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
 
         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-        VK::ImageView depthImageView(depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+        VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
 
@@ -71,7 +71,7 @@ int main()
             descriptorSetLayouts
         );
 
-	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
+	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
 		VK::Buffer stagingVertexBuffer(characterMesh.vertices);
 		VK::Buffer vertexBuffer(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -91,7 +91,7 @@ int main()
 		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
 		{
 			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetVkDescriptor()),
-			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView()->GetDescriptor())
+			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView()->GetVkDescriptor())
 		};
 
 		descriptorSet.Update(writeDescriptorSets);

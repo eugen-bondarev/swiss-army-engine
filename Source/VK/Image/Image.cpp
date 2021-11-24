@@ -12,9 +12,9 @@ namespace VK
 {
     namespace Util
     {			
-        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool* commandPool)
+        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool& commandPool)
         {
-            CommandBuffer commandBuffer(commandPool);
+            CommandBuffer commandBuffer(&commandPool);
             
             commandBuffer.Begin();
 
@@ -80,9 +80,9 @@ namespace VK
             vkQueueWaitIdle(Queues::graphicsQueue);
         }
 
-        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool* commandPool)
+        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool& commandPool)
         {
-            CommandBuffer commandBuffer(commandPool);
+            CommandBuffer commandBuffer(&commandPool);
             
             commandBuffer.Begin();
 
@@ -147,9 +147,9 @@ namespace VK
         
     void Image::LoadFrom(const Buffer& buffer)
     {
-        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &this->commandPool);
-        Util::CopyBufferToImage(buffer.GetVkBuffer(), vkImage, size, &this->commandPool);
-        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, &this->commandPool);
+        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->commandPool);
+        Util::CopyBufferToImage(buffer.GetVkBuffer(), vkImage, size, this->commandPool);
+        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, this->commandPool);
     }
 
     Image::~Image()

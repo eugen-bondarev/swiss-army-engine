@@ -4,9 +4,9 @@
 #include "../Device/QueueFamily.h"
 #include "../GraphicsContext.h"
 #include "../Surface/Surface.h"
+#include "../Image/ImageView.h"
 #include "../Device/Device.h"
 #include "SupportDetails.h"
-
 #include <algorithm>
 
 namespace VK
@@ -74,8 +74,6 @@ namespace VK
 
     SwapChain::~SwapChain()
     {
-        DestroyImageViews();
-
         vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
     }
 
@@ -94,20 +92,19 @@ namespace VK
         return framebuffers[imageIndex].get();
     }
 
-    void SwapChain::InitFramebuffers(VkRenderPass& render_pass, const VkImageView& depthImageView)
+    void SwapChain::InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView)
     {
         for (Ref<Framebuffer> framebuffer : framebuffers)
         {
             framebuffer.reset();
         }
-
         framebuffers.clear();
 
-        Vec2ui viewport_size = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
+        const Vec2ui viewportSize{static_cast<float>(extent.width), static_cast<float>(extent.height)};
 
         for (size_t i = 0; i < GetImageViews().size(); ++i)
         {
-            Ref<Framebuffer> framebuffer = CreateRef<Framebuffer>(GetImageViews()[i], render_pass, viewport_size.x, viewport_size.y, depthImageView);
+            Ref<Framebuffer> framebuffer = CreateRef<Framebuffer>(renderPass, viewportSize, *GetImageViews()[i], depthImageView);
             framebuffers.push_back(std::move(framebuffer));
         }
     }
@@ -225,7 +222,8 @@ namespace VK
 
     void SwapChain::CreateImageViews()
     {
-        imageViews.resize(images.size());
+        std::vector<VkImageView> vkImageViews;
+        vkImageViews.resize(images.size());
 
         for (size_t i = 0; i < images.size(); ++i)
         {
@@ -243,15 +241,9 @@ namespace VK
             createInfo.subresourceRange.levelCount = 1;
             createInfo.subresourceRange.baseArrayLayer = 0;
             createInfo.subresourceRange.layerCount = 1;
-            VK_TRY(vkCreateImageView(device.GetVkDevice(), &createInfo, nullptr, &imageViews[i]));
-        }
-    }
+            VK_TRY(vkCreateImageView(device.GetVkDevice(), &createInfo, nullptr, &vkImageViews[i]));
 
-    void SwapChain::DestroyImageViews()
-    {
-        for (const VkImageView& imageView : imageViews)
-        {
-            vkDestroyImageView(device.GetVkDevice(), imageView, nullptr);
+            imageViews.push_back(CreateRef<ImageView>(vkImageViews[i], device));
         }
     }
 
@@ -285,7 +277,7 @@ namespace VK
         return images;
     }
 
-    const std::vector<VkImageView>& SwapChain::GetImageViews() const
+    const std::vector<Ref<ImageView>>& SwapChain::GetImageViews() const
     {
         return imageViews;
     }

@@ -14,7 +14,7 @@ namespace VK
 
         image = CreatePtr<VK::Image>(size, VK_FORMAT_R8G8B8A8_UNORM, usageFlags, device);
         image->LoadFrom(stagingBuffer);
-        imageView = CreatePtr<VK::ImageView>(*image, VK_IMAGE_ASPECT_COLOR_BIT, device);
+        imageView = CreatePtr<VK::ImageView>(*image, image->GetVkFormat(), VK_IMAGE_ASPECT_COLOR_BIT, device);
     }
 
     Image* Texture2D::GetImage()

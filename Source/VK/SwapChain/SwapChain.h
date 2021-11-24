@@ -10,8 +10,10 @@ FORWARD_DECLARE(RawWindow);
 
 namespace VK
 {
-    FORWARD_DECLARE(Device);
     FORWARD_DECLARE(Framebuffer);
+    FORWARD_DECLARE(RenderPass);
+    FORWARD_DECLARE(ImageView);
+    FORWARD_DECLARE(Device);
 
     class SwapChain : public Base::SwapChain
     {
@@ -33,19 +35,19 @@ namespace VK
         VkSurfaceFormatKHR GetSurfaceFormat() const;
         VkExtent2D GetExtent() const;
 
-        void InitFramebuffers(VkRenderPass& renderPass, const VkImageView& depthImageView);
+        void InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView);
 
         VK::Framebuffer* GetCurrentScreenFramebuffer();
         std::vector<Ref<VK::Framebuffer>>& GetFramebuffers();
 
         const std::vector<VkImage>& GetImages() const;
-        const std::vector<VkImageView>& GetImageViews() const;
+        const std::vector<Ref<ImageView>>& GetImageViews() const;
 
     private:
         const Device& device;
 
         std::vector<Ref<VK::Framebuffer>> framebuffers;
-        std::vector<VkImageView> imageViews;
+        std::vector<Ref<ImageView>> imageViews;
         VkSurfaceFormatKHR surfaceFormat;
         VkPresentModeKHR presentMode;
         std::vector<VkImage> images;
@@ -59,7 +61,6 @@ namespace VK
         VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
         void CreateImageViews();
-        void DestroyImageViews();
     };
 }
 
