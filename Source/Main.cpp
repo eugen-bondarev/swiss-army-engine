@@ -110,7 +110,7 @@ int main()
             VK::CommandBuffer* cmd = commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()].get();
             VK::Framebuffer* framebuffer = VK::GetSwapChain().GetCurrentScreenFramebuffer();
 
-            static float theta{0}; theta += 0.01f;
+            static float theta{0}; theta += 0.025f;
             
             glm::mat4 pre = glm::mat4(1);
             pre[1][1] = -1.0f;

@@ -23,6 +23,7 @@ namespace Base
         virtual void Resize(const Vec2ui size) = 0;
 
         Vec2ui GetSize() const;
+        float GetAspectRatio() const;
 
     protected:
         RawWindow& window;

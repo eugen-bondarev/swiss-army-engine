@@ -11,4 +11,9 @@ namespace Base
     {
         return window.GetSize();
     }
+
+    float SwapChain::GetAspectRatio() const
+    {
+        return window.GetAspectRatio();
+    }
 }

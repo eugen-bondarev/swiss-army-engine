@@ -29,7 +29,7 @@
 //         DX::XMMatrixRotationY(angleY + M_PI) * 
 //         DX::XMMatrixRotationZ(0) * 
 //         DX::XMMatrixTranslation(0, -5, 10) * 
-//         DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, static_cast<float>(DX::GetSwapChain()->GetWidth()) / static_cast<float>(DX::GetSwapChain()->GetHeight()), 0.1f, 1000.0f);
+//         DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, DX::GetSwapChain()->GetAspectRatio(), 0.1f, 1000.0f);
 
 //     DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
 //     *data = DX::XMMatrixTranspose(transform);
@@ -47,7 +47,7 @@
 //     constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
 //     shader = API::Shader::Create(vsCode, psCode);
 //     sampler = API::Sampler::Create();
-//     texture = API::Texture::Create(characterTexture.width, characterTexture.height, characterTexture.data);
+//     texture = API::Texture::Create(characterTexture.size, characterTexture.data);
 // }
 
 // int main()
