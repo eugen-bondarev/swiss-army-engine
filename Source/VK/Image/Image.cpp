@@ -80,7 +80,7 @@ namespace VK
             vkQueueWaitIdle(Queues::graphicsQueue);
         }
 
-        void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, const CommandPool* commandPool)
+        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool* commandPool)
         {
             CommandBuffer commandBuffer(commandPool);
             
@@ -97,7 +97,7 @@ namespace VK
             region.imageSubresource.layerCount = 1;
 
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {width, height, 1};
+            region.imageExtent = {size.x, size.y, 1};
 
             vkCmdCopyBufferToImage(
                 commandBuffer.GetVkCommandBuffer(),
@@ -147,7 +147,7 @@ namespace VK
         if (buffer != nullptr)
         {
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &this->commandPool);
-            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), &this->commandPool);
+            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, size, &this->commandPool);
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, &this->commandPool);
         }
     }

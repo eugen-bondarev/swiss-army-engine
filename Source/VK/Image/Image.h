@@ -14,7 +14,7 @@ namespace VK
     namespace Util
     {
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, const CommandPool* commandPool);
-        void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, const CommandPool* commandPool);
+        void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool* commandPool);
     }
 
     class Image
@@ -34,7 +34,7 @@ namespace VK
 
         VkImage vkImage;
         VkDeviceMemory vkMemory;
-        
+
         VkFormat vkFormat;
 
         Image(const Image&) = delete;
