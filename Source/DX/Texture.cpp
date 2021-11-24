@@ -1,8 +1,10 @@
 #include "Texture.h"
 
+#include "Device/Device.h"
+
 namespace DX
 {
-    Texture::Texture(const Vec2ui size, const unsigned char* data, const UINT bindFlags)
+    Texture::Texture(const Vec2ui size, const unsigned char* data, const UINT bindFlags, Device& device) : device{device}
     {
         D3D11_TEXTURE2D_DESC textureDesc{};
         textureDesc.Width = size.x;
@@ -22,11 +24,11 @@ namespace DX
             D3D11_SUBRESOURCE_DATA textureSubData{};
             textureSubData.pSysMem = data;
             textureSubData.SysMemPitch = size.x * sizeof(unsigned char) * 4;
-            D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, &textureSubData, &dxTexture));
+            DX_TRY(device.GetDxDevice().CreateTexture2D(&textureDesc, &textureSubData, &dxTexture));
         }
         else
         {
-            D3D_TRY(GetDevice()->CreateTexture2D(&textureDesc, nullptr, &dxTexture));
+            DX_TRY(device.GetDxDevice().CreateTexture2D(&textureDesc, nullptr, &dxTexture));
         }
 
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -35,12 +37,12 @@ namespace DX
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = 1;
 
-        D3D_TRY(GetDevice()->CreateShaderResourceView(dxTexture.Get(), &srvDesc, &dxView));
+        DX_TRY(device.GetDxDevice().CreateShaderResourceView(dxTexture.Get(), &srvDesc, &dxView));
     }
 
     void Texture::Bind()
     {
-        GetContext()->PSSetShaderResources(0u, 1u, dxView.GetAddressOf());
+        device.GetDxContext().PSSetShaderResources(0u, 1u, dxView.GetAddressOf());
     }
 
     ID3D11Texture2D* Texture::GetDXTexture()

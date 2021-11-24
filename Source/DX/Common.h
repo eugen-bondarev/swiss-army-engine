@@ -14,12 +14,12 @@ namespace DX
 }
 
 #ifndef NDEBUG
-#   define D3D_TRY(exp)\
+#   define DX_TRY(exp)\
         ::DX::GetDebugger()->Start();\
         exp;\
         ::DX::GetDebugger()->End(__FILE__, __LINE__)
 #else
-#   define D3D_TRY(exp)\
+#   define DX_TRY(exp)\
         exp
 #endif
 

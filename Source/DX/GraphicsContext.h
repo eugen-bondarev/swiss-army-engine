@@ -7,15 +7,17 @@
 #include "SwapChain.h"
 #include "Debugger.h"
 #include "Common.h"
+#include "Device/Device.h"
 
 FORWARD_DECLARE(RawWindow);
 
 namespace DX
 {
     FORWARD_DECLARE(RenderTargetView);
+    FORWARD_DECLARE(Device);
 
-    ID3D11Device* GetDevice();
-    ID3D11DeviceContext* GetContext();
+    Device& GetDevice();
+    // ID3D11DeviceContext* GetContext();
     Debugger* GetDebugger();
     SwapChain* GetSwapChain();
     Ref<RenderTargetView>& GetRenderTargetView();
@@ -24,8 +26,8 @@ namespace DX
     {
     friend class RawWindow;
 
-    friend ID3D11Device* GetDevice();
-    friend ID3D11DeviceContext* GetContext();
+    friend Device& GetDevice();
+    // friend ID3D11DeviceContext* GetContext();
     friend Debugger* GetDebugger();
     friend SwapChain* GetSwapChain();
     friend Ref<RenderTargetView>& GetRenderTargetView();
@@ -40,8 +42,9 @@ namespace DX
         API::Type GetAPIType() const override;
 
     private:
-        ComPtr<ID3D11Device>        dxDevice;
-        ComPtr<ID3D11DeviceContext> dxContext;
+        // ComPtr<ID3D11Device>        dxDevice;
+        Ptr<Device>                 device;
+        // ComPtr<ID3D11DeviceContext> dxContext;
         Ptr<SwapChain>              swapChain;
         Ref<RenderTargetView>       renderTargetView;
 

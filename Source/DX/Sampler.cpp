@@ -1,8 +1,10 @@
 #include "Sampler.h"
 
+#include "Device/Device.h"
+
 namespace DX
 {
-    Sampler::Sampler()
+    Sampler::Sampler(Device& device) : device{device}
     {
         D3D11_SAMPLER_DESC samplerDesc{};
         samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -10,11 +12,11 @@ namespace DX
         samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
-        D3D_TRY(GetDevice()->CreateSamplerState(&samplerDesc, &dxSampler));
+        DX_TRY(device.GetDxDevice().CreateSamplerState(&samplerDesc, &dxSampler));
     }
 
     void Sampler::Bind()
     {
-        GetContext()->PSSetSamplers(0u, 1u, dxSampler.GetAddressOf());
+        device.GetDxContext().PSSetSamplers(0u, 1u, dxSampler.GetAddressOf());
     }
 }

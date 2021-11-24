@@ -4,7 +4,6 @@
 #pragma once
 
 #include "GraphicsContext.h"
-
 #include "../API/Shader.h"
 
 namespace DX
@@ -12,12 +11,14 @@ namespace DX
     class Shader : public API::Shader
     {
     public:
-        Shader(const std::string& vsCode, const std::string& psCode);
+        Shader(const std::string& vsCode, const std::string& psCode, Device& device = GetDevice());
        ~Shader() = default;
 
         void Bind() override;
 
     private:
+        Device& device;
+        
         ComPtr<ID3D11InputLayout> dxInputLayout;
         ComPtr<ID3D11VertexShader> dxVertexShader;
         ComPtr<ID3D11PixelShader> dxPixelShader;

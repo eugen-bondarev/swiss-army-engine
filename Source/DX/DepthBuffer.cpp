@@ -1,8 +1,10 @@
 #include "DepthBuffer.h"
 
+#include "Device/Device.h"
+
 namespace DX 
 {
-    DepthBuffer::DepthBuffer(const Vec2ui size)
+    DepthBuffer::DepthBuffer(const Vec2ui size, Device& device) : device{device}
     {
         D3D11_TEXTURE2D_DESC depthTextureDesc{};
         depthTextureDesc.Width = size.x;
@@ -16,18 +18,18 @@ namespace DX
         depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         
         ComPtr<ID3D11Texture2D> depthTexture;
-        D3D_TRY(GetDevice()->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture));
+        DX_TRY(device.GetDxDevice().CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture));
 
         D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc{};
         depthViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
         depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         depthViewDesc.Texture2D.MipSlice = 0u;
-        D3D_TRY(GetDevice()->CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &dxDepthView));
+        DX_TRY(device.GetDxDevice().CreateDepthStencilView(depthTexture.Get(), &depthViewDesc, &dxDepthView));
     }
 
     void DepthBuffer::Clear()
     {
-        GetContext()->ClearDepthStencilView(dxDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+        device.GetDxContext().ClearDepthStencilView(dxDepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
     }
 
     ID3D11DepthStencilView* DepthBuffer::GetDXDepthStencilView()

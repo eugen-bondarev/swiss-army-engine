@@ -38,11 +38,13 @@ namespace DX
         window.SetSwapChain(swapChain.get());
 
         const UINT flags =
-#ifndef NDEBUG
-            D3D11_CREATE_DEVICE_DEBUG;
-#else
-            0;
-#endif
+            #ifndef NDEBUG
+                D3D11_CREATE_DEVICE_DEBUG;
+            #else
+                0;
+            #endif
+
+        device = CreatePtr<Device>();
 
         __DX_TRY(D3D11CreateDeviceAndSwapChain(
             nullptr,
@@ -54,9 +56,9 @@ namespace DX
             D3D11_SDK_VERSION,
             &swapChainDesc,
             &swapChain->dxSwapChain,
-            &dxDevice,
+            &device->dxDevice,
             nullptr,
-            &dxContext)
+            &device->dxContext)
         );
 
 #ifndef NDEBUG
@@ -71,9 +73,9 @@ namespace DX
         depthBufferDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
         depthBufferDesc.DepthFunc = D3D11_COMPARISON_LESS;
         ComPtr<ID3D11DepthStencilState> depthStencilState;
-        D3D_TRY(dxDevice->CreateDepthStencilState(&depthBufferDesc, &depthStencilState));
+        DX_TRY(device->dxDevice->CreateDepthStencilState(&depthBufferDesc, &depthStencilState));
 
-        dxContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
+        device->dxContext->OMSetDepthStencilState(depthStencilState.Get(), 1u);
 
         SetViewport(window.GetSize().x, window.GetSize().y);
     }
@@ -92,7 +94,7 @@ namespace DX
         viewport.MaxDepth = 1;
         viewport.TopLeftX = x;
         viewport.TopLeftY = y;
-        dxContext->RSSetViewports(1u, &viewport);
+        device->dxContext->RSSetViewports(1u, &viewport);
     }
 
     void GraphicsContext::OnResize(const Vec2ui size)
@@ -110,14 +112,9 @@ namespace DX
     }
 #endif
 
-    ID3D11Device* GetDevice()
+    Device& GetDevice()
     {
-        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->dxDevice.Get();
-    }
-
-    ID3D11DeviceContext* GetContext()
-    {
-        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->dxContext.Get();
+        return *dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
     }
 
     SwapChain* GetSwapChain()

@@ -1,10 +1,11 @@
 #include "Shader.h"
 
+#include "Device/Device.h"
 #include <d3dcompiler.h>
 
 namespace DX
 {
-    Shader::Shader(const std::string& vsCode, const std::string& psCode)
+    Shader::Shader(const std::string& vsCode, const std::string& psCode, Device& device) : device{device}
     {
         ComPtr<ID3D10Blob> vsBlob;
         ComPtr<ID3D10Blob> psBlob;
@@ -44,15 +45,15 @@ namespace DX
             { "TexCoords", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
         };
 
-        D3D_TRY(GetDevice()->CreateInputLayout(inputLayout.data(), inputLayout.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &dxInputLayout));
-        D3D_TRY(GetDevice()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &dxVertexShader));
-        D3D_TRY(GetDevice()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &dxPixelShader));
+        DX_TRY(device.GetDxDevice().CreateInputLayout(inputLayout.data(), inputLayout.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &dxInputLayout));
+        DX_TRY(device.GetDxDevice().CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &dxVertexShader));
+        DX_TRY(device.GetDxDevice().CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &dxPixelShader));
     }
 
     void Shader::Bind()
     {
-        GetContext()->IASetInputLayout(dxInputLayout.Get());
-        GetContext()->VSSetShader(dxVertexShader.Get(), nullptr, 0u);
-        GetContext()->PSSetShader(dxPixelShader.Get(), nullptr, 0u);
+        device.GetDxContext().IASetInputLayout(dxInputLayout.Get());
+        device.GetDxContext().VSSetShader(dxVertexShader.Get(), nullptr, 0u);
+        device.GetDxContext().PSSetShader(dxPixelShader.Get(), nullptr, 0u);
     }
 }

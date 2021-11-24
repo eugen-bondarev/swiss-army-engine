@@ -4,7 +4,6 @@
 #pragma once
 
 #include "GraphicsContext.h"
-
 #include "../API/Texture.h"
 
 namespace DX
@@ -12,7 +11,7 @@ namespace DX
     class Texture : public API::Texture
     {
     public:
-        Texture(const Vec2ui size, const unsigned char* data = nullptr, const UINT bindFlags = D3D11_BIND_SHADER_RESOURCE);
+        Texture(const Vec2ui size, const unsigned char* data = nullptr, const UINT bindFlags = D3D11_BIND_SHADER_RESOURCE, Device& device = GetDevice());
        ~Texture() = default;
 
         void Bind() override;
@@ -21,6 +20,8 @@ namespace DX
         ID3D11ShaderResourceView* GetDXView();
 
     private:
+        Device& device;
+
         ComPtr<ID3D11Texture2D> dxTexture;
         ComPtr<ID3D11ShaderResourceView> dxView;
 

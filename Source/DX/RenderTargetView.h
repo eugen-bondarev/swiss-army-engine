@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "GraphicsContext.h"
 #include "DepthBuffer.h"
 #include "SwapChain.h"
-#include "GraphicsContext.h"
 #include "Texture.h"
 
 namespace DX
@@ -13,8 +13,8 @@ namespace DX
     class RenderTargetView
     {
     public:
-        RenderTargetView(SwapChain* swapChain, const bool initDepth = false);
-        RenderTargetView(const Vec2ui size, const bool initDepth = false);
+        RenderTargetView(SwapChain* swapChain, const bool initDepth = false, Device& device = GetDevice());
+        RenderTargetView(const Vec2ui size, const bool initDepth = false, Device& device = GetDevice());
        ~RenderTargetView() = default;
 
         void Bind();
@@ -28,6 +28,8 @@ namespace DX
         void Init(const Vec2ui size, ID3D11Resource *resource, const bool initDepth);
 
     protected:
+        Device& device;
+
         ComPtr<ID3D11RenderTargetView> dxRenderTargetView;
         Ptr<DepthBuffer> depthBuffer;
         Ptr<Texture> texture;

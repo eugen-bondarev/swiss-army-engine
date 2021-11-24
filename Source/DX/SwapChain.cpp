@@ -1,8 +1,9 @@
 #include "SwapChain.h"
 
-#include "RenderTargetView.h"
 #include "../Window/RawWindow.h"
+#include "RenderTargetView.h"
 #include "GraphicsContext.h"
+#include "Device/Device.h"
 
 namespace DX
 {
@@ -18,7 +19,7 @@ namespace DX
         {
             if (hr == DXGI_ERROR_DEVICE_REMOVED)
             {
-                throw EXCEPTION_WHAT(std::to_string(DX::GetDevice()->GetDeviceRemovedReason()));
+                throw EXCEPTION_WHAT(std::to_string(GetDevice().GetDxDevice().GetDeviceRemovedReason()));
             }
             else
             {

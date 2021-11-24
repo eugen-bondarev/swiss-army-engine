@@ -1,5 +1,7 @@
 #include "Debugger.h"
 
+#include "Device/Device.h"
+
 namespace DX
 {
     Debugger::Debugger()
