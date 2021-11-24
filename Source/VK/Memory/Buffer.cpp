@@ -135,7 +135,7 @@ namespace VK
         return vkMemory;
     }
 
-    VkDescriptorBufferInfo& Buffer::GetVkDescriptor()
+    const VkDescriptorBufferInfo& Buffer::GetVkDescriptor() const
     {
         return vkDescriptor;
     }
