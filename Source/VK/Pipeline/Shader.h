@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
@@ -11,14 +12,14 @@ namespace VK
     
     namespace Util
     {
-        VkShaderModule CreateShaderModule(const std::string& code, const Device* device = nullptr);
+        VkShaderModule CreateShaderModule(const std::string& code, const Device& device);
     }
 
     class Shader
     {
     public:
-        Shader(const std::string& vsCode, const std::string& fsCode, const Device* device = nullptr);
-        ~Shader();
+        Shader(const std::string& vsCode, const std::string& fsCode, const Device& device = GetDevice());
+       ~Shader();
 
         const std::array<VkShaderModule, 2>& GetModules() const;
         const std::array<VkPipelineShaderStageCreateInfo, 2>& GetStages() const;

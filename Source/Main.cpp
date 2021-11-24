@@ -33,7 +33,7 @@ int main()
         for (size_t i = 0; i < VK::GetSwapChain().GetImageViews().size(); ++i)
         {
             Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
-            commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(pool.get()));
+            commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(*pool));
             commandPools.push_back(std::move(pool));
         }
 
@@ -43,29 +43,32 @@ int main()
             VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
         };
 
-        VK::DescriptorSetLayout descriptorSetLayout(bindings);
+        const VK::DescriptorSetLayout descriptorSetLayout(bindings);
 
-		VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
-		VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
-		VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
+		const VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
+		const VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
+		const VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
+		const std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
 
         VK::Pipeline pipeline(
-            vertexShaderCode, pixelShaderCode,
+            vertexShaderCode, 
+            pixelShaderCode,
             window->GetSize(),
-            std::vector<VkAttachmentDescription> { VK::Util::CreateAttachment(
-                VK::GetSwapChain().GetImageFormat()
-            ),            
-            VK::Util::CreateAttachment(
-                VK::GetDevice().FindDepthFormat(), 
-                VK_IMAGE_LAYOUT_UNDEFINED, 
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
-                VK_ATTACHMENT_LOAD_OP_CLEAR, 
-                VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                VK_SAMPLE_COUNT_1_BIT
-            )},
+            { 
+                VK::Util::CreateAttachment(
+                    VK::GetSwapChain().GetImageFormat()
+                ),
+                VK::Util::CreateAttachment(
+                    depthImage.GetVkFormat(),
+                    VK_IMAGE_LAYOUT_UNDEFINED, 
+                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+                    VK_ATTACHMENT_LOAD_OP_CLEAR, 
+                    VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                    VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                    VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                    VK_SAMPLE_COUNT_1_BIT
+                )
+            },
             bindingDescriptors,
             attributeDescriptors,
             descriptorSetLayouts
@@ -73,25 +76,25 @@ int main()
 
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
-		VK::Buffer stagingVertexBuffer(characterMesh.vertices);
-		VK::Buffer vertexBuffer(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		const VK::Buffer stagingVertexBuffer(characterMesh.vertices);
+		const VK::Buffer vertexBuffer(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-		VK::Buffer stagingIndexBuffer(characterMesh.indices);
-		VK::Buffer indexBuffer(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+		const VK::Buffer stagingIndexBuffer(characterMesh.indices);
+		const VK::Buffer indexBuffer(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
         VK::Buffer ubo(sizeof(UBO), 1, &uboData, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-        VK::Texture2D texture(characterTexture.size, 4, characterTexture.data);
+        const VK::Texture2D texture(characterTexture.size, 4, characterTexture.data);
 
         VK::DescriptorSet descriptorSet(
             VK::GetDefaultDescriptorPool(), 
-            std::vector<VkDescriptorSetLayout> { descriptorSetLayout.GetVkDescriptorSetLayout() }
+            {descriptorSetLayout.GetVkDescriptorSetLayout()}
         );
 
 		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
 		{
 			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetVkDescriptor()),
-			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView()->GetVkDescriptor())
+			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView().GetVkDescriptor())
 		};
 
 		descriptorSet.Update(writeDescriptorSets);
@@ -106,9 +109,9 @@ int main()
             const VkSemaphore* wait = &frame->GetSemaphore(0);
             const VkSemaphore* signal = &frame->GetSemaphore(1);
 
-            VK::CommandPool* pool = commandPools[VK::GetSwapChain().GetCurrentImageIndex()].get();
-            VK::CommandBuffer* cmd = commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()].get();
-            VK::Framebuffer* framebuffer = VK::GetSwapChain().GetCurrentScreenFramebuffer();
+            VK::CommandPool& pool = *commandPools[VK::GetSwapChain().GetCurrentImageIndex()];
+            VK::CommandBuffer& cmd = *commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()];
+            const VK::Framebuffer& framebuffer = VK::GetSwapChain().GetCurrentScreenFramebuffer();
 
             static float theta{0}; theta += 0.025f;
             
@@ -120,20 +123,20 @@ int main()
                 glm::rotate(glm::mat4x4(1), glm::radians(theta), glm::vec3(0, 1, 0));
             ubo.Update(&uboData);
             
-            pool->Reset();
-                cmd->Begin();
-                    cmd->BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
-                        cmd->BindPipeline(&pipeline);
-                            cmd->BindVertexBuffers({ &vertexBuffer }, { 0 });
-                            cmd->BindIndexBuffer(&indexBuffer);
-				                cmd->BindDescriptorSets(&pipeline, 1, &descriptorSet.GetVkDescriptorSet());
-                                vkCmdDrawIndexed(cmd->GetVkCommandBuffer(), characterMesh.indices.size(), 1, 0, 0, 0);
-                    cmd->EndRenderPass();
-                cmd->End();
+            pool.Reset();
+                cmd.Begin();
+                    cmd.BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
+                        cmd.BindPipeline(pipeline);
+                            cmd.BindVertexBuffers({ &vertexBuffer }, { 0 });
+                            cmd.BindIndexBuffer(indexBuffer);
+				                cmd.BindDescriptorSets(pipeline, 1, &descriptorSet.GetVkDescriptorSet());
+                                vkCmdDrawIndexed(cmd.GetVkCommandBuffer(), characterMesh.indices.size(), 1, 0, 0, 0);
+                    cmd.EndRenderPass();
+                cmd.End();
 
-	        VkFence fence = frame->GetInFlightFence();
+	        const VkFence fence = frame->GetInFlightFence();
             vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
-            cmd->SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
+            cmd.SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
 
             frameManager.Present();
         }

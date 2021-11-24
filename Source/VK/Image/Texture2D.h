@@ -19,8 +19,8 @@ namespace VK
        ~Texture2D() = default;
 
         Vec2ui GetSize() const;
-        Image* GetImage();
-        ImageView* GetImageView();
+        const Image& GetImage() const;
+        const ImageView& GetImageView() const;
 
     protected:
         Vec2ui size;

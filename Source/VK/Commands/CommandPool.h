@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
@@ -12,10 +13,10 @@ namespace VK
     class CommandPool
     {
     public:
-        CommandPool(const Device* device = nullptr);
+        CommandPool(const Device& device = GetDevice());
        ~CommandPool();
 
-        void Reset() const;
+        void Reset();
 
         const VkCommandPool& GetVkCommandPool() const;
 

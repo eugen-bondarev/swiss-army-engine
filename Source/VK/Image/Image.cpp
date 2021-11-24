@@ -1,12 +1,11 @@
-#include "image.h"
+#include "Image.h"
 
 #include "../Commands/CommandBuffer.h"
 #include "../Commands/CommandPool.h"
 #include "../Device/QueueFamily.h"
+#include "../GraphicsContext.h"
 #include "../Memory/Buffer.h"
 #include "../Device/Device.h"
-
-#include "../GraphicsContext.h"
 
 namespace VK
 {
@@ -14,7 +13,7 @@ namespace VK
     {			
         void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool& commandPool)
         {
-            CommandBuffer commandBuffer(&commandPool);
+            CommandBuffer commandBuffer(commandPool);
             
             commandBuffer.Begin();
 
@@ -82,7 +81,7 @@ namespace VK
 
         void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool& commandPool)
         {
-            CommandBuffer commandBuffer(&commandPool);
+            CommandBuffer commandBuffer(commandPool);
             
             commandBuffer.Begin();
 

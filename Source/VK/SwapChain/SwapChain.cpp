@@ -11,7 +11,7 @@
 
 namespace VK
 {
-    SwapChain::SwapChain(RawWindow& window, const Device* device) : Base::SwapChain(window), device{device ? *device : GetDevice()}
+    SwapChain::SwapChain(RawWindow& window, const Device& device) : Base::SwapChain(window), device{device}
     {
         SupportDetails supportDetails = QuerySwapChainSupport(this->device.GetVkPhysicalDevice());
 
@@ -61,11 +61,11 @@ namespace VK
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        VK_TRY(vkCreateSwapchainKHR(this->device.GetVkDevice(), &createInfo, nullptr, &vkSwapChain));
+        VK_TRY(vkCreateSwapchainKHR(device.GetVkDevice(), &createInfo, nullptr, &vkSwapChain));
 
-        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(device.GetVkDevice(), vkSwapChain, &imageCount, nullptr);
         images.resize(imageCount);
-        vkGetSwapchainImagesKHR(this->device.GetVkDevice(), vkSwapChain, &imageCount, images.data());
+        vkGetSwapchainImagesKHR(device.GetVkDevice(), vkSwapChain, &imageCount, images.data());
 
         imageFormat = surfaceFormat.format;
 
@@ -87,9 +87,9 @@ namespace VK
 
     }
 
-    VK::Framebuffer* SwapChain::GetCurrentScreenFramebuffer()
+    const VK::Framebuffer& SwapChain::GetCurrentScreenFramebuffer() const
     {
-        return framebuffers[imageIndex].get();
+        return *framebuffers[imageIndex];
     }
 
     void SwapChain::InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView)

@@ -10,7 +10,7 @@
 
 namespace VK
 {
-    CommandBuffer::CommandBuffer(const CommandPool* commandPool, const Device* device) : commandPool{*commandPool}, device{device ?* device : GetDevice()}
+    CommandBuffer::CommandBuffer(const CommandPool& commandPool, const Device& device) : commandPool{commandPool}, device{device}
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -25,7 +25,7 @@ namespace VK
         Free();
     }
 
-    void CommandBuffer::Begin(VkCommandBufferUsageFlags flags) const
+    void CommandBuffer::Begin(const VkCommandBufferUsageFlags flags) const
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -39,9 +39,9 @@ namespace VK
         VK_TRY(vkEndCommandBuffer(vkCommandBuffer));
     }
 
-    void CommandBuffer::SubmitToQueue(const VkQueue& queue, const VkSemaphore* waitSemaphore, const VkSemaphore* signalSemaphore, VkFence fence) const
+    void CommandBuffer::SubmitToQueue(const VkQueue& queue, const VkSemaphore* waitSemaphore, const VkSemaphore* signalSemaphore, const VkFence& fence) const
     {
-        VkSubmitInfo submitInfo = {};
+        VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vkCommandBuffer;
@@ -64,21 +64,21 @@ namespace VK
         VK_TRY(vkQueueSubmit(queue, 1, &submitInfo, fence));
     }
 
-    void CommandBuffer::BeginRenderPass(const RenderPass& renderPass, Framebuffer* framebuffer, const std::array<float, 4>& color) const
+    void CommandBuffer::BeginRenderPass(const RenderPass& renderPass, const Framebuffer& framebuffer, const std::array<float, 4>& color) const
     {
         VkRenderPassBeginInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         submitInfo.renderPass = renderPass.GetVkRenderPass();
-        submitInfo.framebuffer = framebuffer->GetVkFramebuffer();
-        submitInfo.renderArea.extent = {static_cast<uint32_t>(framebuffer->GetSize().x), static_cast<uint32_t>(framebuffer->GetSize().y)};
+        submitInfo.framebuffer = framebuffer.GetVkFramebuffer();
+        submitInfo.renderArea.extent = {static_cast<uint32_t>(framebuffer.GetSize().x), static_cast<uint32_t>(framebuffer.GetSize().y)};
 
-        VkClearValue clear_color;
-        memcpy(&clear_color, color.data(), sizeof(VkClearValue));
-
-        std::array<VkClearValue, 2> clearValues{clear_color, { 1.0f, 0.0f }};
+        VkClearValue vkClearColor;
+        memcpy(&vkClearColor, color.data(), sizeof(VkClearValue));
+        const VkClearValue vkDepthClearColor{1.0f, 0.0f};
+        const std::array<VkClearValue, 2> vkClearValues{vkClearColor, vkDepthClearColor};
         
-        submitInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        submitInfo.pClearValues = clearValues.data();
+        submitInfo.clearValueCount = static_cast<uint32_t>(vkClearValues.size());
+        submitInfo.pClearValues = vkClearValues.data();
         
         vkCmdBeginRenderPass(vkCommandBuffer, &submitInfo, VK_SUBPASS_CONTENTS_INLINE);
     }
@@ -88,12 +88,12 @@ namespace VK
         vkCmdEndRenderPass(vkCommandBuffer);
     }
 
-    void CommandBuffer::BindPipeline(const Pipeline* pipeline) const
+    void CommandBuffer::BindPipeline(const Pipeline& pipeline) const
     {
-        vkCmdBindPipeline(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetVkPipeline());
+        vkCmdBindPipeline(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.GetVkPipeline());
     }
 
-    void CommandBuffer::BindVertexBuffers(const std::vector<Buffer*>& buffers, const std::vector<VkDeviceSize>& offsets) const
+    void CommandBuffer::BindVertexBuffers(const std::vector<const Buffer*>& buffers, const std::vector<VkDeviceSize>& offsets) const
     {
         VK_ASSERT(buffers.size() == offsets.size());
 
@@ -106,17 +106,17 @@ namespace VK
         vkCmdBindVertexBuffers(vkCommandBuffer, 0, static_cast<uint32_t>(vkBuffers.size()), vkBuffers.data(), offsets.data());
     }
 
-    void CommandBuffer::BindIndexBuffer(Buffer* index_buffer, VkIndexType index_type) const
+    void CommandBuffer::BindIndexBuffer(const Buffer& indexBuffer, const VkIndexType indexType) const
     {
-        vkCmdBindIndexBuffer(vkCommandBuffer, index_buffer->GetVkBuffer(), 0, index_type);
+        vkCmdBindIndexBuffer(vkCommandBuffer, indexBuffer.GetVkBuffer(), 0, indexType);
     }
 
-    void CommandBuffer::BindDescriptorSets(const Pipeline* pipeline, uint32_t numDescriptorSets, const VkDescriptorSet* descriptorSets, uint32_t numOffsets, uint32_t* offsets) const
+    void CommandBuffer::BindDescriptorSets(const Pipeline& pipeline, const uint32_t numDescriptorSets, const VkDescriptorSet* descriptorSets, const uint32_t numOffsets, const uint32_t* offsets) const
     {
         vkCmdBindDescriptorSets(
             vkCommandBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
-            pipeline->GetVkPipelineLayout(), 
+            pipeline.GetVkPipelineLayout(), 
             0,
             numDescriptorSets, 
             descriptorSets, 

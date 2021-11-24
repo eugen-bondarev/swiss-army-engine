@@ -13,14 +13,14 @@ namespace VK
     GraphicsContext::GraphicsContext(RawWindow& window) : API::GraphicsContext(window)
     {
         instance = CreatePtr<Instance>();
-        surface = CreatePtr<Surface>(*instance, window.GetHandle());
+        surface = CreatePtr<Surface>(window, *instance);
         device = CreatePtr<Device>(*instance);
 
         defaultConstInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_NEAREST);
         defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
         
-        swapChain = CreatePtr<SwapChain>(window, device.get());
-        defaultCommandPool = CreatePtr<CommandPool>(device.get());
+        swapChain = CreatePtr<SwapChain>(window, *device);
+        defaultCommandPool = CreatePtr<CommandPool>(*device);
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },

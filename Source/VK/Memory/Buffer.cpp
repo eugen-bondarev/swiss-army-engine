@@ -83,7 +83,7 @@ namespace VK
             vkMemory
         );
 
-        CommandBuffer commandBuffer(&commandPool);
+        CommandBuffer commandBuffer(commandPool);
             commandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
                 VkBufferCopy copyRegion{};
                 copyRegion.size = buffer.GetSize();

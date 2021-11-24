@@ -14,14 +14,14 @@ namespace VK
     namespace Util
     {
         VkAttachmentDescription CreateAttachment(
-            VkFormat format, 
-            VkImageLayout initial_layout = VK_IMAGE_LAYOUT_UNDEFINED,
-            VkImageLayout final_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-            VkAttachmentLoadOp load_op = VK_ATTACHMENT_LOAD_OP_CLEAR, 
-            VkAttachmentStoreOp store_op = VK_ATTACHMENT_STORE_OP_STORE,
-            VkAttachmentLoadOp stencil_load_op = VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
-            VkAttachmentStoreOp stencil_store_op = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT
+            const VkFormat format, 
+            const VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            const VkImageLayout finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
+            const VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR, 
+            const VkAttachmentStoreOp storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+            const VkAttachmentLoadOp stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
+            const VkAttachmentStoreOp stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+            const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT
         );
     }
 
@@ -39,8 +39,8 @@ namespace VK
         const Device& device;
         VkRenderPass vkRenderPass;
 
-        RenderPass(const RenderPass &) = delete;
-        RenderPass &operator=(const RenderPass &) = delete;
+        RenderPass(const RenderPass&) = delete;
+        RenderPass& operator=(const RenderPass&) = delete;
     };
 }
 

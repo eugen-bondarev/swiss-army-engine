@@ -1,12 +1,13 @@
 #include "Surface.h"
 
+#include "../../Window/RawWindow.h"
 #include "../Instance/Instance.h"
 
 namespace VK
 {
-    Surface::Surface(const Instance& instance, GLFWwindow* handle) : instance{instance}
+    Surface::Surface(RawWindow& window, const Instance& instance) : instance{instance}
     {
-        VK_TRY(glfwCreateWindowSurface(instance.GetVkInstance(), handle, nullptr, &vkSurface));
+        VK_TRY(glfwCreateWindowSurface(instance.GetVkInstance(), window.GetHandle(), nullptr, &vkSurface));
     }
 
     Surface::~Surface()
@@ -14,7 +15,7 @@ namespace VK
         vkDestroySurfaceKHR(instance.GetVkInstance(), vkSurface, nullptr);
     }
 
-    VkSurfaceKHR Surface::GetVkSurface() const
+    const VkSurfaceKHR& Surface::GetVkSurface() const
     {
         return vkSurface;
     }

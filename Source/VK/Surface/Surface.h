@@ -5,6 +5,8 @@
 
 #include "../Common.h"
 
+FORWARD_DECLARE(RawWindow);
+
 namespace VK
 {
     FORWARD_DECLARE(Instance);
@@ -12,10 +14,10 @@ namespace VK
     class Surface
     {
     public:
-        Surface(const Instance& instnace, GLFWwindow* handle);
+        Surface(RawWindow& window, const Instance& instnace);
        ~Surface();
 
-        VkSurfaceKHR GetVkSurface() const;
+        const VkSurfaceKHR& GetVkSurface() const;
 
     private:
         const Instance& instance;

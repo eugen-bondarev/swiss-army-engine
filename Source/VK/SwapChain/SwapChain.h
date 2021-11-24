@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../../API/SwapChainBase.h"
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 FORWARD_DECLARE(RawWindow);
@@ -18,7 +19,7 @@ namespace VK
     class SwapChain : public Base::SwapChain
     {
     public:
-        SwapChain(RawWindow& window, const Device* device = nullptr);
+        SwapChain(RawWindow& window, const Device& device = GetDevice());
        ~SwapChain();
 
         void Present(const unsigned int syncInterval = 1u, const unsigned int flags = 0u) override;
@@ -37,7 +38,7 @@ namespace VK
 
         void InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView);
 
-        VK::Framebuffer* GetCurrentScreenFramebuffer();
+        const VK::Framebuffer& GetCurrentScreenFramebuffer() const;
         std::vector<Ref<VK::Framebuffer>>& GetFramebuffers();
 
         const std::vector<VkImage>& GetImages() const;
@@ -46,15 +47,18 @@ namespace VK
     private:
         const Device& device;
 
+        VkSwapchainKHR vkSwapChain;
+
         std::vector<Ref<VK::Framebuffer>> framebuffers;
         std::vector<Ref<ImageView>> imageViews;
+        std::vector<VkImage> images;
+
         VkSurfaceFormatKHR surfaceFormat;
         VkPresentModeKHR presentMode;
-        std::vector<VkImage> images;
-        VkSwapchainKHR vkSwapChain;
+        VkExtent2D extent;
+        
         uint32_t imageIndex{0};
         VkFormat imageFormat;
-        VkExtent2D extent;
 
         VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
         VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);

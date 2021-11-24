@@ -9,27 +9,25 @@ namespace VK
     namespace Util
     {			
         VkAttachmentDescription CreateAttachment(
-            VkFormat format, 
-            VkImageLayout initial_layout,
-            VkImageLayout final_layout, 
-            VkAttachmentLoadOp load_op, 
-            VkAttachmentStoreOp store_op,
-            VkAttachmentLoadOp stencil_load_op, 
-            VkAttachmentStoreOp stencil_store_op,
-            VkSampleCountFlagBits samples
+            const VkFormat format, 
+            const VkImageLayout initialLayout,
+            const VkImageLayout finalLayout, 
+            const VkAttachmentLoadOp loadOp, 
+            const VkAttachmentStoreOp storeOp,
+            const VkAttachmentLoadOp stencilLoadOp, 
+            const VkAttachmentStoreOp stencilStoreOp,
+            const VkSampleCountFlagBits samples
         )
         {
-            VkAttachmentDescription attachment = {};
-
+            VkAttachmentDescription attachment{};
             attachment.format = format;
             attachment.samples = samples;
-            attachment.loadOp = load_op;
-            attachment.storeOp = store_op;
-            attachment.stencilLoadOp = stencil_load_op;
-            attachment.stencilStoreOp = stencil_store_op;
-            attachment.initialLayout = initial_layout;
-            attachment.finalLayout = final_layout;
-
+            attachment.loadOp = loadOp;
+            attachment.storeOp = storeOp;
+            attachment.stencilLoadOp = stencilLoadOp;
+            attachment.stencilStoreOp = stencilStoreOp;
+            attachment.initialLayout = initialLayout;
+            attachment.finalLayout = finalLayout;
             return attachment;
         }
     }
@@ -51,7 +49,6 @@ namespace VK
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
         
         std::vector<VkSubpassDependency> dependencies;
-        
         dependencies.resize(1);
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
         dependencies[0].dstSubpass = 0;
@@ -60,16 +57,15 @@ namespace VK
         dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-        VkRenderPassCreateInfo render_pass_info{};
-        render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());
-        render_pass_info.pAttachments = attachments.data();
-        render_pass_info.subpassCount = 1;
-        render_pass_info.pSubpasses = &subpass;
-        render_pass_info.dependencyCount = static_cast<uint32_t>(dependencies.size());
-        render_pass_info.pDependencies = dependencies.data();
-
-        VK_TRY(vkCreateRenderPass(this->device.GetVkDevice(), &render_pass_info, nullptr, &vkRenderPass));
+        VkRenderPassCreateInfo renderPassCreateInfo{};
+        renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderPassCreateInfo.pAttachments = attachments.data();
+        renderPassCreateInfo.subpassCount = 1;
+        renderPassCreateInfo.pSubpasses = &subpass;
+        renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+        renderPassCreateInfo.pDependencies = dependencies.data();
+        VK_TRY(vkCreateRenderPass(this->device.GetVkDevice(), &renderPassCreateInfo, nullptr, &vkRenderPass));
     }
 
     RenderPass::~RenderPass()
