@@ -7,15 +7,18 @@
 
 namespace VK
 {
+    FORWARD_DECLARE(Debug);
+
     class Instance
     {
     public:
-        Instance();
-        ~Instance();
+        Instance(const unsigned int id);
+       ~Instance();
 
         const VkInstance GetVkInstance() const;
 
     private:
+        Ptr<Debug> valid;
         VkInstance vkInstance;
 
         Instance(const Instance &) = delete;

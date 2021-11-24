@@ -1,9 +1,9 @@
 #include "Device.h"
 
-#include "../Instance/Instance.h"
-#include "../Instance/Validation.h"
-#include "../Surface/Surface.h"
 #include "../SwapChain/SupportDetails.h"
+#include "../Instance/Instance.h"
+#include "../Surface/Surface.h"
+#include "../Instance/Debug.h"
 #include "QueueFamily.h"
 #include <set>
 
@@ -127,27 +127,27 @@ namespace VK
         VkPhysicalDeviceFeatures device_features{};
         device_features.samplerAnisotropy = VK_TRUE;
 
-        VkDeviceCreateInfo create_info{};
-        create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        create_info.pQueueCreateInfos = queueCreateInfos.data();
-        create_info.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
-        create_info.pEnabledFeatures = &device_features;
+        createInfo.pEnabledFeatures = &device_features;
 
-        create_info.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-        create_info.ppEnabledExtensionNames = deviceExtensions.data();
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-        if (Validation::enableValidationLayers)
+        if (Debug::ValidationLayerEnabled())
         {
-            create_info.enabledLayerCount = static_cast<uint32_t>(Validation::validationLayers.size());
-            create_info.ppEnabledLayerNames = Validation::validationLayers.data();
+            createInfo.enabledLayerCount = static_cast<uint32_t>(Debug::validationLayers.size());
+            createInfo.ppEnabledLayerNames = Debug::validationLayers.data();
         }
         else
         {
-            create_info.enabledLayerCount = 0;
+            createInfo.enabledLayerCount = 0;
         }
 
-        VK_TRY(vkCreateDevice(vkPhysicalDevice, &create_info, nullptr, &vkDevice));
+        VK_TRY(vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &vkDevice));
 
         vkGetDeviceQueue(vkDevice, Queues::indices.graphicsFamily.value(), 0, &Queues::graphicsQueue);
         vkGetDeviceQueue(vkDevice, Queues::indices.presentFamily.value(), 0, &Queues::presentQueue);

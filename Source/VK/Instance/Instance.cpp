@@ -1,12 +1,12 @@
-#include "instance.h"
+#include "Instance.h"
 
-#include "validation.h"
+#include "Debug.h"
 
 namespace VK
 {
-    Instance::Instance()
+    Instance::Instance(const unsigned int id)
     {
-        if (Validation::enableValidationLayers && !Validation::CheckValidationSupport())
+        if (Debug::ValidationLayerEnabled() && !Debug::CheckValidationSupport())
         {
             throw EXCEPTION_WHAT("Validation layers required but not supported.");
         }
@@ -23,17 +23,18 @@ namespace VK
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        auto glfwExtensions = Validation::GetRequestedExtensions();
+        auto glfwExtensions = Debug::GetRequestedExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwExtensions.size());
         createInfo.ppEnabledExtensionNames = glfwExtensions.data();
 
+        valid = CreatePtr<Debug>(id);
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        if (Validation::enableValidationLayers)
+        if (Debug::ValidationLayerEnabled())
         {
-            createInfo.enabledLayerCount = static_cast<uint32_t>(Validation::validationLayers.size());
-            createInfo.ppEnabledLayerNames = Validation::validationLayers.data();
+            createInfo.enabledLayerCount = static_cast<uint32_t>(Debug::validationLayers.size());
+            createInfo.ppEnabledLayerNames = Debug::validationLayers.data();
 
-            Validation::PopulateDebugMessengerCreateInfo(debugCreateInfo);
+            valid->PopulateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
         }
         else
@@ -54,12 +55,11 @@ namespace VK
             LINE_OUT(ext.extensionName);
         }
 
-        Validation::SetupDebugMessenger(vkInstance);            
+        valid->SetupDebugMessenger(vkInstance);            
     }
 
     Instance::~Instance()
     {
-        Validation::Destroy(vkInstance);
         vkDestroyInstance(vkInstance, nullptr);            
     }
 

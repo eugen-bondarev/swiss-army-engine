@@ -22,12 +22,16 @@ namespace API
        ~GraphicsContext() = default;
 
         static Ptr<GraphicsContext> Create(RawWindow& window, const Type type);
-        virtual Type GetAPIType() const = 0;
 
         RawWindow& GetWindow();
+        unsigned int GetID() const;
+        virtual Type GetAPIType() const = 0;
 
     protected:
         RawWindow& window;
+
+    private:
+        unsigned int id;
     };
 
     void MakeGraphicsContextCurrent(GraphicsContext* newContext);

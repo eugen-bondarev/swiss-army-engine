@@ -12,7 +12,7 @@ namespace VK
 {
     GraphicsContext::GraphicsContext(RawWindow& window) : API::GraphicsContext(window)
     {
-        instance = CreatePtr<Instance>();
+        instance = CreatePtr<Instance>(GetID());
         surface = CreatePtr<Surface>(window, *instance);
         device = CreatePtr<Device>(*instance);
 
@@ -23,18 +23,18 @@ namespace VK
         defaultCommandPool = CreatePtr<CommandPool>(*device);
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
-            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLER,                1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1000 },
             { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         1000 },
             { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       1000 }
         });
     }
 
