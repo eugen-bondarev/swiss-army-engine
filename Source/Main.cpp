@@ -23,7 +23,7 @@ int main()
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
 
         VK::Image depthImage(nullptr, window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-        VK::ImageView depthImageView(&depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+        VK::ImageView depthImageView(depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
 

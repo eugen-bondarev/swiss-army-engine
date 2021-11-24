@@ -15,7 +15,7 @@ namespace VK
     class ImageView
     {
     public:
-        ImageView(Image* image, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const Device* device = nullptr);
+        ImageView(const Image& image, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const Device* device = nullptr);
         ~ImageView();
 
         VkImageView& GetVkImageView();

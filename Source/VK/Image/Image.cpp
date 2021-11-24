@@ -14,9 +14,9 @@ namespace VK
     {			
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, const CommandPool* commandPool)
         {
-            CommandBuffer command_buffer(commandPool);
+            CommandBuffer commandBuffer(commandPool);
             
-            command_buffer.Begin();
+            commandBuffer.Begin();
 
             VkImageMemoryBarrier barrier{};
             barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -34,32 +34,32 @@ namespace VK
             // barrier.srcAccessMask = 0; // TODO
             // barrier.dstAccessMask = 0; // TODO
 
-            VkPipelineStageFlags src_stage;
-            VkPipelineStageFlags dst_stage;
+            VkPipelineStageFlags srcStage;
+            VkPipelineStageFlags dstStage;
 
             if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
             {
                 barrier.srcAccessMask = 0;
                 barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-                src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-                dst_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             }
             else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
             {
                 barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
                 barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-                src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
             } 
             else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) 
             {
                 barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
                 barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 
-                src_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-                dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                srcStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
             } 
             else 
             {
@@ -67,24 +67,24 @@ namespace VK
             }
 
             vkCmdPipelineBarrier(
-                command_buffer.GetVkCommandBuffer(),
-                src_stage, dst_stage,
+                commandBuffer.GetVkCommandBuffer(),
+                srcStage, dstStage,
                 0,
                 0, nullptr,
                 0, nullptr,
                 1, &barrier
             );
 
-            command_buffer.End();
-            command_buffer.SubmitToQueue(Queues::graphicsQueue);
+            commandBuffer.End();
+            commandBuffer.SubmitToQueue(Queues::graphicsQueue);
             vkQueueWaitIdle(Queues::graphicsQueue);
         }
 
         void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, const CommandPool* commandPool)
         {
-            CommandBuffer command_buffer(commandPool);
+            CommandBuffer commandBuffer(commandPool);
             
-            command_buffer.Begin();
+            commandBuffer.Begin();
 
             VkBufferImageCopy region{};
             region.bufferOffset = 0;
@@ -97,14 +97,10 @@ namespace VK
             region.imageSubresource.layerCount = 1;
 
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {
-                width,
-                height,
-                1
-            };
+            region.imageExtent = {width, height, 1};
 
             vkCmdCopyBufferToImage(
-                command_buffer.GetVkCommandBuffer(),
+                commandBuffer.GetVkCommandBuffer(),
                 buffer,
                 image,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -112,81 +108,39 @@ namespace VK
                 &region
             );
 
-            command_buffer.End();
-            command_buffer.SubmitToQueue(Queues::graphicsQueue);
+            commandBuffer.End();
+            commandBuffer.SubmitToQueue(Queues::graphicsQueue);
             vkQueueWaitIdle(Queues::graphicsQueue);
         }
     }
 
     Image::Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{format}
     {
-        VkImageCreateInfo image_info{};
-        image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        image_info.imageType = VK_IMAGE_TYPE_2D;
-        image_info.extent.width = static_cast<uint32_t>(size.x);
-        image_info.extent.height = static_cast<uint32_t>(size.y);
-        image_info.extent.depth = 1;
-        image_info.mipLevels = 1;
-        image_info.arrayLayers = 1;
-        // image_info.format = VK_FORMAT_R8G8B8A8_SRGB;
-        image_info.format = format;
-        image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-        image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        image_info.usage = usageFlags;
-        image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-        image_info.flags = 0; // Optional
-        VK_TRY(vkCreateImage(this->device.GetVkDevice(), &image_info, nullptr, &vkImage));
+        VkImageCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        createInfo.imageType = VK_IMAGE_TYPE_2D;
+        createInfo.extent.width = static_cast<uint32_t>(size.x);
+        createInfo.extent.height = static_cast<uint32_t>(size.y);
+        createInfo.extent.depth = 1;
+        createInfo.mipLevels = 1;
+        createInfo.arrayLayers = 1;
+        createInfo.format = format;
+        createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        createInfo.usage = usageFlags;
+        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        createInfo.flags = 0;
+        VK_TRY(vkCreateImage(this->device.GetVkDevice(), &createInfo, nullptr, &vkImage));
 
-        VkMemoryRequirements mem_requirements;
-        vkGetImageMemoryRequirements(this->device.GetVkDevice(), vkImage, &mem_requirements);
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(this->device.GetVkDevice(), vkImage, &memRequirements);
 
-        VkMemoryAllocateInfo alloc_info{};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = mem_requirements.size;
-        alloc_info.memoryTypeIndex = this->device.FindMemoryType(mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-        VK_TRY(vkAllocateMemory(this->device.GetVkDevice(), &alloc_info, nullptr, &vkMemory));
-
-        vkBindImageMemory(this->device.GetVkDevice(), vkImage, vkMemory, 0);
-
-        if (buffer != nullptr)
-        {
-            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
-            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), commandPool);
-            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, commandPool);
-        }
-    }
-
-    Image::Image(Buffer* buffer, Vec2ui size, int amount_of_channels, VkImageUsageFlags usage_flags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{VK_FORMAT_R8G8B8A8_UNORM}
-    {
-        VkImageCreateInfo image_info{};
-        image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        image_info.imageType = VK_IMAGE_TYPE_2D;
-        image_info.extent.width = static_cast<uint32_t>(size.x);
-        image_info.extent.height = static_cast<uint32_t>(size.y);
-        image_info.extent.depth = 1;
-        image_info.mipLevels = 1;
-        image_info.arrayLayers = 1;
-        // image_info.format = VK_FORMAT_R8G8B8A8_SRGB;
-        image_info.format = VK_FORMAT_R8G8B8A8_UNORM;
-        image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-        image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        image_info.usage = usage_flags;
-        image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-        image_info.flags = 0; // Optional
-        VK_TRY(vkCreateImage(this->device.GetVkDevice(), &image_info, nullptr, &vkImage));
-
-        VkMemoryRequirements mem_requirements;
-        vkGetImageMemoryRequirements(this->device.GetVkDevice(), vkImage, &mem_requirements);
-
-        VkMemoryAllocateInfo alloc_info{};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = mem_requirements.size;
-        alloc_info.memoryTypeIndex = this->device.FindMemoryType(mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-        VK_TRY(vkAllocateMemory(this->device.GetVkDevice(), &alloc_info, nullptr, &vkMemory));
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = this->device.FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VK_TRY(vkAllocateMemory(this->device.GetVkDevice(), &allocInfo, nullptr, &vkMemory));
 
         vkBindImageMemory(this->device.GetVkDevice(), vkImage, vkMemory, 0);
 
@@ -195,22 +149,21 @@ namespace VK
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &this->commandPool);
             Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), &this->commandPool);
             Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, &this->commandPool);
-        }        
+        }
     }
 
     Image::~Image()
     {
         vkDestroyImage(device.GetVkDevice(), vkImage, nullptr);
         vkFreeMemory(device.GetVkDevice(), vkMemory, nullptr);
-        
     }
 
-    VkImage& Image::GetVkImage()
+    const VkImage& Image::GetVkImage() const
     {
         return vkImage;
     }
 
-    VkDeviceMemory& Image::GetVkDeviceMemory()
+    const VkDeviceMemory& Image::GetVkDeviceMemory() const
     {
         return vkMemory;
     }

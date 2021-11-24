@@ -6,31 +6,25 @@
 
 namespace VK
 {
-    ImageView::ImageView(Image* image, const VkImageAspectFlags aspectFlags, const Device* device) : device{device ? *device : GetDevice()}
+    ImageView::ImageView(const Image& image, const VkImageAspectFlags aspectFlags, const Device* device) : device{device ? *device : GetDevice()}
     {
-        VkImageViewCreateInfo create_info{};
-        create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        create_info.image = image->GetVkImage();
-        create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        // create_info.format = VK_FORMAT_R8G8B8A8_SRGB;
-        create_info.format = image->GetVkFormat();
-        create_info.subresourceRange.aspectMask = aspectFlags;
-        create_info.subresourceRange.baseMipLevel = 0;
-        create_info.subresourceRange.levelCount = 1;
-        create_info.subresourceRange.baseArrayLayer = 0;
-        create_info.subresourceRange.layerCount = 1;
-
-        VK_TRY(vkCreateImageView(this->device.GetVkDevice(), &create_info, nullptr, &vkImageView));
-
+        VkImageViewCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = image.GetVkImage();
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = image.GetVkFormat();
+        createInfo.subresourceRange.aspectMask = aspectFlags;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+        VK_TRY(vkCreateImageView(this->device.GetVkDevice(), &createInfo, nullptr, &vkImageView));
         SetupDefaultDescriptor();
-
-        
     }
 
     ImageView::~ImageView()
     {
-        vkDestroyImageView(device.GetVkDevice(), vkImageView, nullptr);
-        
+        vkDestroyImageView(device.GetVkDevice(), vkImageView, nullptr);   
     }
 
     VkImageView& ImageView::GetVkImageView()
