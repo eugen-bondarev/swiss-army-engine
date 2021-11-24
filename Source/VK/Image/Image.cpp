@@ -12,7 +12,7 @@ namespace VK
 {
     namespace Util
     {			
-        void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, const CommandPool* commandPool)
+        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool* commandPool)
         {
             CommandBuffer commandBuffer(commandPool);
             
@@ -114,7 +114,7 @@ namespace VK
         }
     }
 
-    Image::Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device* device, const CommandPool* commandPool) : device{device ? *device : GetDevice()}, commandPool{commandPool ? *commandPool : GetDefaultCommandPool()}, vkFormat{format}
+    Image::Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}
     {
         VkImageCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

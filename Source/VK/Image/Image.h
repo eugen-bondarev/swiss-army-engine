@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
@@ -13,14 +14,14 @@ namespace VK
 
     namespace Util
     {
-        void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, const CommandPool* commandPool);
+        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool* commandPool);
         void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool* commandPool);
     }
 
     class Image
     {
     public:
-        Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device* device = nullptr, const CommandPool* commandPool = nullptr);
+        Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device& device = GetDevice(), const CommandPool& commandPool = GetDefaultCommandPool());
        ~Image();
 
         VkFormat GetVkFormat() const;

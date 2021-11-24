@@ -6,7 +6,7 @@
 
 namespace VK
 {
-    ImageView::ImageView(const Image& image, const VkImageAspectFlags aspectFlags, const Device* device) : device{device ? *device : GetDevice()}
+    ImageView::ImageView(const Image& image, const VkImageAspectFlags aspectFlags, const Device& device) : device{device}
     {
         VkImageViewCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

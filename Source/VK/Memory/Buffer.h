@@ -21,12 +21,12 @@ namespace VK
     {
     public:
         Buffer(
-            uint32_t size_of_element, 
-            uint32_t amount_of_elements = 0, 
+            uint32_t sizeOfElement, 
+            uint32_t numElements = 0, 
             const void* data = nullptr, 
-            VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VkMemoryPropertyFlags property_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            const Device* device = nullptr
+            VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            const Device& device = GetDevice()
         );
         
         template <typename T>
@@ -34,7 +34,7 @@ namespace VK
             const std::vector<T>& vector, 
             VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VkMemoryPropertyFlags property_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            const Device* device = nullptr
+            const Device& device = GetDevice()
         ) : Buffer(sizeof(T), static_cast<uint32_t>(vector.size()), vector.data(), usage_flags, property_flags, device)
         {
             
@@ -45,14 +45,14 @@ namespace VK
             uint32_t size,
             VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VkMemoryPropertyFlags property_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            const Device* device = nullptr
+            const Device& device = GetDevice()
         ) : Buffer(size, 1, data, usage_flags, property_flags, device)
         {
             
         }
 
-        Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, const Device* device = nullptr, const CommandPool* commandPool = &GetDefaultCommandPool());
-        ~Buffer();
+        Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, const Device& device = GetDevice(), const CommandPool& commandPool = GetDefaultCommandPool());
+       ~Buffer();
 
         void Update(const void* data, uint32_t size) const;
         void Update(const void* data) const;
