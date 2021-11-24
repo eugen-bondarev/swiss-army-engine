@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../GraphicsContext.h"
 #include "../Common.h"
 
 namespace VK
@@ -12,7 +13,7 @@ namespace VK
     class Sampler
     {
     public:
-        Sampler(VkFilter filter, const Device* device = nullptr);
+        Sampler(VkFilter filter, const Device& device = GetDevice());
        ~Sampler();
 
         const VkSampler& GetVkSampler() const;

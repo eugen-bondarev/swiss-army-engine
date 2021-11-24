@@ -21,10 +21,19 @@ namespace VK
     class Image
     {
     public:
-        Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device& device = GetDevice(), const CommandPool& commandPool = GetDefaultCommandPool());
+        Image(
+            const Vec2ui size,
+            const VkFormat format,
+            const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+            const Device& device = GetDevice(),
+            const CommandPool& commandPool = GetDefaultCommandPool()
+        );
+        
        ~Image();
 
         VkFormat GetVkFormat() const;
+
+        void LoadFrom(const Buffer& buffer);
 
         const VkImage& GetVkImage() const;
         const VkDeviceMemory& GetVkDeviceMemory() const;
@@ -37,6 +46,7 @@ namespace VK
         VkDeviceMemory vkMemory;
 
         VkFormat vkFormat;
+        Vec2ui size;
 
         Image(const Image&) = delete;
         Image& operator=(const Image&) = delete;

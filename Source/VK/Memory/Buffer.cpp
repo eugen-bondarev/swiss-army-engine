@@ -10,92 +10,92 @@ namespace VK
 {
     namespace Util 
     {
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory, const Device& device)
+        void CreateBuffer(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const Device& device)
         {			
-            VkBufferCreateInfo buffer_info{};
-            buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            buffer_info.size = size;
-            buffer_info.usage = usage;
-            buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            VkBufferCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            createInfo.size = size;
+            createInfo.usage = usage;
+            createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            VK_TRY(vkCreateBuffer(device.GetVkDevice(), &createInfo, nullptr, &buffer));
 
-            VK_TRY(vkCreateBuffer(device.GetVkDevice(), &buffer_info, nullptr, &buffer));
+            VkMemoryRequirements memRequirements;
+            vkGetBufferMemoryRequirements(device.GetVkDevice(), buffer, &memRequirements);
 
-            VkMemoryRequirements mem_requirements;
-            vkGetBufferMemoryRequirements(device.GetVkDevice(), buffer, &mem_requirements);
+            VkMemoryAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            allocInfo.allocationSize = memRequirements.size;
+            allocInfo.memoryTypeIndex = device.FindMemoryType(memRequirements.memoryTypeBits, properties);
+            VK_TRY(vkAllocateMemory(device.GetVkDevice(), &allocInfo, nullptr, &bufferMemory));
 
-            VkMemoryAllocateInfo alloc_info{};
-            alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-            alloc_info.allocationSize = mem_requirements.size;
-            alloc_info.memoryTypeIndex = device.FindMemoryType(mem_requirements.memoryTypeBits, properties);
-
-            VK_TRY(vkAllocateMemory(device.GetVkDevice(), &alloc_info, nullptr, &buffer_memory));
-
-            vkBindBufferMemory(device.GetVkDevice(), buffer, buffer_memory, 0);
+            vkBindBufferMemory(device.GetVkDevice(), buffer, bufferMemory, 0);
         }
     }
 
     void Buffer::SetupDefaultDescriptor()
     {
-        descriptor.buffer = vkBuffer;
-        descriptor.offset = 0;
-        descriptor.range = VK_WHOLE_SIZE;
+        vkDescriptor.buffer = vkBuffer;
+        vkDescriptor.offset = 0;
+        vkDescriptor.range = VK_WHOLE_SIZE;
     }
 
-    void Buffer::SetDescriptor(VkDeviceSize range, VkDeviceSize offset)
+    void Buffer::SetDescriptor(const VkDeviceSize range, const VkDeviceSize offset)
     {
-        descriptor.offset = offset;
-        descriptor.range = range;
+        vkDescriptor.offset = offset;
+        vkDescriptor.range = range;
     }
 
-    Buffer::Buffer(uint32_t size_of_element, uint32_t amount_of_elements, const void* data, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags property_flags, const Device& device) : device{device}, sizeOfElement{size_of_element}, amountOfElements{amount_of_elements}
+    Buffer::Buffer(const uint32_t elementSize, const uint32_t numElements, const void* data, const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags propertyFlags, const Device& device) : device{device}, elementSize{elementSize}, numElements{numElements}
     {
-        VkDeviceSize buffer_size = size_of_element * amount_of_elements;
+        const VkDeviceSize bufferSize{elementSize * numElements};
         
         Util::CreateBuffer(
-            buffer_size, 
-            usage_flags, 
-            property_flags, 
+            bufferSize, 
+            usageFlags, 
+            propertyFlags, 
             vkBuffer, 
             vkMemory
         );
 
         if (data != nullptr)
         {
-            void* mapped_data;
-            vkMapMemory(this->device.GetVkDevice(), vkMemory, 0, buffer_size, 0, &mapped_data);
-                memcpy(mapped_data, data, static_cast<size_t>(buffer_size));
+            void* mappedData;
+            vkMapMemory(this->device.GetVkDevice(), vkMemory, 0, bufferSize, 0, &mappedData);
+                memcpy(mappedData, data, static_cast<size_t>(bufferSize));
             vkUnmapMemory(this->device.GetVkDevice(), vkMemory);
         }
 
         SetupDefaultDescriptor();
     }
 
-    Buffer::Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags, const Device& device, const CommandPool& commandPool) : device{device}
+    Buffer::Buffer(
+        const Buffer& buffer, 
+        const VkBufferUsageFlags usageFlags, 
+        const Device& device, 
+        const CommandPool& commandPool
+    ) : device{device}, numElements{buffer.numElements}, elementSize{buffer.elementSize}
     {
-        amountOfElements = buffer->amountOfElements;
-        sizeOfElement = buffer->sizeOfElement;
-
         Util::CreateBuffer(
-            buffer->GetSize(), 
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage_flags, 
+            buffer.GetSize(),
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | usageFlags,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
             vkBuffer, 
             vkMemory
         );
 
-        CommandBuffer command_buffer(&commandPool);
-            command_buffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        CommandBuffer commandBuffer(&commandPool);
+            commandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
                 VkBufferCopy copy_region{};
-                copy_region.size = buffer->GetSize();
-                vkCmdCopyBuffer(command_buffer.GetVkCommandBuffer(), buffer->GetVkBuffer(), vkBuffer, 1, &copy_region);			
-            command_buffer.End();
-        command_buffer.SubmitToQueue(Queues::graphicsQueue);
+                copy_region.size = buffer.GetSize();
+                vkCmdCopyBuffer(commandBuffer.GetVkCommandBuffer(), buffer.GetVkBuffer(), vkBuffer, 1, &copy_region);			
+            commandBuffer.End();
+        commandBuffer.SubmitToQueue(Queues::graphicsQueue);
         this->device.WaitIdle();
 
         SetupDefaultDescriptor();
     }
 
-    void Buffer::Update(const void* data, uint32_t size) const
+    void Buffer::Update(const void* data, const uint32_t size) const
     {
         void* mapped_data;
         vkMapMemory(device.GetVkDevice(), vkMemory, 0, size, 0, &mapped_data);
@@ -113,9 +113,9 @@ namespace VK
 
     void Buffer::Update(const void* data) const
     {
-        void* mapped_data;
-        vkMapMemory(device.GetVkDevice(), vkMemory, 0, sizeOfElement * amountOfElements, 0, &mapped_data);
-            memcpy(mapped_data, data, sizeOfElement * amountOfElements);
+        void* mappedData;
+        vkMapMemory(device.GetVkDevice(), vkMemory, 0, elementSize * numElements, 0, &mappedData);
+            memcpy(mappedData, data, elementSize * numElements);
         vkUnmapMemory(device.GetVkDevice(), vkMemory);
     }
 
@@ -125,33 +125,33 @@ namespace VK
         vkFreeMemory(device.GetVkDevice(), vkMemory, nullptr);
     }
 
-    VkBuffer& Buffer::GetVkBuffer()
+    const VkBuffer& Buffer::GetVkBuffer() const
     {
         return vkBuffer;
     }
 
-    VkDeviceMemory& Buffer::GetVkMemory()
+    const VkDeviceMemory& Buffer::GetVkMemory() const
     {
         return vkMemory;
     }
 
-    VkDescriptorBufferInfo& Buffer::GetDescriptor()
+    VkDescriptorBufferInfo& Buffer::GetVkDescriptor()
     {
-        return descriptor;
+        return vkDescriptor;
     }
 
     uint32_t Buffer::GetSize() const
     {
-        return sizeOfElement * amountOfElements;
+        return elementSize * numElements;
     }
 
     uint32_t Buffer::GetSizeOfElement() const
     {
-        return sizeOfElement;
+        return elementSize;
     }
 
     uint32_t Buffer::GetAmountOfElements() const
     {
-        return amountOfElements;
+        return numElements;
     }
 }

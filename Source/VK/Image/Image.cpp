@@ -114,7 +114,7 @@ namespace VK
         }
     }
 
-    Image::Image(Buffer* buffer, const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}
+    Image::Image(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}, size{size}
     {
         VkImageCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -143,13 +143,13 @@ namespace VK
         VK_TRY(vkAllocateMemory(this->device.GetVkDevice(), &allocInfo, nullptr, &vkMemory));
 
         vkBindImageMemory(this->device.GetVkDevice(), vkImage, vkMemory, 0);
-
-        if (buffer != nullptr)
-        {
-            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &this->commandPool);
-            Util::CopyBufferToImage(buffer->GetVkBuffer(), vkImage, size, &this->commandPool);
-            Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, &this->commandPool);
-        }
+    }
+        
+    void Image::LoadFrom(const Buffer& buffer)
+    {
+        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &this->commandPool);
+        Util::CopyBufferToImage(buffer.GetVkBuffer(), vkImage, size, &this->commandPool);
+        Util::TransitionImageLayout(vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, &this->commandPool);
     }
 
     Image::~Image()

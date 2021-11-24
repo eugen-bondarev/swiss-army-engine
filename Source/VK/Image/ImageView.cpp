@@ -27,7 +27,7 @@ namespace VK
         vkDestroyImageView(device.GetVkDevice(), vkImageView, nullptr);   
     }
 
-    VkImageView& ImageView::GetVkImageView()
+    const VkImageView& ImageView::GetVkImageView() const
     {
         return vkImageView;
     }
@@ -39,13 +39,13 @@ namespace VK
         descriptor.sampler = GetDefaultConstInterpolationSampler().GetVkSampler();
     }
 
-    void ImageView::SetupDescriptor(VkImageLayout image_layout, const Sampler& sampler)
+    void ImageView::SetupDescriptor(const VkImageLayout imageLayout, const Sampler& sampler)
     {
-        descriptor.imageLayout = image_layout;
+        descriptor.imageLayout = imageLayout;
         descriptor.sampler = sampler.GetVkSampler();
     }
 
-    VkDescriptorImageInfo& ImageView::GetDescriptor()
+    const VkDescriptorImageInfo& ImageView::GetDescriptor() const
     {
         return descriptor;
     }

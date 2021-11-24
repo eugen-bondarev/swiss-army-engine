@@ -1,11 +1,10 @@
 #include "sampler.h"
 
 #include "../Device/Device.h"
-#include "../GraphicsContext.h"
 
 namespace VK
 {
-    Sampler::Sampler(VkFilter filter, const Device* device) : device{device ? *device : GetDevice()}
+    Sampler::Sampler(VkFilter filter, const Device& device) : device{device}
     {
         VkSamplerCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -26,15 +25,12 @@ namespace VK
         create_info.mipLodBias = 0.0f;
         create_info.minLod = 0.0f;
         create_info.maxLod = 0.0f;
-
         VK_TRY(vkCreateSampler(this->device.GetVkDevice(), &create_info, nullptr, &vkSampler));
-        
     }
 
     Sampler::~Sampler()
     {
         vkDestroySampler(device.GetVkDevice(), vkSampler, nullptr);
-        
     }
 
     const VkSampler& Sampler::GetVkSampler() const

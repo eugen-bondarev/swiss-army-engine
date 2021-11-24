@@ -13,59 +13,56 @@ namespace VK
 
     namespace Util
     {
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const Device& device = GetDevice());
-        void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, const Device& device = GetDevice());
+        void CreateBuffer(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const Device& device = GetDevice());
     }
 
     class Buffer
     {
     public:
         Buffer(
-            uint32_t sizeOfElement, 
-            uint32_t numElements = 0, 
+            const uint32_t elementSize, 
+            const uint32_t numElements = 0, 
             const void* data = nullptr, 
-            VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            const VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            const VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             const Device& device = GetDevice()
         );
         
         template <typename T>
         Buffer(
             const std::vector<T>& vector, 
-            VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VkMemoryPropertyFlags property_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            const VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            const VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             const Device& device = GetDevice()
-        ) : Buffer(sizeof(T), static_cast<uint32_t>(vector.size()), vector.data(), usage_flags, property_flags, device)
+        ) : Buffer(sizeof(T), static_cast<uint32_t>(vector.size()), vector.data(), usageFlags, propertyFlags, device) 
         {
-            
         }
 
         Buffer(
             const void* data,
-            uint32_t size,
-            VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VkMemoryPropertyFlags property_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            const uint32_t size,
+            const VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            const VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             const Device& device = GetDevice()
-        ) : Buffer(size, 1, data, usage_flags, property_flags, device)
-        {
-            
+        ) : Buffer(size, 1, data, usageFlags, propertyFlags, device)
+        {   
         }
 
-        Buffer(Buffer* buffer, VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, const Device& device = GetDevice(), const CommandPool& commandPool = GetDefaultCommandPool());
+        Buffer(const Buffer& buffer, const VkBufferUsageFlags usageFlags, const Device& device = GetDevice(), const CommandPool& commandPool = GetDefaultCommandPool());
        ~Buffer();
 
-        void Update(const void* data, uint32_t size) const;
+        void Update(const void* data, const uint32_t size) const;
         void Update(const void* data) const;
 
         uint32_t GetSize() const;
         uint32_t GetSizeOfElement() const;
         uint32_t GetAmountOfElements() const;
 
-        VkBuffer& GetVkBuffer();
-        VkDeviceMemory& GetVkMemory();
+        const VkBuffer& GetVkBuffer() const;
+        const VkDeviceMemory& GetVkMemory() const;
 
-        VkDescriptorBufferInfo& GetDescriptor();
-        void SetDescriptor(VkDeviceSize range, VkDeviceSize offset = 0);
+        VkDescriptorBufferInfo& GetVkDescriptor();
+        void SetDescriptor(const VkDeviceSize range, const VkDeviceSize offset = 0);
 
     private:
         const Device& device;
@@ -73,11 +70,11 @@ namespace VK
         VkBuffer vkBuffer;
         VkDeviceMemory vkMemory;
 
-        VkDescriptorBufferInfo descriptor;
+        VkDescriptorBufferInfo vkDescriptor;
         void SetupDefaultDescriptor();
 
-        uint32_t sizeOfElement;
-        uint32_t amountOfElements;
+        uint32_t elementSize;
+        uint32_t numElements;
 
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;

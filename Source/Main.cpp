@@ -22,7 +22,7 @@ int main()
 
         Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
 
-        VK::Image depthImage(nullptr, window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(depthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
@@ -74,10 +74,10 @@ int main()
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass()->GetVkRenderPass(), depthImageView.GetVkImageView());
 
 		VK::Buffer stagingVertexBuffer(characterMesh.vertices);
-		VK::Buffer vertexBuffer(&stagingVertexBuffer);
+		VK::Buffer vertexBuffer(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
 		VK::Buffer stagingIndexBuffer(characterMesh.indices);
-		VK::Buffer indexBuffer(&stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+		VK::Buffer indexBuffer(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
         VK::Buffer ubo(sizeof(UBO), 1, &uboData, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -90,7 +90,7 @@ int main()
 
 		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
 		{
-			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetDescriptor()),
+			VK::CreateWriteDescriptorSet(&descriptorSet, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &ubo.GetVkDescriptor()),
 			VK::CreateWriteDescriptorSet(&descriptorSet, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture.GetImageView()->GetDescriptor())
 		};
 
