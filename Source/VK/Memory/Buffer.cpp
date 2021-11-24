@@ -85,9 +85,9 @@ namespace VK
 
         CommandBuffer commandBuffer(&commandPool);
             commandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-                VkBufferCopy copy_region{};
-                copy_region.size = buffer.GetSize();
-                vkCmdCopyBuffer(commandBuffer.GetVkCommandBuffer(), buffer.GetVkBuffer(), vkBuffer, 1, &copy_region);			
+                VkBufferCopy copyRegion{};
+                copyRegion.size = buffer.GetSize();
+                vkCmdCopyBuffer(commandBuffer.GetVkCommandBuffer(), buffer.GetVkBuffer(), vkBuffer, 1, &copyRegion);			
             commandBuffer.End();
         commandBuffer.SubmitToQueue(Queues::graphicsQueue);
         this->device.WaitIdle();
@@ -97,9 +97,9 @@ namespace VK
 
     void Buffer::Update(const void* data, const uint32_t size) const
     {
-        void* mapped_data;
-        vkMapMemory(device.GetVkDevice(), vkMemory, 0, size, 0, &mapped_data);
-            memcpy(mapped_data, data, size);
+        void* mappedData;
+        vkMapMemory(device.GetVkDevice(), vkMemory, 0, size, 0, &mappedData);
+            memcpy(mappedData, data, size);
 
         // VkMappedMemoryRange range;
         // range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
