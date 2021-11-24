@@ -23,7 +23,7 @@ namespace VK
         void Begin(VkCommandBufferUsageFlags flags = 0) const;
         void End() const;
 
-        void SubmitToQueue(const VkQueue& queue, VkSemaphore* waitSemaphore = nullptr, const VkSemaphore* signalSemaphore = nullptr, VkFence fence = VK_NULL_HANDLE) const;
+        void SubmitToQueue(const VkQueue& queue, const VkSemaphore* waitSemaphore = nullptr, const VkSemaphore* signalSemaphore = nullptr, VkFence fence = VK_NULL_HANDLE) const;
 
         void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer, const std::array<float, 4>& color = {0.0f, 0.0f, 0.0f, 1.0f}) const;
         void EndRenderPass() const;

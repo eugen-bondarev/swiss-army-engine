@@ -39,20 +39,20 @@ namespace VK
         VK_TRY(vkEndCommandBuffer(vkCommandBuffer));
     }
 
-    void CommandBuffer::SubmitToQueue(const VkQueue& queue, VkSemaphore* waitSemaphore, const VkSemaphore* signalSemaphore, VkFence fence) const
+    void CommandBuffer::SubmitToQueue(const VkQueue& queue, const VkSemaphore* waitSemaphore, const VkSemaphore* signalSemaphore, VkFence fence) const
     {
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vkCommandBuffer;
 
-        VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        const VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         if (waitSemaphore)
         {
             submitInfo.waitSemaphoreCount = 1;
             submitInfo.pWaitSemaphores = waitSemaphore;
-            submitInfo.pWaitDstStageMask = &wait_stage;
+            submitInfo.pWaitDstStageMask = &waitStage;
         }
 
         if (signalSemaphore)

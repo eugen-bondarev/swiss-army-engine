@@ -36,12 +36,12 @@ namespace VK
         vkDestroyFence(device.GetVkDevice(), inFlightFence, nullptr);
     }
 
-    VkSemaphore& Frame::GetSemaphore(const uint32_t semaphoreID)
+    const VkSemaphore& Frame::GetSemaphore(const uint32_t semaphoreID) const
     {
         return semaphores[semaphoreID];
     }
 
-    VkFence& Frame::GetInFlightFence()
+    const VkFence& Frame::GetInFlightFence() const
     {
         return inFlightFence;
     }
@@ -57,34 +57,26 @@ namespace VK
         imagesInFlight.resize(GetSwapChain().GetImageViews().size());
     }
 
-    FrameManager::~FrameManager()
-    {
-        // for (size_t i = 0; i < frames.size(); ++i)
-        // {
-        //     delete frames[i];
-        // }
-    }
-
     uint32_t FrameManager::AcquireSwapChainImage()
     {
-        Frame* frame = GetCurrentFrame();			
-        uint32_t image_index = GetSwapChain().AcquireImage(frame->GetSemaphore(frame->firstSemaphore));
+        const Frame* frame = GetCurrentFrame();			
+        const uint32_t imageIndex = GetSwapChain().AcquireImage(frame->GetSemaphore(frame->firstSemaphore));
 
-        if (imagesInFlight[image_index] != VK_NULL_HANDLE)
+        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
         {
-            vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[image_index], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
         
         vkWaitForFences(device.GetVkDevice(), 1, &frame->GetInFlightFence(), VK_TRUE, UINT64_MAX);
         vkResetFences(device.GetVkDevice(), 1, &frame->GetInFlightFence());
-        imagesInFlight[image_index] = frame->GetInFlightFence();
+        imagesInFlight[imageIndex] = frame->GetInFlightFence();
 
-        return image_index;
+        return imageIndex;
     }
 
     void FrameManager::Present()
     {			
-        Frame* frame = GetCurrentFrame();
+        const Frame* frame = GetCurrentFrame();
         GetSwapChain().Present(&frame->GetSemaphore(frame->lastSemaphore), 1);
         NextFrame();
     }
@@ -94,7 +86,7 @@ namespace VK
         currentFrame = (currentFrame + 1) % framesCount;
     }
 
-    Frame* FrameManager::GetCurrentFrame()
+    const Frame* FrameManager::GetCurrentFrame() const
     {
         return frames[currentFrame].get();
     }

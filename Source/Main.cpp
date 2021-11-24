@@ -111,9 +111,9 @@ int main()
 
             frameManager.AcquireSwapChainImage();
 
-            VK::Frame* frame = frameManager.GetCurrentFrame();
-            VkSemaphore* wait = &frame->GetSemaphore(0);
-            VkSemaphore* signal = &frame->GetSemaphore(1);
+            const VK::Frame* frame = frameManager.GetCurrentFrame();
+            const VkSemaphore* wait = &frame->GetSemaphore(0);
+            const VkSemaphore* signal = &frame->GetSemaphore(1);
 
             VK::CommandPool* pool = commandPools[VK::GetSwapChain().GetCurrentImageIndex()].get();
             VK::CommandBuffer* cmd = commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()].get();

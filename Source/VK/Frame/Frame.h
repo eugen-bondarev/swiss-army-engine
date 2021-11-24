@@ -17,9 +17,8 @@ namespace VK
         Frame(const uint32_t firstSemaphore, const uint32_t lastSemaphore, const uint32_t numSemaphores, const Device* device = nullptr);
        ~Frame();
 
-        VkSemaphore& GetSemaphore(const uint32_t semaphoreID);
-
-        VkFence& GetInFlightFence();
+        const VkSemaphore& GetSemaphore(const uint32_t semaphoreID) const;
+        const VkFence& GetInFlightFence() const;
 
         std::vector<VkSemaphore> semaphores;
 
@@ -38,24 +37,22 @@ namespace VK
     {
     public:
         FrameManager(const uint32_t firstSemaphore, const uint32_t lastSemaphore, const uint32_t numSemaphoresPerFrame, const uint32_t numFrames, const Device* device = nullptr);
-       ~FrameManager();
+       ~FrameManager() = default;
 
-        void NextFrame();
-        Frame* GetCurrentFrame();
-
+        const Frame* GetCurrentFrame() const;
         uint32_t GetAmountOfFrames() const;
         uint32_t GetCurrentFrameIndex() const;
-
         uint32_t AcquireSwapChainImage();
-        void Present();
 
-        std::vector<VkFence> imagesInFlight;
+        void NextFrame();
+        void Present();
         
     private:
         const Device& device;
         uint32_t framesCount;
         uint32_t currentFrame{0};
         std::vector<Ptr<Frame>> frames;
+        std::vector<VkFence> imagesInFlight;
 
         FrameManager(const FrameManager&) = delete;
         FrameManager& operator=(const FrameManager&) = delete;

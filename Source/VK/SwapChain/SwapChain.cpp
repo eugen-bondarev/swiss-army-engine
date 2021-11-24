@@ -107,13 +107,13 @@ namespace VK
         return imageIndex;
     }
 
-    VkResult SwapChain::Present(VkSemaphore* wait_semaphores, uint32_t wait_semaphore_count)
+    VkResult SwapChain::Present(const VkSemaphore* waitSemaphores, const uint32_t numWaitSemaphores)
     {
         VkPresentInfoKHR present_info{};
         present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-        present_info.waitSemaphoreCount = wait_semaphore_count;
-        present_info.pWaitSemaphores = wait_semaphores;
+        present_info.waitSemaphoreCount = numWaitSemaphores;
+        present_info.pWaitSemaphores = waitSemaphores;
 
         present_info.swapchainCount = 1;
         present_info.pSwapchains = &vkSwapChain;
