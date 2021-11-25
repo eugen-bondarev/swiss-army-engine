@@ -32,8 +32,8 @@ namespace VK
             Update(data.GetPtr());
         }
 
-        AlignedUBO<T> data;
     private:
+        AlignedUBO<T> data;
     };
 }
 
