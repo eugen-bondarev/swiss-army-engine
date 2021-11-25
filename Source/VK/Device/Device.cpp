@@ -58,7 +58,7 @@ namespace VK
             {
                 vkPhysicalDevice = physicalDevice;
                 vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkProperties);
-                Util::Mem::Aligned::minUniformBufferOffsetAlignment = vkProperties.limits.minUniformBufferOffsetAlignment;
+                Util::Mem::Aligned::SetMinUniformBufferOffsetAlignment(vkProperties.limits.minUniformBufferOffsetAlignment);
                 break;
             }
         }

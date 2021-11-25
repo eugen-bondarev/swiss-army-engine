@@ -148,7 +148,7 @@ int main()
         VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO->proj[0][0], VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
         Ptr<PerObjectUBO> perObjectUBO = CreatePtr<PerObjectUBO>(numInstances);
-        VK::Buffer localBuffer(numInstances * DynamicAlignment<glm::mat4x4>::Get(), 1, perObjectUBO->model.data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        VK::Buffer localBuffer(numInstances * DynamicAlignment<glm::mat4x4>::Get(), 1, perObjectUBO->model.GetPtr(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 		localBuffer.SetDescriptor(DynamicAlignment<glm::mat4x4>::Get());
 
         std::vector<Mesh> meshes;
@@ -190,7 +190,7 @@ int main()
             {
                 meshes[i].SetRotation({0, theta, 0});
             }
-            localBuffer.Update(perObjectUBO->model.data);
+            localBuffer.Update(perObjectUBO->model.GetPtr());
             
             pool.Reset();
                 cmd.Begin();

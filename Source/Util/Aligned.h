@@ -9,23 +9,26 @@ namespace Util
     {
         namespace Aligned
         {
-            extern unsigned int minUniformBufferOffsetAlignment;
+            void SetMinUniformBufferOffsetAlignment(const unsigned int value);
+            unsigned int GetMinUniformBufferOffsetAlignment();
 
             template <typename T>
-            T* Alloc(size_t size, size_t alignment)
+            T* Alloc(const size_t size, const size_t alignment)
             {
-                void *data = nullptr;
+                void* data{nullptr};
 #if defined(_MSC_VER) || defined(__MINGW32__)
                 data = _aligned_malloc(size, alignment);
 #else
-                int res = posix_memalign(&data, alignment, size);
+                const int res{posix_memalign(&data, alignment, size)};
                 if (res != 0)
+                {
                     data = nullptr;
+                }
 #endif
-                return (T*) data;
+                return static_cast<T*>(data);
             }
 
-            void Free(void *data);
+            void Free(void* data);
         }
     }
 }
@@ -36,9 +39,11 @@ class DynamicAlignment
 public:
     inline static void Calculate()
     {
-        if (Util::Mem::Aligned::minUniformBufferOffsetAlignment > 0) 
+        const static unsigned int minAlignment{Util::Mem::Aligned::GetMinUniformBufferOffsetAlignment()};
+
+        if (minAlignment > 0) 
         {
-            DynamicAlignment<T>::value = ((sizeof(T) + Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1) & static_cast<unsigned int>(~(Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1)));
+            DynamicAlignment<T>::value = ((sizeof(T) + minAlignment - 1) & static_cast<unsigned int>(~(minAlignment - 1)));
         }
         else
         {
@@ -56,14 +61,13 @@ private:
 };
 
 template <typename T>
-struct Aligned
+class Aligned
 {
-    T* data;
-
-    Aligned(unsigned int amount_of_instances)
+public:
+    Aligned(const size_t numInstances)
     {
         DynamicAlignment<T>::Calculate();
-        data = Util::Mem::Aligned::Alloc<T>(amount_of_instances * DynamicAlignment<T>::Get(), DynamicAlignment<T>::Get());
+        data = Util::Mem::Aligned::Alloc<T>(numInstances * DynamicAlignment<T>::Get(), DynamicAlignment<T>::Get());
     }
 
     ~Aligned()
@@ -71,17 +75,21 @@ struct Aligned
         Util::Mem::Aligned::Free(data);
     }
 
-    T& operator[](int i)
-    {		
-        T& item = *(T*)(((uint64_t)data + (i * DynamicAlignment<T>::Get())));
-
-        return item;
+    T& operator[](const size_t i)
+    {
+        return *reinterpret_cast<T*>(reinterpret_cast<uint64_t>(data) + i * DynamicAlignment<T>::Get());
     }
 
-    const T& operator[](int i) const
-    {		
-        T& item = *(T*)(((uint64_t)data + (i * DynamicAlignment<T>::Get())));
-
-        return item;
+    const T& operator[](const size_t i) const
+    {
+        return *reinterpret_cast<T*>(reinterpret_cast<uint64_t>(data) + i * DynamicAlignment<T>::Get());
     }
+
+    const void* GetPtr() const
+    {
+        return data;
+    }
+
+private:
+    T* data;
 };
