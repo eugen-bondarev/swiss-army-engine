@@ -16,6 +16,8 @@ namespace DX
 
         void* Map();
         void Unmap();
+    
+        ID3D11Buffer* GetDxBuffer();
 
     protected:
         Device& device;
@@ -47,10 +49,22 @@ namespace DX
         void Unmap() override;
     };
 
-    class ConstantBuffer : public API::UniformBuffer, public Buffer
+    class UpdatableConstantBuffer : public API::UniformBuffer, public Buffer
     {
     public:
-        ConstantBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr, Device& device = GetDevice());
+        UpdatableConstantBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr, Device& device = GetDevice());
+
+        void Update(const void* data);
+
+        void Bind() override;
+        void* Map() override;
+        void Unmap() override;
+    };
+
+    class MappableConstantBuffer : public API::UniformBuffer, public Buffer
+    {
+    public:
+        MappableConstantBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr, Device& device = GetDevice());
 
         void Bind() override;
         void* Map() override;

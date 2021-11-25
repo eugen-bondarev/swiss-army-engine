@@ -29,13 +29,18 @@ namespace DX
     void *Buffer::Map()
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
-        device.GetDxContext().Map(dxBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedResource);
+            device.GetDxContext().Map(dxBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedResource);
         return mappedResource.pData;
     }
 
     void Buffer::Unmap()
     {
         device.GetDxContext().Unmap(dxBuffer.Get(), 0u);
+    }
+    
+    ID3D11Buffer* Buffer::GetDxBuffer()
+    {
+        return dxBuffer.Get();
     }
 
     VertexBuffer::VertexBuffer(const UINT byteWidth, const UINT stride, const void *data, Device& device) : ::DX::Buffer(byteWidth, stride, data, D3D11_BIND_VERTEX_BUFFER, 0u, D3D11_USAGE_DEFAULT, device)
@@ -46,7 +51,11 @@ namespace DX
     {
     }
 
-    ConstantBuffer::ConstantBuffer(const UINT ByteWidth, const UINT stride, const void *data, Device& device) : ::DX::Buffer(ByteWidth, stride, data, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE, D3D11_USAGE_DYNAMIC, device)
+    UpdatableConstantBuffer::UpdatableConstantBuffer(const UINT ByteWidth, const UINT stride, const void *data, Device& device) : ::DX::Buffer(ByteWidth, stride, data, D3D11_BIND_CONSTANT_BUFFER, 0u, D3D11_USAGE_DEFAULT, device)
+    {
+    }
+
+    MappableConstantBuffer::MappableConstantBuffer(const UINT ByteWidth, const UINT stride, const void *data, Device& device) : ::DX::Buffer(ByteWidth, stride, data, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE, D3D11_USAGE_DYNAMIC, device)
     {
     }
 
@@ -60,12 +69,17 @@ namespace DX
         device.GetDxContext().IASetIndexBuffer(dxBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
     }
 
-    void ConstantBuffer::Bind()
+    void UpdatableConstantBuffer::Bind()
     {
         device.GetDxContext().VSSetConstantBuffers(0u, 1u, dxBuffer.GetAddressOf());
     }
 
-    void *VertexBuffer::Map()
+    void MappableConstantBuffer::Bind()
+    {
+        device.GetDxContext().VSSetConstantBuffers(0u, 1u, dxBuffer.GetAddressOf());
+    }
+
+    void* VertexBuffer::Map()
     {
         return ::DX::Buffer::Map();
     }
@@ -75,7 +89,7 @@ namespace DX
         ::DX::Buffer::Unmap();
     }
 
-    void *IndexBuffer::Map()
+    void* IndexBuffer::Map()
     {
         return ::DX::Buffer::Map();
     }
@@ -85,12 +99,28 @@ namespace DX
         ::DX::Buffer::Unmap();
     }
 
-    void *ConstantBuffer::Map()
+    void* UpdatableConstantBuffer::Map()
+    {
+        throw EXCEPTION_WHAT("Unable to map/unmap DX::UpdatableConstantBuffer");
+        return nullptr;
+    }
+
+    void UpdatableConstantBuffer::Unmap()
+    {
+        throw EXCEPTION_WHAT("Unable to map/unmap DX::UpdatableConstantBuffer");
+    }
+
+    void UpdatableConstantBuffer::Update(const void* data)
+    {
+        DX_TRY(device.GetDxContext().UpdateSubresource(dxBuffer.Get(), 0, nullptr, data, 0, 0));
+    }
+
+    void* MappableConstantBuffer::Map()
     {
         return ::DX::Buffer::Map();
     }
 
-    void ConstantBuffer::Unmap()
+    void MappableConstantBuffer::Unmap()
     {
         ::DX::Buffer::Unmap();
     }

@@ -39,7 +39,7 @@ struct Mesh
             std::vector<VkDescriptorSetLayout> {descriptorSetLayout.GetVkDescriptorSetLayout()}
         );
 
-		std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
+		const std::vector<VkWriteDescriptorSet> writeDescriptorSets = 
 		{
 			VK::CreateWriteDescriptorSet(descriptorSet.get(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &globalUBO.GetVkDescriptor()),
 			VK::CreateWriteDescriptorSet(descriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, &localUBO.GetVkDescriptor()),
@@ -59,8 +59,8 @@ struct Mesh
         transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0, 0, 1));
     }
 
-    void SetPosition(Vec3f position) { this->position = position; ApplyTransform(); }
-    void SetRotation(Vec3f rotation) { this->rotation = rotation; ApplyTransform(); }
+    void SetPosition(const Vec3f position) { this->position = position; ApplyTransform(); }
+    void SetRotation(const Vec3f rotation) { this->rotation = rotation; ApplyTransform(); }
 
     Ptr<VK::DescriptorSet> descriptorSet;
     Ptr<VK::Buffer> vertexBuffer;
@@ -71,8 +71,8 @@ struct Mesh
     glm::mat4x4& transform;
 
 private:
-    Vec3f position{0, -5, -20};
-    Vec3f rotation{0, 0, 0};
+    Vec3f position{0};
+    Vec3f rotation{0};
 };
 
 constexpr unsigned int numInstances{4};
@@ -221,8 +221,6 @@ int main()
     {
         MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
     }
-
-    // delete perObjectUBO.model;
 
     return 0;
 }

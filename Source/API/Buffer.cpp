@@ -21,7 +21,7 @@ namespace API
 
     Ptr<UniformBuffer> UniformBuffer::Create(const unsigned int byteWidth, const unsigned int stride, const void* data)
     {
-        if (GetCurrentGraphicsContext()->GetAPIType() == API::Type::DirectX) return CreatePtr<DX::ConstantBuffer>(byteWidth, stride, data);
+        if (GetCurrentGraphicsContext()->GetAPIType() == API::Type::DirectX) return CreatePtr<DX::UpdatableConstantBuffer>(byteWidth, stride, data);
         return nullptr;
     }
 }

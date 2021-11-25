@@ -37,11 +37,11 @@ struct Aligned
     inline static unsigned int dynamicAlignment;
 
     template <typename T1>
-    size_t CalculateDynamicAlignment()
+    unsigned int CalculateDynamicAlignment()
     {
         if (Util::Mem::Aligned::minUniformBufferOffsetAlignment > 0) 
         {
-            return (sizeof(T1) + Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1) & ~(Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1);
+            return (sizeof(T1) + Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1) & static_cast<unsigned int>(~(Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1));
         }
 
         return sizeof(T1);
