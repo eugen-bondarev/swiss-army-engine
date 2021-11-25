@@ -144,18 +144,20 @@ int main()
 
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
-        Ptr<PerSceneUBO> perSceneUBO = CreatePtr<PerSceneUBO>();
-        VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO->proj[0][0], VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        // Ptr<PerSceneUBO> perSceneUBO = CreatePtr<PerSceneUBO>();
+        // VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO->proj[0][0], VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+
+        VK::SceneUniformBuffer<PerSceneUBO> sceneUniformBuffer;
 
         Ptr<PerObjectUBO> perObjectUBO = CreatePtr<PerObjectUBO>(numInstances);
         VK::Buffer localBuffer(numInstances * DynamicAlignment<glm::mat4x4>::Get(), 1, perObjectUBO->model.GetPtr(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 		localBuffer.SetDescriptor(DynamicAlignment<glm::mat4x4>::Get());
 
         std::vector<Mesh> meshes;
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[0]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[1]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[2]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[3]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, localBuffer, perObjectUBO->model[0]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, localBuffer, perObjectUBO->model[1]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, localBuffer, perObjectUBO->model[2]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, localBuffer, perObjectUBO->model[3]);
 
         meshes[0].SetPosition({-5, -5, -15});
         meshes[1].SetPosition({-5, -5, -25});
@@ -183,8 +185,9 @@ int main()
             
             glm::mat4 pre = glm::mat4(1);
             pre[1][1] = -1.0f;
-            perSceneUBO->proj = pre * glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
-            ubo.Update(&perSceneUBO->proj[0][0]);
+            sceneUniformBuffer().proj = pre * glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
+            sceneUniformBuffer.Overwrite();
+            // ubo.Update(&perSceneUBO->proj[0][0]);
 
             for (size_t i = 0; i < meshes.size(); ++i)
             {

@@ -79,6 +79,39 @@ namespace VK
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;
     };
+
+    template <typename T>
+    class SceneUniformBuffer : public Buffer
+    {
+    public:
+        SceneUniformBuffer() : Buffer(sizeof(T), 1, &data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        {
+        }
+
+        T& operator()()
+        {
+            return data;
+        }
+
+        const T& operator()() const
+        {
+            return data;
+        }
+
+        void Overwrite()
+        {
+            Update(&data);
+        }
+
+    private:
+        T data;
+    };
+
+    class EntityUniformBuffer : public Buffer
+    {
+    public:
+
+    };
 }
 
 #endif
