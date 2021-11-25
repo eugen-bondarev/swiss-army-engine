@@ -11,42 +11,15 @@ struct PerSceneUBO
     glm::mat4x4 proj;
 };
 
-template <typename T>
-struct UBO
-{
-    UBO(const size_t numInstances) : data{numInstances}
-    {
-    }
-
-    Aligned<T> data;
-
-    size_t GetSize() const
-    {
-        return DynamicAlignment<T>::Get<true>();
-    }
-
-    const void* GetPtr() const
-    {
-        return data.GetPtr();
-    }
-};
-
-struct MyUBOStruct
+struct PerEntityUBO
 {
     glm::mat4x4 model;
     float another;
 };
 
-struct PerObjectUBO : public UBO<MyUBOStruct>
-{
-    PerObjectUBO(const size_t numInstances) : UBO(numInstances)
-    {
-    }
-};
-
 struct Mesh
 {
-    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO, MyUBOStruct& ubo) : ubo{ubo}
+    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO, PerEntityUBO& ubo) : ubo{ubo}
     {
         const VK::Buffer stagingVertexBuffer(modelAsset.vertices);
         vertexBuffer = CreatePtr<VK::Buffer>(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -93,7 +66,7 @@ struct Mesh
     Ptr<VK::Texture2D> texture;
     unsigned int numIndices;
 
-    MyUBOStruct& ubo;
+    PerEntityUBO& ubo;
 
 private:
     Vec3f position{0};
@@ -170,7 +143,7 @@ int main()
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
         VK::SceneUniformBuffer<PerSceneUBO> sceneUniformBuffer;
-        VK::EntityUniformBuffer<PerObjectUBO> entityUniformBuffer(numInstances);
+        VK::EntityUniformBuffer<PerEntityUBO> entityUniformBuffer(numInstances);
 
         std::vector<Mesh> meshes;
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer().data[0]);
@@ -225,7 +198,7 @@ int main()
 
                             for (size_t i = 0; i < meshes.size(); ++i)
                             {
-                                const uint32_t dynamicOffset = i * DynamicAlignment<MyUBOStruct>::Get();
+                                const uint32_t dynamicOffset = i * DynamicAlignment<PerEntityUBO>::Get();
                                 cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
                                 cmd.BindIndexBuffer(*meshes[i].indexBuffer);
                                     cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);

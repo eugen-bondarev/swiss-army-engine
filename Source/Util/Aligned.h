@@ -102,3 +102,23 @@ public:
 private:
     T* data;
 };
+
+template <typename T>
+struct AlignedUBO
+{
+    AlignedUBO(const size_t numInstances) : data{numInstances}
+    {
+    }
+
+    Aligned<T> data;
+
+    size_t GetSize() const
+    {
+        return DynamicAlignment<T>::Get<true>();
+    }
+
+    const void* GetPtr() const
+    {
+        return data.GetPtr();
+    }
+};
