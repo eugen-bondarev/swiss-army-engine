@@ -6,6 +6,7 @@ layout(binding = 0) uniform SceneUBO {
 
 layout(binding = 1) uniform ObjectUBO {
     mat4 model;
+    float another;
 } objectUBO;
 
 layout(location = 0) in vec3 inPosition;
@@ -15,6 +16,6 @@ layout(location = 0) out vec2 outTexCoords;
 
 void main() 
 {
-    gl_Position = sceneUBO.proj * objectUBO.model * vec4(inPosition, 1.0);
+    gl_Position = sceneUBO.proj * objectUBO.model * vec4(inPosition.x, inPosition.y + objectUBO.another, inPosition.z, 1.0);
 	outTexCoords = inTexCoords;
 }

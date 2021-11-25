@@ -107,10 +107,32 @@ namespace VK
         T data;
     };
 
+    template <typename T>
     class EntityUniformBuffer : public Buffer
     {
     public:
+        EntityUniformBuffer(const size_t numInstances) : data{numInstances}, Buffer(numInstances * data.GetSize(), 1, &data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        {
+		    SetDescriptor(data.GetSize());
+        }
 
+        T& operator()()
+        {
+            return data;
+        }
+
+        const T& operator()() const
+        {
+            return data;
+        }
+
+        void Overwrite()
+        {
+            Update(data.GetPtr());
+        }
+
+        T data;
+    private:
     };
 }
 

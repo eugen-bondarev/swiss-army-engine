@@ -33,32 +33,41 @@ namespace Util
     }
 }
 
-template <typename T>
-class DynamicAlignment
+template <int Size>
+class RawDynamicAlignment
 {
 public:
     inline static void Calculate()
     {
-        const static unsigned int minAlignment{Util::Mem::Aligned::GetMinUniformBufferOffsetAlignment()};
+        static const unsigned int minAlignment{Util::Mem::Aligned::GetMinUniformBufferOffsetAlignment()};
 
         if (minAlignment > 0) 
         {
-            DynamicAlignment<T>::value = ((sizeof(T) + minAlignment - 1) & static_cast<unsigned int>(~(minAlignment - 1)));
+            value = (Size + minAlignment - 1) & static_cast<unsigned int>(~(minAlignment - 1));
         }
         else
         {
-            DynamicAlignment<T>::value = sizeof(T);
+            value = Size;
         }
     }
 
+    template <bool PerformCalculation = false>
     inline static unsigned int Get()
     {
+        if (PerformCalculation)
+        {
+            Calculate();
+        }
+
         return value;
     }
 
 private:
     inline static unsigned int value{0};
 };
+
+template <typename T>
+using DynamicAlignment = RawDynamicAlignment<sizeof(T)>;
 
 template <typename T>
 class Aligned
