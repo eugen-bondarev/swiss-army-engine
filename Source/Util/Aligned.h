@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "../Common/Common.h"
 
 namespace Util
 {
@@ -30,27 +31,39 @@ namespace Util
 }
 
 template <typename T>
+class DynamicAlignment
+{
+public:
+    inline static void Calculate()
+    {
+        if (Util::Mem::Aligned::minUniformBufferOffsetAlignment > 0) 
+        {
+            DynamicAlignment<T>::value = ((sizeof(T) + Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1) & static_cast<unsigned int>(~(Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1)));
+        }
+        else
+        {
+            DynamicAlignment<T>::value = sizeof(T);
+        }
+    }
+
+    inline static unsigned int Get()
+    {
+        return value;
+    }
+
+private:
+    inline static unsigned int value{0};
+};
+
+template <typename T>
 struct Aligned
 {
     T* data;
 
-    inline static unsigned int dynamicAlignment;
-
-    template <typename T1>
-    unsigned int CalculateDynamicAlignment()
-    {
-        if (Util::Mem::Aligned::minUniformBufferOffsetAlignment > 0) 
-        {
-            return (sizeof(T1) + Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1) & static_cast<unsigned int>(~(Util::Mem::Aligned::minUniformBufferOffsetAlignment - 1));
-        }
-
-        return sizeof(T1);
-    }
-
     Aligned(unsigned int amount_of_instances)
     {
-        dynamicAlignment = CalculateDynamicAlignment<T>();
-        data = Util::Mem::Aligned::Alloc<T>(amount_of_instances * dynamicAlignment, dynamicAlignment);
+        DynamicAlignment<T>::Calculate();
+        data = Util::Mem::Aligned::Alloc<T>(amount_of_instances * DynamicAlignment<T>::Get(), DynamicAlignment<T>::Get());
     }
 
     ~Aligned()
@@ -60,14 +73,14 @@ struct Aligned
 
     T& operator[](int i)
     {		
-        T& item = *(T*)(((uint64_t)data + (i * dynamicAlignment)));
+        T& item = *(T*)(((uint64_t)data + (i * DynamicAlignment<T>::Get())));
 
         return item;
     }
 
     const T& operator[](int i) const
     {		
-        T& item = *(T*)(((uint64_t)data + (i * dynamicAlignment)));
+        T& item = *(T*)(((uint64_t)data + (i * DynamicAlignment<T>::Get())));
 
         return item;
     }

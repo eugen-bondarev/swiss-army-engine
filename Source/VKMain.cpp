@@ -148,8 +148,8 @@ int main()
         VK::Buffer ubo(sizeof(PerSceneUBO), 1, &perSceneUBO->proj[0][0], VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
         Ptr<PerObjectUBO> perObjectUBO = CreatePtr<PerObjectUBO>(numInstances);
-        VK::Buffer localBuffer(numInstances * Aligned<glm::mat4x4>::dynamicAlignment, 1, perObjectUBO->model.data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-		localBuffer.SetDescriptor(Aligned<glm::mat4x4>::dynamicAlignment);
+        VK::Buffer localBuffer(numInstances * DynamicAlignment<glm::mat4x4>::Get(), 1, perObjectUBO->model.data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+		localBuffer.SetDescriptor(DynamicAlignment<glm::mat4x4>::Get());
 
         std::vector<Mesh> meshes;
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, ubo, localBuffer, perObjectUBO->model[0]);
@@ -199,7 +199,7 @@ int main()
 
                             for (size_t i = 0; i < meshes.size(); ++i)
                             {
-                                const uint32_t dynamicOffset = i * Aligned<glm::mat4x4>::dynamicAlignment;
+                                const uint32_t dynamicOffset = i * DynamicAlignment<glm::mat4x4>::Get();
                                 cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
                                 cmd.BindIndexBuffer(*meshes[i].indexBuffer);
                                     cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
