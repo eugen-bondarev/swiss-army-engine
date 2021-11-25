@@ -64,7 +64,7 @@ namespace VK
         const VkDescriptorBufferInfo& GetVkDescriptor() const;
         void SetDescriptor(const VkDeviceSize range, const VkDeviceSize offset = 0);
 
-    private:
+    protected:
         const Device& device;
 
         VkBuffer vkBuffer;
