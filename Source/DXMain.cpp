@@ -7,18 +7,23 @@
 #include "API/Shader.h"
 #include "DX/DX.h"
 
-static Ptr<API::VertexBuffer>           meshVertexBuffer{nullptr};
-static Ptr<API::IndexBuffer>            meshIndexBuffer{nullptr};
-static Ptr<DX::MappableConstantBuffer>  constantBuffer{nullptr};
-static Ptr<API::Shader>                 shader{nullptr};
-static Ptr<API::Sampler>                sampler{nullptr};
-static Ptr<API::Texture>                texture{nullptr};
+static Ptr<API::VertexBuffer>          meshVertexBuffer{nullptr};
+static Ptr<API::IndexBuffer>           meshIndexBuffer{nullptr};
+static Ptr<DX::MappableConstantBuffer> sceneConstantBuffer{nullptr};
+static Ptr<API::Shader>                shader{nullptr};
+static Ptr<API::Sampler>               sampler{nullptr};
+static Ptr<API::Texture>               texture{nullptr};
+
+struct Mesh
+{
+
+};
 
 void RenderMesh(const float angleX, const float angleY, const unsigned int numIndices)
 {
     meshVertexBuffer->Bind(0u);
     meshIndexBuffer->Bind();
-    constantBuffer->Bind();
+    sceneConstantBuffer->Bind();
     shader->Bind();
     sampler->Bind();
     texture->Bind();
@@ -33,9 +38,9 @@ void RenderMesh(const float angleX, const float angleY, const unsigned int numIn
             DX::XMMatrixPerspectiveFovLH(70.0f * M_PI / 180.0f, DX::GetSwapChain()->GetAspectRatio(), 0.1f, 1000.0f)
         );
 
-    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(constantBuffer->Map());
+    DX::XMMATRIX* data = static_cast<DX::XMMATRIX*>(sceneConstantBuffer->Map());
         *data = transform;
-    constantBuffer->Unmap();
+    sceneConstantBuffer->Unmap();
 
     // DX_TRY(DX::GetDevice().GetDxContext().UpdateSubresource(constantBuffer->GetDxBuffer(), 0, nullptr, &transform, 0, 0));
 
@@ -49,7 +54,7 @@ void InitResources(const Util::TextAsset& vsCode, const Util::TextAsset& psCode,
     meshVertexBuffer = API::VertexBuffer::Create(sizeof(Vertex) * characterMesh.vertices.size(), sizeof(Vertex), characterMesh.vertices.data());
     meshIndexBuffer = API::IndexBuffer::Create(sizeof(unsigned int) * characterMesh.indices.size(), sizeof(unsigned int), characterMesh.indices.data());
     // constantBuffer = API::UniformBuffer::Create(sizeof(DX::XMMATRIX), 0, nullptr);
-    constantBuffer = CreatePtr<DX::MappableConstantBuffer>(sizeof(DX::XMMATRIX), 0, nullptr);
+    sceneConstantBuffer = CreatePtr<DX::MappableConstantBuffer>(sizeof(DX::XMMATRIX), 0, nullptr);
     shader = API::Shader::Create(vsCode, psCode);
     sampler = API::Sampler::Create();
     texture = API::Texture::Create(characterTexture.size, characterTexture.data);
@@ -59,22 +64,34 @@ int main()
 {
     try
     {
-        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("/Assets/Shaders/VertexShader.hlsl");
-        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("/Assets/Shaders/PixelShader.hlsl");
-        const Util::ModelAsset characterMesh = Util::LoadModelFile("/Assets/Models/CharacterModel.fbx");
-        const Util::ImageAsset characterTexture = Util::LoadImageFile("/Assets/Images/CharacterTexture.png");
+        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("Assets/Shaders/VertexShader.hlsl");
+        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("Assets/Shaders/PixelShader.hlsl");
+        const Util::ModelAsset characterMesh = Util::LoadModelFile("Assets/Models/CharacterModel.fbx");
+        const Util::ImageAsset characterTexture = Util::LoadImageFile("Assets/Images/CharacterTexture.png");
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::DirectX);
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::DirectX, WindowMode::Windowed, false, Vec2ui {1024, 768});
 
         InitResources(vertexShaderCode, pixelShaderCode, characterMesh, characterTexture);
 
         while (window->IsRunning())
         {
             window->BeginFrame();
-                static float theta{0}; theta += 0.05f;
+
+                const float deltaTime {window->GetDeltaTime()};
+                static float timer {0}; timer += deltaTime;
+
+                if (timer >= 1.0f)
+                {
+                    VAR_OUT((1.0f / deltaTime));
+
+                    timer = 0;
+                }
+
+                static float theta{0}; theta += deltaTime;
                 DX::GetRenderTargetView()->Bind();
                 DX::GetRenderTargetView()->Clear();
                 RenderMesh(0, theta, characterMesh.indices.size());
+
             window->EndFrame();
         }
     }

@@ -50,9 +50,9 @@
 //     void ApplyTransform()
 //     {
 //         ubo.model = glm::translate(glm::mat4x4(1), position);
-//         ubo.model = glm::rotate(ubo.model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
-//         ubo.model = glm::rotate(ubo.model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
-//         ubo.model = glm::rotate(ubo.model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+//         ubo.model = glm::rotate(ubo.model, rotation.x, glm::vec3(1, 0, 0));
+//         ubo.model = glm::rotate(ubo.model, rotation.y, glm::vec3(0, 1, 0));
+//         ubo.model = glm::rotate(ubo.model, rotation.z, glm::vec3(0, 0, 1));
 //     }
 
 //     void SetPosition(const Vec3f position) { this->position = position; ApplyTransform(); }
@@ -84,7 +84,7 @@
 //         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
 //         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-//         Ptr<API::Window> window {CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768})};
+//         Ptr<API::Window> window {CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768})};
 
 //         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 //         VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -163,33 +163,12 @@
 //         meshes[0].SetRotation({0,  45, 0});
 //         meshes[1].SetRotation({0, -45, 0});
 
-//         while (window->IsRunning())
+//         for (size_t j = 0; j < commandBuffers.size(); ++j)
 //         {
-//             window->BeginFrame();
+//             VK::CommandPool& pool = *commandPools[j];
+//             VK::CommandBuffer& cmd = *commandBuffers[j];
+//             const VK::Framebuffer& framebuffer = *VK::GetSwapChain().GetFramebuffers()[j];
 
-//             frameManager.AcquireSwapChainImage();
-
-//             const VK::Frame* frame = frameManager.GetCurrentFrame();
-//             const VkSemaphore* wait = &frame->GetSemaphore(0);
-//             const VkSemaphore* signal = &frame->GetSemaphore(1);
-
-//             VK::CommandPool& pool = *commandPools[VK::GetSwapChain().GetCurrentImageIndex()];
-//             VK::CommandBuffer& cmd = *commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()];
-//             const VK::Framebuffer& framebuffer = VK::GetSwapChain().GetCurrentScreenFramebuffer();
-
-//             static float theta{0}; theta += 0.025f;
-            
-//             sceneUniformBuffer().proj = glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
-//             sceneUniformBuffer().proj[1][1] *= -1.0f;
-
-//             for (size_t i = 0; i < meshes.size(); ++i)
-//             {
-//                 meshes[i].SetRotation({0, theta, 0});
-//             }
-
-//             sceneUniformBuffer.Overwrite();
-//             entityUniformBuffer.Overwrite();
-            
 //             pool.Reset();
 //                 cmd.Begin();
 //                     cmd.BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
@@ -205,12 +184,48 @@
 //                             }
 //                     cmd.EndRenderPass();
 //                 cmd.End();
+//         }
+            
+//         sceneUniformBuffer().proj = glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
+//         sceneUniformBuffer().proj[1][1] *= -1.0f;
+//         sceneUniformBuffer.Overwrite();
+
+//         while (window->IsRunning())
+//         {
+//             window->BeginFrame();
+
+//             const float deltaTime {window->GetDeltaTime()};
+//             static float timer {0}; timer += deltaTime;
+
+//             if (timer >= 1.0f)
+//             {
+//                 VAR_OUT((1.0f / deltaTime));
+
+//                 timer = 0;
+//             }
+
+//             frameManager.AcquireSwapChainImage();
+
+//             const VK::Frame* frame = frameManager.GetCurrentFrame();
+//             const VkSemaphore* wait = &frame->GetSemaphore(0);
+//             const VkSemaphore* signal = &frame->GetSemaphore(1);
+//             VK::CommandBuffer& cmd = *commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()];
+
+//             static float theta{0}; theta += deltaTime;
+
+//             for (size_t i = 0; i < meshes.size(); ++i)
+//             {
+//                 meshes[i].SetRotation({0, theta, 0});
+//             }
+//             entityUniformBuffer.Overwrite();
 
 // 	        const VkFence fence = frame->GetInFlightFence();
 //             vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
 //             cmd.SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
 
 //             frameManager.Present();
+
+//             window->EndFrame();
 //         }
 
 //         VK::GetDevice().WaitIdle();

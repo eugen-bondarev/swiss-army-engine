@@ -120,12 +120,14 @@ RawWindow::~RawWindow()
 void RawWindow::BeginFrame()
 {
     glfwPollEvents();
+    time.BeginFrame();
 }
 
 void RawWindow::EndFrame()
 {
     MY_ASSERT(swapChain != nullptr);
     swapChain->Present(static_cast<unsigned int>(vSync), 0u);
+    time.EndFrame();
 }
 
 bool RawWindow::IsRunning() const

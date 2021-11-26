@@ -3,15 +3,12 @@
 
 #pragma once
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+#include "GLFWHeader.h"
 
 #include "../API/SwapChainBase.h"
 #include "../Common/Common.h"
 #include "Events/Callback.h"
+#include "Time.h"
 
 namespace DX
 {
@@ -60,12 +57,18 @@ public:
     GLFWwindow* GetHandle();
     Vec2ui GetSize() const;
     float GetAspectRatio() const;
+    
+    inline float GetDeltaTime() const
+    {
+        return time.GetDeltaTime();
+    }
 
 private:
     Vec2ui size;
     bool vSync;
     bool running{true};
     GLFWwindow* handle;
+    Time time;
     Callback::Queue<Callback::Resize> resizeCallbacks;
     
     Base::SwapChain* swapChain;

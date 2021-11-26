@@ -20,6 +20,7 @@ namespace VK
         defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
         
         swapChain = CreatePtr<SwapChain>(window, *device);
+        window.swapChain = swapChain.get();
         defaultCommandPool = CreatePtr<CommandPool>(*device);
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
