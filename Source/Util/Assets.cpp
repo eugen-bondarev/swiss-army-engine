@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <fstream>
+#include <stdio.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -12,6 +13,14 @@
 
 namespace Util
 {
+    void RemoveFile(const Path& filePath)
+    {
+        if (remove(filePath().c_str()) != 0)
+        {
+            throw std::runtime_error("Failed to remove file " + filePath());
+        }
+    }
+
     TextAsset LoadTextFile(const Path& filePath, const bool binary)
     {
         std::ifstream file;

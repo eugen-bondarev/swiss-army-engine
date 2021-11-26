@@ -1,3 +1,4 @@
+#include "Util/Shaders/SPIRV.h"
 #include "Util/Aligned.h"
 #include "Util/Assets.h"
 #include "API/Window.h"
@@ -70,50 +71,23 @@ struct Mesh
     PerEntityUBO& ubo;
 
 private:
-    Vec3f position{0};
-    Vec3f rotation{0};
+    Vec3f position {0};
+    Vec3f rotation {0};
 };
 
-constexpr unsigned int numInstances{4};
-
-template<typename... Args>
-std::string string_format(const std::string& format, Args... args)
-{
-    const int size_s{std::snprintf(nullptr, 0, format.c_str(), args...) + 1};
-
-    if (size_s <= 0) 
-    { 
-        throw std::runtime_error( "Error during formatting." ); 
-    }
-
-    const size_t size{static_cast<size_t>(size_s)};
-    const std::unique_ptr<char[]> buf{std::make_unique<char[]>(size)};
-    std::snprintf(buf.get(), size, format.c_str(), args...);
-    return std::string(buf.get(), buf.get() + size - 1);
-}
-
-void CompileGLSL(const std::string& pathToGLSL, const std::string& pathToOutput)
-{
-    
-}
+constexpr unsigned int numInstances {4};
 
 int main()
 {
     try
     {
-        Util::Path path = "hello, world!";
-        LINE_OUT(path());
+        const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert", true)};
+        const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag", true)};
 
-        const std::string compileVertexShaderCommand{string_format("glslc %s/Assets/Shaders/VertexShader.vert -o %s/Assets/Shaders/VertexShader.vert.com", PROJECT_ROOT_DIR, PROJECT_ROOT_DIR)};
-        const int result{system(compileVertexShaderCommand.c_str())};
+        const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
+        const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("Assets/Shaders/VertexShader.vert.com", true);
-        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("Assets/Shaders/FragmentShader.frag.spv", true);
-
-        const Util::ModelAsset characterMesh = Util::LoadModelFile("Assets/Models/CharacterModel.fbx");
-        const Util::ImageAsset characterTexture = Util::LoadImageFile("Assets/Images/CharacterTexture.png");
-
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
+        Ptr<API::Window> window {CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768})};
 
         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -146,7 +120,7 @@ int main()
 
         VK::Pipeline pipeline(
             vertexShaderCode, 
-            pixelShaderCode,
+            fragmentShaderCode,
             window->GetSize(),
             { 
                 VK::Util::CreateAttachment(

@@ -26,6 +26,7 @@ namespace Util
         std::vector<unsigned int> indices;
     };
 
+    void RemoveFile(const Path& filePath);
     TextAsset LoadTextFile(const Path& filePath, const bool binary = false);
     ImageAsset LoadImageFile(const Path& filePath);
     ModelAsset LoadModelFile(const Path& filePath);

@@ -12,11 +12,16 @@ namespace Util
         
         Path(const char* pathRelativeToProjectRoot);
         Path(const std::string& pathRelativeToProjectRoot);
+        Path(const Path& path);
+
         Path& operator=(const std::string& pathRelativeToProjectRoot);
         Path& operator=(const char* pathRelativeToProjectRoot);
+        Path operator+(const char* string) const;
+        Path& operator+=(const char* string);
+        
         std::string Resolve() const;
-        std::string operator()() const;        
-
+        std::string operator()() const;
+        
     private:
         std::string fullPath;
     };
