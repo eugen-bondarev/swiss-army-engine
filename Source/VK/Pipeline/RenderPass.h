@@ -10,6 +10,7 @@ namespace VK
 {
     FORWARD_DECLARE(Framebuffer);
     FORWARD_DECLARE(Device);
+    FORWARD_DECLARE(Image);
 
     namespace Util
     {
@@ -23,6 +24,8 @@ namespace VK
             const VkAttachmentStoreOp stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
             const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT
         );
+
+        VkAttachmentDescription CreateDefaultDepthAttachment(const Image& depthImage);
     }
 
     using AttachmentDescriptions = std::vector<VkAttachmentDescription>;

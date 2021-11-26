@@ -41,6 +41,8 @@ namespace VK
         const VK::Framebuffer& GetCurrentScreenFramebuffer() const;
         std::vector<Ref<VK::Framebuffer>>& GetFramebuffers();
 
+        VkAttachmentDescription GetDefaultAttachmentDescription() const;
+
         const std::vector<VkImage>& GetImages() const;
         const std::vector<Ref<ImageView>>& GetImageViews() const;
 

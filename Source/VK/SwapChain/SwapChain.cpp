@@ -1,6 +1,7 @@
 #include "SwapChain.h"
 
 #include "../Framebuffer/Framebuffer.h"
+#include "../Pipeline/RenderPass.h"
 #include "../Device/QueueFamily.h"
 #include "../GraphicsContext.h"
 #include "../Surface/Surface.h"
@@ -280,5 +281,19 @@ namespace VK
     const std::vector<Ref<ImageView>>& SwapChain::GetImageViews() const
     {
         return imageViews;
+    }
+
+    VkAttachmentDescription SwapChain::GetDefaultAttachmentDescription() const
+    {
+        return Util::CreateAttachment(
+            GetImageFormat(), 
+            VK_IMAGE_LAYOUT_UNDEFINED, 
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
+            VK_ATTACHMENT_LOAD_OP_CLEAR, 
+            VK_ATTACHMENT_STORE_OP_STORE, 
+            VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
+            VK_ATTACHMENT_STORE_OP_DONT_CARE, 
+            VK_SAMPLE_COUNT_1_BIT
+        );
     }
 }

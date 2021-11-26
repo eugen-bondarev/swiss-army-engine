@@ -3,6 +3,7 @@
 #include "../Framebuffer/Framebuffer.h"
 #include "../GraphicsContext.h"
 #include "../Device/Device.h"
+#include "../Image/Image.h"
 
 namespace VK
 {
@@ -29,6 +30,20 @@ namespace VK
             attachment.initialLayout = initialLayout;
             attachment.finalLayout = finalLayout;
             return attachment;
+        }
+
+        VkAttachmentDescription CreateDefaultDepthAttachment(const Image& depthImage)
+        {
+            return CreateAttachment(
+                depthImage.GetVkFormat(),
+                VK_IMAGE_LAYOUT_UNDEFINED, 
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+                VK_ATTACHMENT_LOAD_OP_CLEAR, 
+                VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                VK_SAMPLE_COUNT_1_BIT
+            );
         }
     }
 
