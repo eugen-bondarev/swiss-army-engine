@@ -120,7 +120,6 @@ int main()
 
         const VK::DescriptorSetLayout descriptorSetLayout(bindings);
 
-		const VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
 		const VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
 		const VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
 		const std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
