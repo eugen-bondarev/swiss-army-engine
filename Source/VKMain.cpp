@@ -119,10 +119,8 @@ int main()
         };
 
         const VK::DescriptorSetLayout descriptorSetLayout(bindings);
-
 		const VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
 		const VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
-		const std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
 
         VK::Pipeline pipeline(
             vertexShaderCode, 
@@ -131,7 +129,7 @@ int main()
             { VK::GetSwapChain().GetDefaultAttachmentDescription(), VK::Util::CreateDefaultDepthAttachment(depthImage) },
             bindingDescriptors,
             attributeDescriptors,
-            descriptorSetLayouts
+            { descriptorSetLayout.GetVkDescriptorSetLayout() }
         );
 
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
