@@ -5,6 +5,7 @@
 
 #include "../Common/Common.h"
 #include "../Common/Vertex.h"
+#include "Path.h"
 
 namespace Util
 {
@@ -25,9 +26,9 @@ namespace Util
         std::vector<unsigned int> indices;
     };
 
-    TextAsset LoadTextFile(const std::string& filePath, const bool binary = false);
-    ImageAsset LoadImageFile(const std::string& filePath);
-    ModelAsset LoadModelFile(const std::string& filePath);
+    TextAsset LoadTextFile(const Path& filePath, const bool binary = false);
+    ImageAsset LoadImageFile(const Path& filePath);
+    ModelAsset LoadModelFile(const Path& filePath);
 }
 
 #endif

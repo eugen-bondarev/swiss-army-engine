@@ -1,6 +1,7 @@
 #include "Util/Aligned.h"
 #include "Util/Assets.h"
 #include "API/Window.h"
+#include "Util/Path.h"
 #include "VK/VK.h"
 
 #include <gtc/matrix_transform.hpp>
@@ -75,17 +76,44 @@ private:
 
 constexpr unsigned int numInstances{4};
 
+template<typename... Args>
+std::string string_format(const std::string& format, Args... args)
+{
+    const int size_s{std::snprintf(nullptr, 0, format.c_str(), args...) + 1};
+
+    if (size_s <= 0) 
+    { 
+        throw std::runtime_error( "Error during formatting." ); 
+    }
+
+    const size_t size{static_cast<size_t>(size_s)};
+    const std::unique_ptr<char[]> buf{std::make_unique<char[]>(size)};
+    std::snprintf(buf.get(), size, format.c_str(), args...);
+    return std::string(buf.get(), buf.get() + size - 1);
+}
+
+void CompileGLSL(const std::string& pathToGLSL, const std::string& pathToOutput)
+{
+    
+}
+
 int main()
 {
     try
     {
-        const Util::TextAsset vertexShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/VertexShader.vert.spv", true);
-        const Util::TextAsset pixelShaderCode = Util::LoadTextFile(PROJECT_ROOT_DIR "/Assets/Shaders/FragmentShader.frag.spv", true);
+        Util::Path path = "hello, world!";
+        LINE_OUT(path());
 
-        const Util::ModelAsset characterMesh = Util::LoadModelFile(PROJECT_ROOT_DIR "/Assets/Models/CharacterModel.fbx");
-        const Util::ImageAsset characterTexture = Util::LoadImageFile(PROJECT_ROOT_DIR "/Assets/Images/CharacterTexture.png");
+        const std::string compileVertexShaderCommand{string_format("glslc %s/Assets/Shaders/VertexShader.vert -o %s/Assets/Shaders/VertexShader.vert.com", PROJECT_ROOT_DIR, PROJECT_ROOT_DIR)};
+        const int result{system(compileVertexShaderCommand.c_str())};
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui{1024, 768});
+        const Util::TextAsset vertexShaderCode = Util::LoadTextFile("Assets/Shaders/VertexShader.vert.com", true);
+        const Util::TextAsset pixelShaderCode = Util::LoadTextFile("Assets/Shaders/FragmentShader.frag.spv", true);
+
+        const Util::ModelAsset characterMesh = Util::LoadModelFile("Assets/Models/CharacterModel.fbx");
+        const Util::ImageAsset characterTexture = Util::LoadImageFile("Assets/Images/CharacterTexture.png");
+
+        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, true, Vec2ui {1024, 768});
 
         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -146,10 +174,10 @@ int main()
         VK::EntityUniformBuffer<PerEntityUBO> entityUniformBuffer(numInstances);
 
         std::vector<Mesh> meshes;
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer().data[0]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer().data[1]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer().data[2]);
-        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer().data[3]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[0]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[1]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[2]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[3]);
 
         meshes[0].SetPosition({-5, -5, -15});
         meshes[1].SetPosition({-5, -5, -25});

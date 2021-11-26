@@ -12,39 +12,38 @@
 
 namespace Util
 {
-    TextAsset LoadTextFile(const std::string& filePath, const bool binary)
+    TextAsset LoadTextFile(const Path& filePath, const bool binary)
     {
         std::ifstream file;
         
         if (binary)
         {
-            file.open(filePath, std::ios::binary);
+            file.open(filePath(), std::ios::binary);
         }
         else
         {
-            file.open(filePath);
+            file.open(filePath());
         }
-        // std::ifstream file(filePath, std::ios::binary);
 
         if (!file.is_open())
         {
-            throw std::runtime_error("Failed to open text file " + filePath);
+            throw std::runtime_error("Failed to open text file " + filePath());
         }
 
         std::string cont = std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
         return cont;
     }
 
-    ImageAsset LoadImageFile(const std::string& filePath)
+    ImageAsset LoadImageFile(const Path& filePath)
     {
         ImageAsset result;
 
         int _width, _height, _numChannels;
-        result.data = stbi_load(filePath.c_str(), &_width, &_height, &_numChannels, STBI_rgb_alpha);
+        result.data = stbi_load(filePath().c_str(), &_width, &_height, &_numChannels, STBI_rgb_alpha);
 
         if (!result.data)
         {
-            throw std::runtime_error("Failed to open image file " + filePath);
+            throw std::runtime_error("Failed to open image file " + filePath());
         }
 
         result.size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
@@ -53,16 +52,16 @@ namespace Util
         return result;
     }
 
-    ModelAsset LoadModelFile(const std::string& filePath)
+    ModelAsset LoadModelFile(const Path& filePath)
     {
         ModelAsset result;
 
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene* scene = importer.ReadFile(filePath(), aiProcess_Triangulate | aiProcess_FlipUVs);
 
         if (!scene)
         {
-            throw std::runtime_error("Failed to open model file " + filePath);
+            throw std::runtime_error("Failed to open model file " + filePath());
         }
 
         const size_t meshIndex{0};

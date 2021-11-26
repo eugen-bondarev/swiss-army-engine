@@ -17,14 +17,14 @@ namespace VK
 		    SetDescriptor(data.GetSize());
         }
 
-        AlignedUBO<T>& operator()()
+        Aligned<T>& operator()()
         {
-            return data;
+            return data.data;
         }
 
-        const AlignedUBO<T>& operator()() const
+        const Aligned<T>& operator()() const
         {
-            return data;
+            return data.data;
         }
 
         void Overwrite()
