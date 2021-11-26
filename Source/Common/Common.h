@@ -22,6 +22,9 @@
 #define LINE_OUT(x)\
     std::cout << x << '\n'
 
+#define VAR_OUT(x)\
+    std::cout << #x << " = " << x << '\n'
+
 #ifndef PROJECT_ROOT_DIR
 #   define PROJECT_ROOT_DIR ""
 #endif
