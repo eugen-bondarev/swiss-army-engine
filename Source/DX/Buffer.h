@@ -34,7 +34,7 @@ namespace DX
     public:
         VertexBuffer(const UINT byteWidth, const UINT stride = 0u, const void* data = nullptr, Device& device = GetDevice());
 
-        void Bind(const UINT offset) override;
+        void Bind(const UINT offset = 0u) override;
         void* Map() override;
         void Unmap() override;
     };

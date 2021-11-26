@@ -11,18 +11,16 @@
 
 #include "../Common/Common.h"
 
-// namespace VK
-// {
-//     struct Vec2
-//     {
-//         float x{0}, y{0};
-//     };
-// }
-
-#define VK_TRY(exp)\
-    if (exp != VK_SUCCESS) throw std::runtime_error(#exp)
-
-#define VK_ASSERT(exp)\
-    assert(exp)
+#ifndef NDEBUG
+#   define VK_TRY(exp)\
+        if (exp != VK_SUCCESS) throw std::runtime_error(#exp)
+#   define VK_ASSERT(exp)\
+        assert(exp)
+#else
+#   define VK_TRY(exp)\
+        exp
+#   define VK_ASSERT(exp)\
+        (void(0))
+#endif
 
 #endif

@@ -99,6 +99,9 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
 
+    // For debugging.
+    glfwSetWindowPos(handle, 50, 50);
+
     static std::mutex mutex;
     std::lock_guard lock(mutex);
     numWindows++;

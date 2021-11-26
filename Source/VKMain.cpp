@@ -1,239 +1,252 @@
-// #include "Util/Shaders/SPIRV.h"
-// #include "Util/Aligned.h"
-// #include "Util/Assets.h"
-// #include "API/Window.h"
-// #include "Util/Path.h"
-// #include "VK/VK.h"
+#include "Util/Shaders/SPIRV.h"
+#include "Util/Aligned.h"
+#include "Util/Assets.h"
+#include "API/Window.h"
+#include "Util/Path.h"
+#include "VK/VK.h"
 
-// #include <gtc/matrix_transform.hpp>
-// #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <glm.hpp>
 
-// struct PerSceneUBO
-// {
-//     glm::mat4x4 proj;
-// };
+struct PerSceneUBO
+{
+    glm::mat4x4 proj;
+};
 
-// struct PerEntityUBO
-// {
-//     glm::mat4x4 model;
-//     float another;
-// };
+struct PerEntityUBO
+{
+    glm::mat4x4 model;
+    float another;
+};
 
-// struct Mesh
-// {
-//     Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO, PerEntityUBO& ubo) : ubo{ubo}
-//     {
-//         const VK::Buffer stagingVertexBuffer(modelAsset.vertices);
-//         vertexBuffer = CreatePtr<VK::Buffer>(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+struct Mesh
+{
+    Mesh(const Util::ModelAsset& modelAsset, const Util::ImageAsset& imageAsset, const VK::DescriptorSetLayout& descriptorSetLayout, const VK::Buffer& globalUBO, const VK::Buffer& localUBO, PerEntityUBO& ubo) : ubo{ubo}
+    {
+        const VK::Buffer stagingVertexBuffer(modelAsset.vertices);
+        vertexBuffer = CreatePtr<VK::Buffer>(stagingVertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-//         const VK::Buffer stagingIndexBuffer(modelAsset.indices);
-//         indexBuffer = CreatePtr<VK::Buffer>(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        const VK::Buffer stagingIndexBuffer(modelAsset.indices);
+        indexBuffer = CreatePtr<VK::Buffer>(stagingIndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
-//         texture = CreatePtr<VK::Texture2D>(imageAsset.size, 4, imageAsset.data);
+        texture = CreatePtr<VK::Texture2D>(imageAsset.size, 4, imageAsset.data);
         
-//         numIndices = modelAsset.indices.size();
+        numIndices = modelAsset.indices.size();
 
-//         descriptorSet = CreatePtr<VK::DescriptorSet>(
-//             VK::GetDefaultDescriptorPool(),
-//             std::vector<VkDescriptorSetLayout> {descriptorSetLayout.GetVkDescriptorSetLayout()}
-//         );
+        descriptorSet = CreatePtr<VK::DescriptorSet>(
+            VK::GetDefaultDescriptorPool(),
+            std::vector<VkDescriptorSetLayout> {descriptorSetLayout.GetVkDescriptorSetLayout()}
+        );
 
-// 		descriptorSet->Update({
-// 			VK::CreateWriteDescriptorSet(descriptorSet.get(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &globalUBO.GetVkDescriptor()),
-// 			VK::CreateWriteDescriptorSet(descriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, &localUBO.GetVkDescriptor()),
-// 			VK::CreateWriteDescriptorSet(descriptorSet.get(), 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture->GetImageView().GetVkDescriptor())
-// 		});
+		descriptorSet->Update({
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &globalUBO.GetVkDescriptor()),
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, &localUBO.GetVkDescriptor()),
+			VK::CreateWriteDescriptorSet(descriptorSet.get(), 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture->GetImageView().GetVkDescriptor())
+		});
 
-//         ApplyTransform();
-//     }
+        ApplyTransform();
+    }
 
-//     void ApplyTransform()
-//     {
-//         ubo.model = glm::translate(glm::mat4x4(1), position);
-//         ubo.model = glm::rotate(ubo.model, rotation.x, glm::vec3(1, 0, 0));
-//         ubo.model = glm::rotate(ubo.model, rotation.y, glm::vec3(0, 1, 0));
-//         ubo.model = glm::rotate(ubo.model, rotation.z, glm::vec3(0, 0, 1));
-//     }
+    void ApplyTransform()
+    {
+        ubo.model = glm::translate(glm::mat4x4(1), position);
+        ubo.model = glm::rotate(ubo.model, rotation.x, glm::vec3(1, 0, 0));
+        ubo.model = glm::rotate(ubo.model, rotation.y, glm::vec3(0, 1, 0));
+        ubo.model = glm::rotate(ubo.model, rotation.z, glm::vec3(0, 0, 1));
+    }
 
-//     void SetPosition(const Vec3f position) { this->position = position; ApplyTransform(); }
-//     void SetRotation(const Vec3f rotation) { this->rotation = rotation; ApplyTransform(); }
-//     void SetAnother(const float another) { this->ubo.another = another; }
+    template <typename... Args>
+    void SetPosition(Args&&... args) { position = Vec3f(std::forward<Args>(args)...); ApplyTransform(); }
+    void SetPositionX(const float x) { position.x = x; ApplyTransform(); }
+    void SetPositionY(const float y) { position.y = y; ApplyTransform(); }
+    void SetPositionZ(const float z) { position.z = z; ApplyTransform(); }
 
-//     Ptr<VK::DescriptorSet> descriptorSet;
-//     Ptr<VK::Buffer> vertexBuffer;
-//     Ptr<VK::Buffer> indexBuffer;
-//     Ptr<VK::Texture2D> texture;
-//     unsigned int numIndices;
+    template <typename... Args>
+    void SetRotation(Args&&... args) { rotation = Vec3f(std::forward<Args>(args)...); ApplyTransform(); }
+    void SetRotationX(const float x) { rotation.x = x; ApplyTransform(); }
+    void SetRotationY(const float y) { rotation.y = y; ApplyTransform(); }
+    void SetRotationZ(const float z) { rotation.z = z; ApplyTransform(); }
 
-//     PerEntityUBO& ubo;
+    void SetAnother(const float another) { ubo.another = another; }
 
-// private:
-//     Vec3f position {0};
-//     Vec3f rotation {0};
-// };
+    Ptr<VK::DescriptorSet> descriptorSet;
+    Ptr<VK::Buffer> vertexBuffer;
+    Ptr<VK::Buffer> indexBuffer;
+    Ptr<VK::Texture2D> texture;
+    unsigned int numIndices;
 
-// constexpr unsigned int numInstances {4};
+    PerEntityUBO& ubo;
 
-// int main()
-// {
-//     try
-//     {
-//         const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
-//         const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
+private:
+    Vec3f position {0};
+    Vec3f rotation {0};
+};
 
-//         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
-//         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
+constexpr unsigned int numInstances {4};
 
-//         Ptr<API::Window> window {CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768})};
+int main()
+{
+    try
+    {
+        const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
+        const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
 
-//         VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-//         VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
+        const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
+        const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-//         VK::FrameManager frameManager(0, 1, 2, 2);
+        Ptr<API::Window> window {CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768})};
 
-//         std::vector<Ptr<VK::CommandPool>> commandPools;
-//         std::vector<Ptr<VK::CommandBuffer>> commandBuffers;
+        VK::Image depthImage(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        VK::ImageView depthImageView(depthImage, depthImage.GetVkFormat(), VK_IMAGE_ASPECT_DEPTH_BIT);
 
-//         for (size_t i = 0; i < VK::GetSwapChain().GetImageViews().size(); ++i)
-//         {
-//             Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
-//             commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(*pool));
-//             commandPools.push_back(std::move(pool));
-//         }
+        VK::FrameManager frameManager(0, 1, 2, 2);
 
-//         const std::vector<VkDescriptorSetLayoutBinding> bindings = 
-//         {
-//             VK::CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
-//             VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
-//             VK::CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-//         };
+        std::vector<Ptr<VK::CommandPool>> commandPools;
+        std::vector<Ptr<VK::CommandBuffer>> commandBuffers;
 
-//         const VK::DescriptorSetLayout descriptorSetLayout(bindings);
+        for (size_t i = 0; i < VK::GetSwapChain().GetImageViews().size(); ++i)
+        {
+            Ptr<VK::CommandPool> pool = CreatePtr<VK::CommandPool>();
+            commandBuffers.push_back(CreatePtr<VK::CommandBuffer>(*pool));
+            commandPools.push_back(std::move(pool));
+        }
 
-// 		const VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
-// 		const VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
-// 		const VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
-// 		const std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
+        const std::vector<VkDescriptorSetLayoutBinding> bindings = 
+        {
+            VK::CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
+            VK::CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
+            VK::CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        };
 
-//         VK::Pipeline pipeline(
-//             vertexShaderCode, 
-//             fragmentShaderCode,
-//             window->GetSize(),
-//             { 
-//                 VK::Util::CreateAttachment(
-//                     VK::GetSwapChain().GetImageFormat()
-//                 ),
-//                 VK::Util::CreateAttachment(
-//                     depthImage.GetVkFormat(),
-//                     VK_IMAGE_LAYOUT_UNDEFINED, 
-//                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
-//                     VK_ATTACHMENT_LOAD_OP_CLEAR, 
-//                     VK_ATTACHMENT_STORE_OP_DONT_CARE,
-//                     VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-//                     VK_ATTACHMENT_STORE_OP_DONT_CARE,
-//                     VK_SAMPLE_COUNT_1_BIT
-//                 )
-//             },
-//             bindingDescriptors,
-//             attributeDescriptors,
-//             descriptorSetLayouts
-//         );
+        const VK::DescriptorSetLayout descriptorSetLayout(bindings);
 
-// 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
+		const VK::AttachmentDescriptions attachments = { VK::Util::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) };
+		const VK::BindingDescriptions bindingDescriptors = VK::Vertex::GetBindingDescriptions();
+		const VK::AttributeDescriptions attributeDescriptors = VK::Vertex::GetAttributeDescriptions();
+		const std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout.GetVkDescriptorSetLayout() };
 
-//         VK::SceneUniformBuffer<PerSceneUBO> sceneUniformBuffer;
-//         VK::EntityUniformBuffer<PerEntityUBO> entityUniformBuffer(numInstances);
+        VK::Pipeline pipeline(
+            vertexShaderCode, 
+            fragmentShaderCode,
+            window->GetSize(),
+            { 
+                VK::Util::CreateAttachment(
+                    VK::GetSwapChain().GetImageFormat()
+                ),
+                VK::Util::CreateAttachment(
+                    depthImage.GetVkFormat(),
+                    VK_IMAGE_LAYOUT_UNDEFINED, 
+                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+                    VK_ATTACHMENT_LOAD_OP_CLEAR, 
+                    VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                    VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                    VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                    VK_SAMPLE_COUNT_1_BIT
+                )
+            },
+            bindingDescriptors,
+            attributeDescriptors,
+            descriptorSetLayouts
+        );
 
-//         std::vector<Mesh> meshes;
-//         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[0]);
-//         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[1]);
-//         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[2]);
-//         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[3]);
+	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
-//         meshes[0].SetPosition({-5, -5, -15});
-//         meshes[1].SetPosition({-5, -5, -25});
-//         meshes[2].SetPosition({ 5, -5, -15});
-//         meshes[3].SetPosition({ 5, -5, -25});
+        VK::SceneUniformBuffer<PerSceneUBO> sceneUniformBuffer;
+        VK::EntityUniformBuffer<PerEntityUBO> entityUniformBuffer(numInstances);
 
-//         meshes[0].SetAnother(-4);
-//         meshes[1].SetAnother(0);
-//         meshes[2].SetAnother(4);
-//         meshes[3].SetAnother(8);
+        std::vector<Mesh> meshes;
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[0]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[1]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[2]);
+        meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout, sceneUniformBuffer, entityUniformBuffer, entityUniformBuffer()[3]);
 
-//         meshes[0].SetRotation({0,  45, 0});
-//         meshes[1].SetRotation({0, -45, 0});
+        meshes[0].SetPosition(-5, -5, -15);
+        meshes[1].SetPosition(-5, -5, -25);
+        meshes[2].SetPosition( 5, -5, -15);
+        meshes[3].SetPosition( 5, -5, -25);
 
-//         for (size_t j = 0; j < commandBuffers.size(); ++j)
-//         {
-//             VK::CommandPool& pool = *commandPools[j];
-//             VK::CommandBuffer& cmd = *commandBuffers[j];
-//             const VK::Framebuffer& framebuffer = *VK::GetSwapChain().GetFramebuffers()[j];
+        meshes[0].SetAnother(0);
+        meshes[1].SetAnother(0);
+        meshes[2].SetAnother(0);
+        meshes[3].SetAnother(0);
 
-//             pool.Reset();
-//                 cmd.Begin();
-//                     cmd.BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
-//                         cmd.BindPipeline(pipeline);
+        for (size_t j = 0; j < commandBuffers.size(); ++j)
+        {
+            VK::CommandPool& pool = *commandPools[j];
+            VK::CommandBuffer& cmd = *commandBuffers[j];
+            const VK::Framebuffer& framebuffer = *VK::GetSwapChain().GetFramebuffers()[j];
 
-//                             for (size_t i = 0; i < meshes.size(); ++i)
-//                             {
-//                                 const uint32_t dynamicOffset = i * DynamicAlignment<PerEntityUBO>::Get();
-//                                 cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
-//                                 cmd.BindIndexBuffer(*meshes[i].indexBuffer);
-//                                     cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
-//                                         vkCmdDrawIndexed(cmd.GetVkCommandBuffer(), meshes[i].numIndices, 1, 0, 0, 0);
-//                             }
-//                     cmd.EndRenderPass();
-//                 cmd.End();
-//         }
+            pool.Reset();
+                cmd.Begin();
+                    cmd.BeginRenderPass(pipeline.GetRenderPass(), framebuffer);
+                        cmd.BindPipeline(pipeline);
+
+                            for (size_t i = 0; i < meshes.size(); ++i)
+                            {
+                                const uint32_t dynamicOffset = i * DynamicAlignment<PerEntityUBO>::Get();
+                                cmd.BindVertexBuffers({meshes[i].vertexBuffer.get()}, {0});
+                                cmd.BindIndexBuffer(*meshes[i].indexBuffer);
+                                    cmd.BindDescriptorSets(pipeline, 1, &meshes[i].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
+                                        vkCmdDrawIndexed(cmd.GetVkCommandBuffer(), meshes[i].numIndices, 1, 0, 0, 0);
+                            }
+                    cmd.EndRenderPass();
+                cmd.End();
+        }
             
-//         sceneUniformBuffer().proj = glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
-//         sceneUniformBuffer().proj[1][1] *= -1.0f;
-//         sceneUniformBuffer.Overwrite();
+        sceneUniformBuffer().proj = glm::perspective(glm::radians(70.0f), window->GetAspectRatio(), 0.1f, 1000.0f); 
+        sceneUniformBuffer().proj[1][1] *= -1.0f;
+        sceneUniformBuffer.Overwrite();
 
-//         while (window->IsRunning())
-//         {
-//             window->BeginFrame();
+        while (window->IsRunning())
+        {
+            window->BeginFrame();
 
-//             const float deltaTime {window->GetDeltaTime()};
-//             static float timer {0}; timer += deltaTime;
+            const float deltaTime {window->GetDeltaTime()};
+            static float timer {0}; timer += deltaTime;
+            static unsigned int fpsCounter {0};
+            static unsigned int numFpsRecordings {0};
+            static unsigned int averageFps {0};
 
-//             if (timer >= 1.0f)
-//             {
-//                 VAR_OUT((1.0f / deltaTime));
+            if (timer >= 1.0f)
+            {
+                fpsCounter += 1.0f / deltaTime;
+                numFpsRecordings += 1;
+                averageFps = static_cast<unsigned int>(static_cast<float>(fpsCounter) / static_cast<float>(numFpsRecordings));
+                VAR_OUT(averageFps);
+                timer = 0;
+            }
 
-//                 timer = 0;
-//             }
+            frameManager.AcquireSwapChainImage();
 
-//             frameManager.AcquireSwapChainImage();
+            static float theta{0}; theta += deltaTime;
 
-//             const VK::Frame* frame = frameManager.GetCurrentFrame();
-//             const VkSemaphore* wait = &frame->GetSemaphore(0);
-//             const VkSemaphore* signal = &frame->GetSemaphore(1);
-//             VK::CommandBuffer& cmd = *commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()];
+            for (size_t i = 0; i < meshes.size(); ++i)
+            {
+                meshes[i].SetRotationY(theta);
+            }
 
-//             static float theta{0}; theta += deltaTime;
+            entityUniformBuffer.Overwrite();
 
-//             for (size_t i = 0; i < meshes.size(); ++i)
-//             {
-//                 meshes[i].SetRotation({0, theta, 0});
-//             }
-//             entityUniformBuffer.Overwrite();
+            const VK::Frame& frame = *frameManager.GetCurrentFrame();
+	        const VkFence& fence = frame.GetInFlightFence();
+            const VkSemaphore& wait = frame.GetSemaphore(0);
+            const VkSemaphore& signal = frame.GetSemaphore(1);
+            VK::CommandBuffer& cmd = *commandBuffers[VK::GetSwapChain().GetCurrentImageIndex()];
 
-// 	        const VkFence fence = frame->GetInFlightFence();
-//             vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
-//             cmd.SubmitToQueue(VK::Queues::graphicsQueue, wait, signal, fence);
+            vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
+            cmd.SubmitToQueue(VK::Queues::graphicsQueue, &wait, &signal, fence);
 
-//             frameManager.Present();
+            frameManager.Present();
 
-//             window->EndFrame();
-//         }
+            window->EndFrame();
+        }
 
-//         VK::GetDevice().WaitIdle();
-//     }
-//     catch (const std::runtime_error& exception)
-//     {
-//         MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
-//     }
+        VK::GetDevice().WaitIdle();
+    }
+    catch (const std::runtime_error& exception)
+    {
+        MessageBox(nullptr, exception.what(), "Exception", MB_OK | MB_ICONEXCLAMATION);
+    }
 
-//     return 0;
-// }
+    return 0;
+}

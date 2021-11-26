@@ -27,6 +27,7 @@ namespace VK
         createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwExtensions.size());
         createInfo.ppEnabledExtensionNames = glfwExtensions.data();
 
+#ifndef NDEBUG
         valid = CreatePtr<Debug>(id);
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         if (Debug::ValidationLayerEnabled())
@@ -37,10 +38,12 @@ namespace VK
             valid->PopulateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
         }
-        else
+#else
+        // else
         {
             createInfo.enabledLayerCount = 0;
         }
+#endif
 
         VK_TRY(vkCreateInstance(&createInfo, nullptr, &vkInstance));
 
@@ -55,12 +58,14 @@ namespace VK
             LINE_OUT(ext.extensionName);
         }
 
-        valid->SetupDebugMessenger(vkInstance);            
+#ifndef NDEBUG
+        valid->SetupDebugMessenger(vkInstance);
+#endif
     }
 
     Instance::~Instance()
     {
-        vkDestroyInstance(vkInstance, nullptr);            
+        vkDestroyInstance(vkInstance, nullptr);
     }
 
     const VkInstance Instance::GetVkInstance() const

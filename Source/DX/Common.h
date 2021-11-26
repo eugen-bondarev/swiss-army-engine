@@ -18,17 +18,13 @@ namespace DX
         ::DX::GetDebugger()->Start();\
         exp;\
         ::DX::GetDebugger()->End(__FILE__, __LINE__)
+#   define __DX_TRY(hr)\
+        if (FAILED(hr)) { throw EXCEPTION_WHAT(#hr); }(void(0))
 #else
 #   define DX_TRY(exp)\
         exp
-#endif
-
-#ifndef NDEBUG
-#define __DX_TRY(hr)\
-    if (FAILED(hr)) { throw EXCEPTION_WHAT(#hr); }(void(0))
-#else
-#define __DX_TRY(hr)\
-    hr
+#   define __DX_TRY(hr)\
+        hr
 #endif
 
 #endif

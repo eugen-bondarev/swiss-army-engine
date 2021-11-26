@@ -18,7 +18,11 @@ namespace VK
         const VkInstance GetVkInstance() const;
 
     private:
+
+#ifndef NDEBUG
         Ptr<Debug> valid;
+#endif
+
         VkInstance vkInstance;
 
         Instance(const Instance &) = delete;

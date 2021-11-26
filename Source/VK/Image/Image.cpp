@@ -130,18 +130,18 @@ namespace VK
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         createInfo.flags = 0;
-        VK_TRY(vkCreateImage(this->device.GetVkDevice(), &createInfo, nullptr, &vkImage));
+        VK_TRY(vkCreateImage(device.GetVkDevice(), &createInfo, nullptr, &vkImage));
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(this->device.GetVkDevice(), vkImage, &memRequirements);
+        vkGetImageMemoryRequirements(device.GetVkDevice(), vkImage, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = this->device.FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        VK_TRY(vkAllocateMemory(this->device.GetVkDevice(), &allocInfo, nullptr, &vkMemory));
+        allocInfo.memoryTypeIndex = device.FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VK_TRY(vkAllocateMemory(device.GetVkDevice(), &allocInfo, nullptr, &vkMemory));
 
-        vkBindImageMemory(this->device.GetVkDevice(), vkImage, vkMemory, 0);
+        vkBindImageMemory(device.GetVkDevice(), vkImage, vkMemory, 0);
     }
         
     void Image::LoadFrom(const Buffer& buffer)
