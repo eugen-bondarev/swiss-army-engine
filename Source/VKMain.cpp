@@ -81,8 +81,8 @@ int main()
 {
     try
     {
-        const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert", true)};
-        const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag", true)};
+        const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
+        const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
 
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
@@ -158,10 +158,10 @@ int main()
         meshes[2].SetPosition({ 5, -5, -15});
         meshes[3].SetPosition({ 5, -5, -25});
 
-        meshes[0].SetAnother(0);
-        meshes[1].SetAnother(2);
+        meshes[0].SetAnother(-4);
+        meshes[1].SetAnother(0);
         meshes[2].SetAnother(4);
-        meshes[3].SetAnother(6);
+        meshes[3].SetAnother(8);
 
         meshes[0].SetRotation({0,  45, 0});
         meshes[1].SetRotation({0, -45, 0});
