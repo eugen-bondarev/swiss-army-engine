@@ -17,6 +17,12 @@ namespace VK
         imageView = CreatePtr<VK::ImageView>(*image, image->GetVkFormat(), VK_IMAGE_ASPECT_COLOR_BIT, device);
     }
 
+    Texture2D::Texture2D(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const VkImageAspectFlags aspectFlags, const Device& device) : device{device}, size{size}
+    {
+        image = CreatePtr<VK::Image>(size, format, usageFlags, device);
+        imageView = CreatePtr<VK::ImageView>(*image, image->GetVkFormat(), aspectFlags, device);
+    }
+
     const Image& Texture2D::GetImage() const
     {
         return *image;

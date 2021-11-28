@@ -296,4 +296,9 @@ namespace VK
             VK_SAMPLE_COUNT_1_BIT
         );
     }
+
+    size_t SwapChain::GetNumBuffers() const
+    {
+        return imageViews.size();
+    }
 }

@@ -45,6 +45,7 @@ namespace VK
 
         const std::vector<VkImage>& GetImages() const;
         const std::vector<Ref<ImageView>>& GetImageViews() const;
+        size_t GetNumBuffers() const;
 
     private:
         const Device& device;

@@ -6,7 +6,7 @@
 
 namespace VK
 {
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorBufferInfo* descriptor_buffer_info)
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptor_set, const uint32_t binding, const VkDescriptorType descriptor_type, const VkDescriptorBufferInfo* descriptor_buffer_info)
     {
         VkWriteDescriptorSet descriptorWrite{};
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -19,7 +19,7 @@ namespace VK
         return descriptorWrite;
     }
 
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptor_set, uint32_t binding, VkDescriptorType descriptor_type, const VkDescriptorImageInfo* descriptor_image_info)
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptor_set, const uint32_t binding, const VkDescriptorType descriptor_type, const VkDescriptorImageInfo* descriptor_image_info)
     {			
         VkWriteDescriptorSet descriptorWrite{};
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

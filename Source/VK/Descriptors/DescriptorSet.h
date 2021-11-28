@@ -28,8 +28,8 @@ namespace VK
         DescriptorSet& operator=(const DescriptorSet&) = delete;
     };
 
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptorSet, uint32_t binding, VkDescriptorType descriptorType, const VkDescriptorBufferInfo* descriptorBufferInfo);
-    VkWriteDescriptorSet CreateWriteDescriptorSet(DescriptorSet* descriptorSet, uint32_t binding, VkDescriptorType descriptorType, const VkDescriptorImageInfo* descriptorImageInfo);
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorBufferInfo* descriptorBufferInfo);
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorImageInfo* descriptorImageInfo);
 }
 
 #endif
