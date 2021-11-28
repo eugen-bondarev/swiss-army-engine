@@ -1,22 +1,22 @@
-#ifndef __ECS_Component_h__
-#define __ECS_Component_h__
+// #ifndef __ECS_Component_h__
+// #define __ECS_Component_h__
 
-#pragma once
+// #pragma once
 
-/* forward */ class Entity;
+// /* forward */ class Entity;
 
-#include <string>
+// #include <string>
 
-class Component
-{
-public:
-    Component();
-    virtual ~Component() {}
+// class Component
+// {
+// public:
+//     Component();
+//     virtual ~Component() {}
 
-    virtual std::string GetComponentName() const = 0;
+//     virtual std::string GetComponentName() const = 0;
 
-private:
-    Entity* entity;
-};
+// private:
+//     Entity* entity;
+// };
 
-#endif
+// #endif

@@ -1,3 +1,4 @@
+#include "VK/Logic/Scene/SpaceObject.h"
 #include "Util/Shaders/SPIRV.h"
 #include "Util/Aligned.h"
 #include "Util/Assets.h"
@@ -8,15 +9,19 @@
 #include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
 
-#include "ECS/Entity.h"
 
 struct PerSceneUBO
 {
     glm::mat4x4 proj;
 };
 
+// struct PerEntityUBO
+// {
+//     glm::mat4x4 model;
+// };
+
 static Ptr<VK::SceneUniformBuffer<PerSceneUBO>> sceneUniformBuffer;
-static Ptr<VK::EntityUniformBuffer<PerEntityUBO>> entityUniformBuffer;
+static Ptr<VK::EntityUniformBuffer<VK::EntityUBO>> entityUniformBuffer;
 
 struct Mesh
 {
@@ -100,16 +105,23 @@ int main()
 	    VK::GetSwapChain().InitFramebuffers(pipeline.GetRenderPass(), depthImageView);
 
         sceneUniformBuffer = CreatePtr<VK::SceneUniformBuffer<PerSceneUBO>>();
-        entityUniformBuffer = CreatePtr<VK::EntityUniformBuffer<PerEntityUBO>>(numInstances);
+        entityUniformBuffer = CreatePtr<VK::EntityUniformBuffer<VK::EntityUBO>>(numInstances);
         // VK::SceneUniformBuffer<PerSceneUBO> sceneUniformBuffer;
         // VK::EntityUniformBuffer<PerEntityUBO> entityUniformBuffer {numInstances};
 
-        std::vector<Ptr<Entity>> entities;
+        std::vector<VK::SpaceObject> spaceObjects;
+
         for (size_t i = 0; i < 4; ++i)
         {
-            Ptr<Entity> entity {CreatePtr<Entity>()};
-            entities.push_back(std::move(entity));
+            spaceObjects.emplace_back(&(*entityUniformBuffer)()[i]);
         }
+
+        // std::vector<Ptr<Entity>> entities;
+        // for (size_t i = 0; i < 4; ++i)
+        // {
+        //     Ptr<Entity> entity {CreatePtr<Entity>()};
+        //     entities.push_back(std::move(entity));
+        // }
 
         std::vector<Mesh> meshes;
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout);
@@ -117,17 +129,17 @@ int main()
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout);
         meshes.emplace_back(characterMesh, characterTexture, descriptorSetLayout);
 
-        for (size_t i = 0; i < 4; ++i)
-        {
-            Entity& entity {*entities[i]};
-            Transform& transform {*entity.AddComponent<Transform>()};
-            transform.Init(&(*entityUniformBuffer)()[i]);
-        }
+        // for (size_t i = 0; i < 4; ++i)
+        // {
+        //     Entity& entity {*entities[i]};
+        //     Transform& transform {*entity.AddComponent<Transform>()};
+        //     transform.Init(&(*entityUniformBuffer)()[i]);
+        // }
 
-        entities[0]->GetTransform()->SetPosition(-5, -5, -15);
-        entities[1]->GetTransform()->SetPosition(-5, -5, -25);
-        entities[2]->GetTransform()->SetPosition( 5, -5, -15);
-        entities[3]->GetTransform()->SetPosition( 5, -5, -25);
+        spaceObjects[0].SetPosition(-5, -5, -15);
+        spaceObjects[1].SetPosition(-5, -5, -25);
+        spaceObjects[2].SetPosition( 5, -5, -15);
+        spaceObjects[3].SetPosition( 5, -5, -25);
 
         for (size_t i = 0; i < commandBuffers.size(); ++i)
         {
@@ -141,7 +153,7 @@ int main()
                     cmd.BindPipeline(pipeline);
                         for (size_t j = 0; j < meshes.size(); ++j)
                         {
-                            const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<PerEntityUBO>::Get())};
+                            const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
                             cmd.BindVertexBuffers({ meshes[j].vertexBuffer->UnderlyingPtr() }, {0});
                                 cmd.BindIndexBuffer(meshes[j].indexBuffer->UnderlyingRef());
                                     cmd.BindDescriptorSets(pipeline, 1, &meshes[j].descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
@@ -180,7 +192,7 @@ int main()
 
             for (size_t i = 0; i < meshes.size(); ++i)
             {
-                entities[i]->GetTransform()->SetRotationY(theta);
+                spaceObjects[i].SetRotationY(theta);
             }
 
             (*entityUniformBuffer).Overwrite();
