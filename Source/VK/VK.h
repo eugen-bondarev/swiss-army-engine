@@ -25,6 +25,8 @@
 
 #include "Memory/EntityUniformBuffer.h"
 #include "Memory/SceneUniformBuffer.h"
+#include "Memory/VertexBuffer.h"
+#include "Memory/IndexBuffer.h"
 #include "Memory/Buffer.h"
 
 #endif
