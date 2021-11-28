@@ -4,16 +4,16 @@ namespace VK
 {
     std::vector<VkVertexInputBindingDescription> Vertex::GetBindingDescriptions()
     {
-        std::vector<VkVertexInputBindingDescription> binding_descriptions;
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
 
-        VkVertexInputBindingDescription bindingDesc = {};
+        VkVertexInputBindingDescription bindingDesc {};
         bindingDesc.binding = 0;
         bindingDesc.stride = sizeof(Vertex);
         bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         
-        binding_descriptions.push_back(bindingDesc);
+        bindingDescriptions.push_back(bindingDesc);
 
-        return binding_descriptions;
+        return bindingDescriptions;
     }
 
     std::vector<VkVertexInputAttributeDescription> Vertex::GetAttributeDescriptions() 

@@ -41,7 +41,7 @@ namespace VK
 
     void CommandBuffer::SubmitToQueue(const VkQueue& queue, const VkSemaphore* waitSemaphore, const VkSemaphore* signalSemaphore, const VkFence& fence) const
     {
-        VkSubmitInfo submitInfo{};
+        VkSubmitInfo submitInfo {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vkCommandBuffer;

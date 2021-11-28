@@ -6,6 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <mat4x4.hpp>
 #include <vec2.hpp>
 #include <vec3.hpp>
 
@@ -16,5 +17,7 @@ using Vec2f = glm::vec2;
 using Vec3ui = glm::uvec3;
 using Vec3i = glm::ivec3;
 using Vec3f = glm::vec3;
+
+using Mat4x4 = glm::mat4x4;
 
 #endif

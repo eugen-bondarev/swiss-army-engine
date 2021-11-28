@@ -35,6 +35,9 @@ using Ptr = std::unique_ptr<T>;
 template <typename T>
 using Ref = std::shared_ptr<T>;
 
+template <typename T>
+using Vec = std::vector<T>;
+
 template <typename T, typename... Args>
 auto CreatePtr(Args&&... args) -> decltype(std::make_unique<T>(std::forward<Args&&>(args)...))
 {
