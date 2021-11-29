@@ -25,7 +25,7 @@ namespace VK
             const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT
         );
 
-        VkAttachmentDescription CreateDefaultDepthAttachment(const Image& depthImage);
+        VkAttachmentDescription CreateDefaultDepthAttachment(const VkFormat& depthImageFormat);
     }
 
     using AttachmentDescriptions = std::vector<VkAttachmentDescription>;

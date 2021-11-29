@@ -39,7 +39,7 @@ namespace VK
         FrameManager(const uint32_t firstSemaphore, const uint32_t lastSemaphore, const uint32_t numSemaphoresPerFrame, const uint32_t numFrames, const Device* device = nullptr);
        ~FrameManager() = default;
 
-        const Frame* GetCurrentFrame() const;
+        const Frame& GetCurrentFrame() const;
         uint32_t GetAmountOfFrames() const;
         uint32_t GetCurrentFrameIndex() const;
         uint32_t AcquireSwapChainImage();

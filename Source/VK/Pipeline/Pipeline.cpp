@@ -7,8 +7,8 @@
 namespace VK
 {
     Pipeline::Pipeline(
-        const std::string& vsCode,
-        const std::string& fsCode,
+        const Str& vsCode,
+        const Str& fsCode,
         const Vec2ui& outputSize,
         const AttachmentDescriptions& attachments,
         const BindingDescriptions& bindingDescriptions,

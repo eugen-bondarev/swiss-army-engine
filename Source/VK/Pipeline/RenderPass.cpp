@@ -32,10 +32,10 @@ namespace VK
             return attachment;
         }
 
-        VkAttachmentDescription CreateDefaultDepthAttachment(const Image& depthImage)
+        VkAttachmentDescription CreateDefaultDepthAttachment(const VkFormat& depthImageFormat)
         {
             return CreateAttachment(
-                depthImage.GetVkFormat(),
+                depthImageFormat,
                 VK_IMAGE_LAYOUT_UNDEFINED, 
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
                 VK_ATTACHMENT_LOAD_OP_CLEAR, 

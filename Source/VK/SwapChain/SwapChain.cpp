@@ -1,5 +1,6 @@
 #include "SwapChain.h"
 
+#include "../RenderTarget/RenderTarget.h"
 #include "../Framebuffer/Framebuffer.h"
 #include "../Pipeline/RenderPass.h"
 #include "../Device/QueueFamily.h"
@@ -86,28 +87,6 @@ namespace VK
     void SwapChain::Resize(const Vec2ui size)
     {
 
-    }
-
-    const VK::Framebuffer& SwapChain::GetCurrentScreenFramebuffer() const
-    {
-        return *framebuffers[imageIndex];
-    }
-
-    void SwapChain::InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView)
-    {
-        for (Ref<Framebuffer>& framebuffer : framebuffers)
-        {
-            framebuffer.reset();
-        }
-        framebuffers.clear();
-
-        const Vec2ui viewportSize {static_cast<float>(extent.width), static_cast<float>(extent.height)};
-
-        for (size_t i = 0; i < GetImageViews().size(); ++i)
-        {
-            Ref<Framebuffer> framebuffer = CreateRef<Framebuffer>(renderPass, viewportSize, *GetImageViews()[i], depthImageView);
-            framebuffers.push_back(std::move(framebuffer));
-        }
     }
 
     uint32_t SwapChain::AcquireImage(VkSemaphore semaphore)
@@ -245,6 +224,11 @@ namespace VK
         }
     }
 
+    const Vec<Ref<ImageView>>& SwapChain::GetImageViews() const
+    {
+        return imageViews;
+    }
+
     VkSwapchainKHR SwapChain::GetVkSwapChain() const
     {
         return vkSwapChain;
@@ -263,21 +247,6 @@ namespace VK
     VkExtent2D SwapChain::GetExtent() const
     {
         return extent;
-    }
-
-    std::vector<Ref<VK::Framebuffer>>& SwapChain::GetFramebuffers()
-    {
-        return framebuffers;
-    }
-
-    const std::vector<VkImage>& SwapChain::GetImages() const
-    {
-        return images;
-    }
-
-    const std::vector<Ref<ImageView>>& SwapChain::GetImageViews() const
-    {
-        return imageViews;
     }
 
     VkAttachmentDescription SwapChain::GetDefaultAttachmentDescription() const

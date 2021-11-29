@@ -1,10 +1,12 @@
 #include "Renderer.h"
 
 #include "../Pipeline/VertexLayouts/Layouts.h"
+#include "../RenderTarget/RenderTarget.h"
 #include "../Descriptors/DescriptorSet.h"
 #include "../SwapChain/SwapChain.h"
 #include <gtc/matrix_transform.hpp>
-#include "../GraphicsContext.h"
+#include "../Device/QueueFamily.h"
+#include "../Device/Device.h"
 
 namespace VK
 {
@@ -36,13 +38,13 @@ namespace VK
             vertexShaderCode, 
             fragmentShaderCode,
             GetSwapChain().GetSize(),
-            AttachmentDescriptions { GetSwapChain().GetDefaultAttachmentDescription(), Util::CreateDefaultDepthAttachment(depthTexture.GetImage()) },
+            AttachmentDescriptions { GetSwapChain().GetDefaultAttachmentDescription(), Util::CreateDefaultDepthAttachment(device.FindDepthFormat()) },
             bindingDescriptors,
             attributeDescriptors,
             SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() }
         );
 
-	    GetSwapChain().InitFramebuffers(pipeline->GetRenderPass(), depthTexture.GetImageView());
+        renderTarget = CreatePtr<RenderTarget>(GetSwapChain().GetSize(), GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
     }
 
     void Renderer::CreateUniformBuffers()
@@ -51,7 +53,7 @@ namespace VK
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
-    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const Texture2D& depthTexture) : depthTexture {depthTexture}
+    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const Device& device) : device {device}
     {
         CreateCmdEntities(numCmdBuffers);
         CreatePipeline(vertexShaderCode, fragmentShaderCode);
@@ -78,7 +80,7 @@ namespace VK
         {
             VK::CommandPool& pool = GetCommandPool(i);
             VK::CommandBuffer& cmd = GetCommandBuffer(i);
-            const VK::Framebuffer& framebuffer = *GetSwapChain().GetFramebuffers()[i];
+            const Framebuffer& framebuffer = renderTarget->GetFramebuffer(i);
 
             pool.Reset();
             cmd.Begin();
@@ -87,7 +89,7 @@ namespace VK
                         for (size_t j = 0; j < renderable.size(); ++j)
                         {
                             const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
-                            cmd.BindVertexBuffers({ renderable[j]->GetVertexBuffer().UnderlyingPtr() }, {0});
+                            cmd.BindVertexBuffers({renderable[j]->GetVertexBuffer().UnderlyingPtr()}, {0});
                                 cmd.BindIndexBuffer(renderable[j]->GetIndexBuffer().UnderlyingRef());
                                     cmd.BindDescriptorSets(GetPipeline(), 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
                                         cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
@@ -104,6 +106,18 @@ namespace VK
         (*sceneUniformBuffer).Overwrite();
 
         (*entityUniformBuffer).Overwrite();
+    }
+
+    void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex)
+    {
+        // Todo: Do smth with sync-objects.
+        const VkFence& fence = frame.GetInFlightFence();
+        const VkSemaphore& wait = frame.GetSemaphore(0);
+        const VkSemaphore& signal = frame.GetSemaphore(1);
+
+        const CommandBuffer& cmd = *commandBuffers[swapChainImageIndex];
+        vkResetFences(device.GetVkDevice(), 1, &fence);
+        cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal, fence);
     }
 
     CommandBuffer& Renderer::GetCommandBuffer(const size_t i)

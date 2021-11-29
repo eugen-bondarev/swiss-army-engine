@@ -54,30 +54,30 @@ namespace VK
             frames.push_back(std::move(frame));
         }
 
-        imagesInFlight.resize(GetSwapChain().GetImageViews().size());
+        imagesInFlight.resize(GetSwapChain().GetNumBuffers());
     }
 
     uint32_t FrameManager::AcquireSwapChainImage()
     {
-        const Frame* frame = GetCurrentFrame();			
-        const uint32_t imageIndex = GetSwapChain().AcquireImage(frame->GetSemaphore(frame->firstSemaphore));
+        const Frame& frame = GetCurrentFrame();			
+        const uint32_t imageIndex = GetSwapChain().AcquireImage(frame.GetSemaphore(frame.firstSemaphore));
 
         if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
         {
             vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
         
-        vkWaitForFences(device.GetVkDevice(), 1, &frame->GetInFlightFence(), VK_TRUE, UINT64_MAX);
-        vkResetFences(device.GetVkDevice(), 1, &frame->GetInFlightFence());
-        imagesInFlight[imageIndex] = frame->GetInFlightFence();
+        vkWaitForFences(device.GetVkDevice(), 1, &frame.GetInFlightFence(), VK_TRUE, UINT64_MAX);
+        vkResetFences(device.GetVkDevice(), 1, &frame.GetInFlightFence());
+        imagesInFlight[imageIndex] = frame.GetInFlightFence();
 
         return imageIndex;
     }
 
     void FrameManager::Present()
     {			
-        const Frame* frame = GetCurrentFrame();
-        GetSwapChain().Present(&frame->GetSemaphore(frame->lastSemaphore), 1);
+        const Frame& frame = GetCurrentFrame();
+        VK_TRY(GetSwapChain().Present(&frame.GetSemaphore(frame.lastSemaphore), 1));
         NextFrame();
     }
 
@@ -86,9 +86,9 @@ namespace VK
         currentFrame = (currentFrame + 1) % framesCount;
     }
 
-    const Frame* FrameManager::GetCurrentFrame() const
+    const Frame& FrameManager::GetCurrentFrame() const
     {
-        return frames[currentFrame].get();
+        return *frames[currentFrame];
     }
 
     uint32_t FrameManager::GetAmountOfFrames() const

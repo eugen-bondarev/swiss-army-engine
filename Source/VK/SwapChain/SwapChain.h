@@ -11,9 +11,11 @@ FORWARD_DECLARE(RawWindow);
 
 namespace VK
 {
+    FORWARD_DECLARE(RenderTarget);
     FORWARD_DECLARE(Framebuffer);
     FORWARD_DECLARE(RenderPass);
     FORWARD_DECLARE(ImageView);
+    FORWARD_DECLARE(Texture2D);
     FORWARD_DECLARE(Device);
 
     class SwapChain : public Base::SwapChain
@@ -36,16 +38,11 @@ namespace VK
         VkSurfaceFormatKHR GetSurfaceFormat() const;
         VkExtent2D GetExtent() const;
 
-        void InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView);
+        size_t GetNumBuffers() const;
 
-        const VK::Framebuffer& GetCurrentScreenFramebuffer() const;
-        std::vector<Ref<VK::Framebuffer>>& GetFramebuffers();
+        const Vec<Ref<ImageView>>& GetImageViews() const;
 
         VkAttachmentDescription GetDefaultAttachmentDescription() const;
-
-        const std::vector<VkImage>& GetImages() const;
-        const std::vector<Ref<ImageView>>& GetImageViews() const;
-        size_t GetNumBuffers() const;
 
     private:
         const Device& device;
