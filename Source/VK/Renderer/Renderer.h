@@ -28,8 +28,8 @@ namespace VK
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
-        void Record();
-        void UpdateUniformBuffers();
+        void Record(const Vec2ui size);
+        void UpdateUniformBuffers(const float ratio);
         void Render(const Frame& frame, const uint32_t swapChainImageIndex);
 
         CommandBuffer& GetCommandBuffer(const size_t i);

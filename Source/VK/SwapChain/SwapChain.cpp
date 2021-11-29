@@ -188,7 +188,7 @@ namespace VK
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR &capabilities)
+    VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities)
     {
         if (capabilities.currentExtent.width != UINT32_MAX)
         {

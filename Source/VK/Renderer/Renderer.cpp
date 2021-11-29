@@ -74,7 +74,7 @@ namespace VK
         return item->GetSpaceObject();
     }
 
-    void Renderer::Record()
+    void Renderer::Record(const Vec2ui size)
     {
         for (size_t i = 0; i < GetNumCmdBuffers(); ++i)
         {
@@ -82,8 +82,24 @@ namespace VK
             VK::CommandBuffer& cmd = GetCommandBuffer(i);
             const Framebuffer& framebuffer = renderTarget->GetFramebuffer(i);
 
+            VkViewport viewport{};
+            viewport.x = 0.0f;
+            viewport.y = 0.0f;
+            viewport.width = size.x;
+            viewport.height = size.y;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+
+            VkRect2D scissor{};
+            scissor.offset = {0, 0};
+            scissor.extent = {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
+
             pool.Reset();
             cmd.Begin();
+
+                vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
+                vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
+
                 cmd.BeginRenderPass(GetPipeline().GetRenderPass(), framebuffer);
                     cmd.BindPipeline(GetPipeline());
                         for (size_t j = 0; j < renderable.size(); ++j)
@@ -99,9 +115,9 @@ namespace VK
         }        
     }
 
-    void Renderer::UpdateUniformBuffers()
+    void Renderer::UpdateUniformBuffers(const float ratio)
     {
-        (*sceneUniformBuffer)().projection = glm::perspective(glm::radians(70.0f), 1024.0f / 768.0f, 0.1f, 1000.0f); 
+        (*sceneUniformBuffer)().projection = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 1000.0f); 
         (*sceneUniformBuffer)().projection[1][1] *= -1.0f;
         (*sceneUniformBuffer).Overwrite();
 

@@ -8,8 +8,6 @@
 #include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
 
-static bool submitOkay {true};
-
 int main()
 {
     try
@@ -25,18 +23,13 @@ int main()
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
 
         VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers());
-        // window.ResizeSubscribe([&](const Vec2ui size)
-        // {
-        //     VK::GetDevice().WaitIdle();
 
-        //     renderer.renderTarget.reset();
-        //     renderer.renderTarget = CreatePtr<VK::RenderTarget>(VK::GetSwapChain().GetSize(), VK::GetSwapChain().GetImageViews(), renderer.pipeline->GetRenderPass());
+        static bool res{false};
 
-        //     frameManager.reset();
-        //     frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
-
-        //     submitOkay = false;
-        // });
+        window.ResizeSubscribe([&](const Vec2ui size)
+        {
+            res = true;
+        });
 
         for (size_t i = 0; i < 4; ++i)
         {
@@ -48,22 +41,22 @@ int main()
         renderer.GetSpaceObject(2).SetPosition( 5, -5, -15);
         renderer.GetSpaceObject(3).SetPosition( 5, -5, -25);
 
-        renderer.Record();
+        renderer.Record(window.GetSize());
 
         while (window.IsRunning())
         {
             window.BeginFrame();
 
-            VK::GetDevice().WaitIdle();
-            vkQueueWaitIdle(VK::Queues::graphicsQueue);
-
-            // frameManager.reset();
-            // frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
-            renderer.renderTarget.reset();
-            renderer.renderTarget = CreatePtr<VK::RenderTarget>(VK::GetSwapChain().GetSize(), VK::GetSwapChain().GetImageViews(), renderer.pipeline->GetRenderPass());
-            renderer.Record();
-            // frameManager.reset();
-            // frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
+            if (res)
+            {
+                vkQueueWaitIdle(VK::Queues::graphicsQueue);
+                frameManager.reset();
+                frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
+                renderer.renderTarget.reset();
+                renderer.renderTarget = CreatePtr<VK::RenderTarget>(VK::GetSwapChain().GetSize(), VK::GetSwapChain().GetImageViews(), renderer.pipeline->GetRenderPass());
+                renderer.Record(window.GetSize());
+                res = false;
+            }
 
             const float deltaTime {window.GetDeltaTime()};
             static float timer {0}; timer += deltaTime;
@@ -89,21 +82,12 @@ int main()
                     spaceObject.SetRotationY(theta);
                 }
 
-                renderer.UpdateUniformBuffers();
-
-                if (submitOkay)
-                {
-                    renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex());
-                }
+                renderer.UpdateUniformBuffers(window.GetAspectRatio());
+                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex());
             
             frameManager->Present();
 
             window.EndFrame();
-
-            if (!submitOkay)
-            {
-                submitOkay = true;
-            }
         }
 
         VK::GetDevice().WaitIdle();

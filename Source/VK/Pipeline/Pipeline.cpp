@@ -94,9 +94,10 @@ namespace VK
         colorBlendingCreateInfo.blendConstants[2] = 0.0f; // Optional
         colorBlendingCreateInfo.blendConstants[3] = 0.0f; // Optional
 
-        const std::array<VkDynamicState, 2> dynamicStates = 
+        const std::array<VkDynamicState, 3> dynamicStates = 
         {
             VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_SCISSOR,
             VK_DYNAMIC_STATE_LINE_WIDTH
         };
 
@@ -133,12 +134,15 @@ namespace VK
         createInfo.pStages = shader->GetStages().data();
         createInfo.pVertexInputState = &vertexInputStateCreateInfo;
         createInfo.pInputAssemblyState = &inputAssemblyCreateInfo;
+
         createInfo.pViewportState = &viewportStateCreateInfo;
+        // createInfo.pViewportState = nullptr;
+
         createInfo.pRasterizationState = &rasterizerCreateInfo;
         createInfo.pMultisampleState = &multisampleStateCreateInfo;
         createInfo.pDepthStencilState = &depthStencilCreateInfo; // Optional
         createInfo.pColorBlendState = &colorBlendingCreateInfo;
-        createInfo.pDynamicState = nullptr; // Optional
+        createInfo.pDynamicState = &dynamicStateCreateInfo; // Optional
         createInfo.layout = vkPipelineLayout;
         createInfo.renderPass = renderPass->GetVkRenderPass();
         createInfo.subpass = 0;
