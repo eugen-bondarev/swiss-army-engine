@@ -1,4 +1,3 @@
-#include "VK/Logic/Scene/SpaceObject.h"
 #include "Util/Shaders/SPIRV.h"
 #include "Util/Aligned.h"
 #include "Util/Assets.h"
@@ -8,10 +7,6 @@
 
 #include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
-
-#include "VK/Renderer/Renderer.h"
-
-constexpr unsigned int numInstances {4};
 
 int main()
 {
@@ -23,18 +18,18 @@ int main()
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        Ptr<API::Window> window = CreatePtr<API::Window>(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768});
+        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768});
 
-        VK::Texture2D depthTexture(window->GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
+        VK::Texture2D depthTexture(window.GetSize(), VK::GetDevice().FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         VK::FrameManager frameManager(0, 1, 2, 2);
 
         VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), depthTexture);
 
-        renderer.Add(characterMesh, characterTexture);
-        renderer.Add(characterMesh, characterTexture);
-        renderer.Add(characterMesh, characterTexture);
-        renderer.Add(characterMesh, characterTexture);
+        for (size_t i = 0; i < 4; ++i)
+        {
+            renderer.Add(characterMesh, characterTexture);
+        }
 
         renderer.GetSpaceObject(0).SetPosition(-5, -5, -15);
         renderer.GetSpaceObject(1).SetPosition(-5, -5, -25);
@@ -43,11 +38,11 @@ int main()
 
         renderer.Record();
 
-        while (window->IsRunning())
+        while (window.IsRunning())
         {
-            window->BeginFrame();
+            window.BeginFrame();
 
-            const float deltaTime {window->GetDeltaTime()};
+            const float deltaTime {window.GetDeltaTime()};
             static float timer {0}; timer += deltaTime;
             static unsigned int fpsCounter {0};
             static unsigned int numFpsRecordings {0};
@@ -59,32 +54,45 @@ int main()
                 numFpsRecordings += 1;
                 averageFps = static_cast<unsigned int>(static_cast<float>(fpsCounter) / static_cast<float>(numFpsRecordings));
                 VAR_OUT(averageFps);
+                LINE_OUT("Entities: " << renderer.GetNumRenderableEntities());
                 timer = 0;
+            }
+
+            static float addEntityTimer {0}; addEntityTimer += deltaTime;
+
+            if (addEntityTimer >= 1.0f)
+            {
+                renderer.Add(characterMesh, characterTexture);
+                const Vec3f pos {-2.5f, -5.0f, -80.0f};
+                const Vec3f randPos {rand() / static_cast<float>(RAND_MAX) * 80, rand() / static_cast<float>(RAND_MAX) * 40, rand() / static_cast<float>(RAND_MAX) * 50};
+                renderer.GetSpaceObject(renderer.GetNumRenderableEntities() - 1).SetPosition(pos + randPos);
+                renderer.Record();
+
+                addEntityTimer = 0;
             }
 
             frameManager.AcquireSwapChainImage();
 
-            static float theta {0}; theta += deltaTime;
+                static float theta {0}; theta += deltaTime;
 
-            for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
-            {
-                VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
-                spaceObject.SetRotationY(theta);
-            }
+                for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
+                {
+                    VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
+                    spaceObject.SetRotationY(theta);
+                }
 
-            renderer.Render();
-
-            const VK::Frame& frame {*frameManager.GetCurrentFrame()};
-	        const VkFence& fence {frame.GetInFlightFence()};
-            const VkSemaphore& wait {frame.GetSemaphore(0)};
-            const VkSemaphore& signal {frame.GetSemaphore(1)};
-            const VK::CommandBuffer& cmd {renderer.GetCommandBuffer(VK::GetSwapChain().GetCurrentImageIndex())};
-            vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
-            cmd.SubmitToQueue(VK::Queues::graphicsQueue, &wait, &signal, fence);
+                renderer.UpdateUniformBuffers();
+                const VK::Frame& frame {*frameManager.GetCurrentFrame()};
+                const VkFence& fence {frame.GetInFlightFence()};
+                const VkSemaphore& wait {frame.GetSemaphore(0)};
+                const VkSemaphore& signal {frame.GetSemaphore(1)};
+                const VK::CommandBuffer& cmd {renderer.GetCommandBuffer(VK::GetSwapChain().GetCurrentImageIndex())};
+                vkResetFences(VK::GetDevice().GetVkDevice(), 1, &fence);
+                cmd.SubmitToQueue(VK::Queues::graphicsQueue, &wait, &signal, fence);
             
             frameManager.Present();
 
-            window->EndFrame();
+            window.EndFrame();
         }
 
         VK::GetDevice().WaitIdle();

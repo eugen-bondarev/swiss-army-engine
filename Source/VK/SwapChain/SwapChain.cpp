@@ -21,7 +21,7 @@ namespace VK
         presentMode = ChoosePresentMode(supportDetails.presentModes);
         extent = ChooseExtent(supportDetails.capabilities);
 
-        uint32_t imageCount = supportDetails.capabilities.minImageCount + 1;
+        uint32_t imageCount {supportDetails.capabilities.minImageCount + 1};
 
         if (supportDetails.capabilities.maxImageCount > 0 && imageCount > supportDetails.capabilities.maxImageCount)
         {
@@ -52,8 +52,8 @@ namespace VK
         else
         {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            createInfo.queueFamilyIndexCount = 0;	  // Optional
-            createInfo.pQueueFamilyIndices = nullptr; // Optional
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr;
         }
 
         createInfo.preTransform = supportDetails.capabilities.currentTransform;
@@ -95,13 +95,13 @@ namespace VK
 
     void SwapChain::InitFramebuffers(const RenderPass& renderPass, const ImageView& depthImageView)
     {
-        for (Ref<Framebuffer> framebuffer : framebuffers)
+        for (Ref<Framebuffer>& framebuffer : framebuffers)
         {
             framebuffer.reset();
         }
         framebuffers.clear();
 
-        const Vec2ui viewportSize{static_cast<float>(extent.width), static_cast<float>(extent.height)};
+        const Vec2ui viewportSize {static_cast<float>(extent.width), static_cast<float>(extent.height)};
 
         for (size_t i = 0; i < GetImageViews().size(); ++i)
         {
@@ -118,18 +118,15 @@ namespace VK
 
     VkResult SwapChain::Present(const VkSemaphore* waitSemaphores, const uint32_t numWaitSemaphores)
     {
-        VkPresentInfoKHR present_info{};
-        present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-        present_info.waitSemaphoreCount = numWaitSemaphores;
-        present_info.pWaitSemaphores = waitSemaphores;
-
-        present_info.swapchainCount = 1;
-        present_info.pSwapchains = &vkSwapChain;
-        present_info.pImageIndices = &imageIndex;
-        present_info.pResults = nullptr;
-
-        return vkQueuePresentKHR(VK::Queues::presentQueue, &present_info);
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = numWaitSemaphores;
+        presentInfo.pWaitSemaphores = waitSemaphores;
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &vkSwapChain;
+        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pResults = nullptr;
+        return vkQueuePresentKHR(Queues::presentQueue, &presentInfo);
     }
 
     uint32_t SwapChain::GetCurrentImageIndex() const

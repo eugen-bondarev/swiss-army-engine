@@ -24,7 +24,7 @@ namespace VK
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
         void Record();
-        void Render();
+        void UpdateUniformBuffers();
 
         CommandBuffer& GetCommandBuffer(const size_t i);
         CommandPool& GetCommandPool(const size_t i);

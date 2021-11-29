@@ -14,6 +14,10 @@
 #include "Pipeline/RenderPass.h"
 #include "Pipeline/Pipeline.h"
 
+#include "Logic/Scene/SpaceObject.h"
+
+#include "Renderer/Renderer.h"
+
 #include "Image/Texture2D.h"
 #include "Image/ImageView.h"
 #include "Image/Image.h"

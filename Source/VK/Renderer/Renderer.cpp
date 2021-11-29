@@ -22,11 +22,11 @@ namespace VK
 
     void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode)
     {
-        const Vec<VkDescriptorSetLayoutBinding> bindings {{
+        const Vec<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
             CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
             CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-        }};
+        });
 
         descriptorSetLayout = CreatePtr<DescriptorSetLayout>(bindings);
 		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
@@ -47,7 +47,7 @@ namespace VK
 
     void Renderer::CreateUniformBuffers()
     {        
-        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(25);
+        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
@@ -97,7 +97,7 @@ namespace VK
         }        
     }
 
-    void Renderer::Render()
+    void Renderer::UpdateUniformBuffers()
     {
         (*sceneUniformBuffer)().projection = glm::perspective(glm::radians(70.0f), 1024.0f / 768.0f, 0.1f, 1000.0f); 
         (*sceneUniformBuffer)().projection[1][1] *= -1.0f;
