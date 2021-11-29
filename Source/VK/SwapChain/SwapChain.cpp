@@ -91,7 +91,17 @@ namespace VK
 
     uint32_t SwapChain::AcquireImage(VkSemaphore semaphore)
     {
-        vkAcquireNextImageKHR(device.GetVkDevice(), vkSwapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(device.GetVkDevice(), vkSwapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+
+        }
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
+            throw std::runtime_error("Failed to acquire swap chain image.");
+        }
+
         return imageIndex;
     }
 

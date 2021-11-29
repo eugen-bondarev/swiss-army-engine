@@ -33,7 +33,6 @@ private:
 static void GetMonitorResolution(unsigned int& width, unsigned int& height)
 {    
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
     width = mode->width;
     height = mode->height;
 }
@@ -53,9 +52,7 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    // unsigned int finalWidth{size.x}, finalHeight{size.y};
     Vec2ui finalSize{size};
-
     if (finalSize.x == 0u || finalSize.y == 0u)
     {
         GetMonitorResolution(finalSize.x, finalSize.y);

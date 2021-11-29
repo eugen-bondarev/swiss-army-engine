@@ -46,10 +46,11 @@ namespace VK
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
 
+        Ptr<RenderTarget> renderTarget;
+        Ptr<Pipeline> pipeline;
     private:
         const Device& device;
 
-        Ptr<RenderTarget> renderTarget;
 
         Vec<Ptr<IRenderable>> renderable;
 
@@ -61,7 +62,6 @@ namespace VK
         Vec<Ptr<CommandBuffer>> commandBuffers;
         void CreateCmdEntities(const size_t numCmdBuffers);
 
-        Ptr<Pipeline> pipeline;
         Ptr<DescriptorSetLayout> descriptorSetLayout;
         void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode);
 

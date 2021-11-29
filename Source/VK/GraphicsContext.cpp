@@ -21,6 +21,14 @@ namespace VK
         
         swapChain = CreatePtr<SwapChain>(window, *device);
         window.swapChain = swapChain.get();
+
+        window.ResizeSubscribe([&](const Vec2ui size)
+        {
+            swapChain.reset();
+            swapChain = CreatePtr<SwapChain>(window, *device);
+            window.swapChain = swapChain.get();
+        });
+
         defaultCommandPool = CreatePtr<CommandPool>(*device);
         
         defaultDescriptorPool = CreatePtr<DescriptorPool>(std::vector<VkDescriptorPoolSize> {				
@@ -88,11 +96,6 @@ namespace VK
     {
         return *defaultLinearInterpolationSampler;
     }
-
-
-
-
-
 
     const Device& GetDevice()
     {

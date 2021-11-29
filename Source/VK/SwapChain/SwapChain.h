@@ -43,6 +43,7 @@ namespace VK
         const Vec<Ref<ImageView>>& GetImageViews() const;
 
         VkAttachmentDescription GetDefaultAttachmentDescription() const;
+        void CreateImageViews();
 
     private:
         const Device& device;
@@ -64,7 +65,6 @@ namespace VK
         VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
         VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-        void CreateImageViews();
     };
 }
 
