@@ -24,9 +24,16 @@ namespace Logic
         void SetRotationY(const float value) { rotation.y = value; UpdateModelMatrix(); }
         void SetRotationZ(const float value) { rotation.z = value; UpdateModelMatrix(); }
 
+        template <typename... Args>
+        void SetScale(Args&&... args) { scale = Vec3f {std::forward<Args>(args)...}; UpdateModelMatrix(); }
+        void SetScaleX(const float value) { scale.x = value; UpdateModelMatrix(); }
+        void SetScaleY(const float value) { scale.y = value; UpdateModelMatrix(); }
+        void SetScaleZ(const float value) { scale.z = value; UpdateModelMatrix(); }
+
     protected:
         Vec3f position {0.0f};
         Vec3f rotation {0.0f};
+        Vec3f scale {1.0f};
     };    
 }
 
