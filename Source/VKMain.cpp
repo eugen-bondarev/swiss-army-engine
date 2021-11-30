@@ -18,18 +18,13 @@ int main()
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        const Util::ModelAsset apricotMesh {Util::LoadModelFile("Assets/Models/GitIgnore/apricot.obj")};
-        const Util::ImageAsset apricotTexture {Util::LoadImageFile("Assets/Images/GitIgnore/apricot.png")};
-
-        API::Window window(API::Type::Vulkan, WindowMode::Fullscreen);
+        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768});
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
 
         VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers());
 
-        renderer.Add(apricotMesh, apricotTexture);
-
-        for (size_t i = 0; i < 3; ++i)
+        for (size_t i = 0; i < 4; ++i)
         {
             renderer.Add(characterMesh, characterTexture);
         }
@@ -64,7 +59,7 @@ int main()
 
             frameManager->AcquireSwapChainImage();
 
-                static float theta {0}; theta += deltaTime * 0.1f;
+                static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
                 {
                     VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
