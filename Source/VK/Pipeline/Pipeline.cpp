@@ -14,6 +14,7 @@ namespace VK
         const BindingDescriptions& bindingDescriptions,
         const AttributeDescriptions& attributeDescriptions,
         const SetLayouts& setLayouts,
+        const RendererFlags rendererFlags,
         const Device& device
     ) : device{device}
     {
@@ -67,8 +68,16 @@ namespace VK
         VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo{};
         multisampleStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampleStateCreateInfo.sampleShadingEnable = VK_FALSE;
-        // multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_8_BIT;
+
+        if (rendererFlags & RendererFlags_Multisample)
+        {
+            multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_8_BIT;
+        }
+        else
+        {
+            multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        }
+
         multisampleStateCreateInfo.minSampleShading = 1.0f;			// Optional
         multisampleStateCreateInfo.pSampleMask = nullptr;			// Optional
         multisampleStateCreateInfo.alphaToCoverageEnable = VK_FALSE; // Optional
@@ -115,7 +124,7 @@ namespace VK
         pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;								 // Optional
         VK_TRY(vkCreatePipelineLayout(this->device.GetVkDevice(), &pipelineLayoutCreateInfo, nullptr, &vkPipelineLayout));
 
-        renderPass = CreatePtr<RenderPass>(attachments, device);
+        renderPass = CreatePtr<RenderPass>(attachments, rendererFlags, device);
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo{};
         depthStencilCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;

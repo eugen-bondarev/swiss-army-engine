@@ -22,7 +22,9 @@ namespace VK
         {
             VkAttachmentDescription attachment{};
             attachment.format = format;
-            attachment.samples = VK_SAMPLE_COUNT_8_BIT;
+            attachment.samples = samples;
+            // attachment.samples = VK_SAMPLE_COUNT_8_BIT;
+            // attachment.samples = VK_SAMPLE_COUNT_1_BIT;
             attachment.loadOp = loadOp;
             attachment.storeOp = storeOp;
             attachment.stencilLoadOp = stencilLoadOp;
@@ -47,26 +49,35 @@ namespace VK
         }
     }
 
-    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const Device& device) : device{device}
+    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const RendererFlags rendererFlags, const Device& device) : device{device}
     {
+        const bool useDepth {static_cast<bool>(rendererFlags & RendererFlags_Depth)};
+        const bool useMultisample {static_cast<bool>(rendererFlags & RendererFlags_Multisample)};
+
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depthAttachmentRef{};
-        depthAttachmentRef.attachment = 1;
-        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if (useDepth)
+        {
+            depthAttachmentRef.attachment = 1;
+            depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
 
         VkAttachmentReference colorAttachmentResolveRef{};
-        colorAttachmentResolveRef.attachment = 2;
-        colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        if (useMultisample)
+        {
+            colorAttachmentResolveRef.attachment = useDepth ? 2 : 1;
+            colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        subpass.pDepthStencilAttachment = &depthAttachmentRef;
-        subpass.pResolveAttachments = &colorAttachmentResolveRef;
+        subpass.pDepthStencilAttachment = useDepth ? &depthAttachmentRef : nullptr;
+        subpass.pResolveAttachments = useMultisample ? &colorAttachmentResolveRef : nullptr;
         
         std::vector<VkSubpassDependency> dependencies;
         dependencies.resize(1);

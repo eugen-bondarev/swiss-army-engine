@@ -7,9 +7,32 @@
 
 namespace VK
 {
-    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const ImageView& multisampleImageView, const Device& device) : device{device}, size{size}
+    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView* depthImageView, const ImageView* multisampleImageView, const Device& device) : device{device}, size{size}
     {
-        const Vec<VkImageView> attachments = {multisampleImageView.GetVkImageView(), depthImageView.GetVkImageView(), imageView.GetVkImageView()};
+        Vec<VkImageView> attachments;
+        const bool useDepth {!!depthImageView};
+        const bool useMultisample {!!multisampleImageView};
+
+        if (useDepth && !useMultisample)
+        {
+            attachments = {imageView.GetVkImageView(), depthImageView->GetVkImageView()};
+        }
+
+        if (useDepth && useMultisample)
+        {
+            attachments = {multisampleImageView->GetVkImageView(), depthImageView->GetVkImageView(), imageView.GetVkImageView()};
+        }
+
+        if (!useDepth && !useMultisample)
+        {
+            attachments = {imageView.GetVkImageView()};
+        }
+
+        if (!useDepth && useMultisample)
+        {
+            attachments = {multisampleImageView->GetVkImageView(), imageView.GetVkImageView()};
+        }
+
         VkFramebufferCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         createInfo.renderPass = renderPass.GetVkRenderPass();

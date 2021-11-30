@@ -5,23 +5,28 @@
 
 namespace VK
 {
-    RenderTarget::RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const bool useDepth, const Device& device) : size {size}, renderPass {renderPass}, device {device}
+    RenderTarget::RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const RendererFlags rendererFlags, const Device& device) : size {size}, renderPass {renderPass}, device {device}
     {
-        multiSampleTexture = CreatePtr<Texture2D>(size, GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_SAMPLE_COUNT_8_BIT);
+        const bool useDepth {static_cast<bool>(rendererFlags & RendererFlags_Depth)};
+        const bool useMultisample {static_cast<bool>(rendererFlags & RendererFlags_Multisample)};
 
         if (useDepth)
         {
-            depthTexture = CreatePtr<Texture2D>(size, device.FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_SAMPLE_COUNT_8_BIT);
-
-            for (size_t i = 0; i < imageViews.size(); ++i)
-            {
-                Ptr<Framebuffer> framebuffer = CreatePtr<Framebuffer>(renderPass, size, *imageViews[i], depthTexture->GetImageView(), multiSampleTexture->GetImageView());
-                framebuffers.push_back(std::move(framebuffer));
-            }
+            depthTexture = CreatePtr<Texture2D>(size, device.FindDepthFormat(), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, useMultisample ? VK_SAMPLE_COUNT_8_BIT : VK_SAMPLE_COUNT_1_BIT);
         }
-        else
-        {
 
+        if (useMultisample)
+        {
+            multiSampleTexture = CreatePtr<Texture2D>(size, GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_SAMPLE_COUNT_8_BIT);
+        }
+
+        const ImageView* depthImageView {depthTexture ? &depthTexture->GetImageView() : nullptr};
+        const ImageView* multisamplerImageView {multiSampleTexture ? &multiSampleTexture->GetImageView() : nullptr};
+
+        for (size_t i = 0; i < imageViews.size(); ++i)
+        {
+            Ptr<Framebuffer> framebuffer = CreatePtr<Framebuffer>(renderPass, size, *imageViews[i], depthImageView, multisamplerImageView);
+            framebuffers.push_back(std::move(framebuffer));
         }
     }
 

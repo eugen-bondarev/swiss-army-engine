@@ -23,7 +23,7 @@ namespace VK
         }
     }
 
-    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode)
+    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const RendererFlags flags)
     {
         const Vec<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -35,32 +35,54 @@ namespace VK
 		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
-        VkAttachmentDescription colorAttachmentResolve{};
-        colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
-        colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        AttachmentDescriptions attachments;
+        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription();
+
+        if (flags & RendererFlags_Multisample)
+        {
+            swapChainAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
+        }
+
+        attachments.push_back(swapChainAttachment);
+
+        if (flags & RendererFlags_Depth)
+        {
+            VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat());
+
+            if (flags & RendererFlags_Multisample)
+            {
+                depthAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
+            }
+            attachments.push_back(depthAttachment);
+        }
+
+        if (flags & RendererFlags_Multisample)
+        {
+            VkAttachmentDescription colorAttachmentResolve{};
+            colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
+            colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            attachments.push_back(colorAttachmentResolve);
+        }
 
         pipeline = CreatePtr<Pipeline>(
             vertexShaderCode, 
             fragmentShaderCode,
             GetSwapChain().GetSize(),
-            AttachmentDescriptions {
-                GetSwapChain().GetDefaultAttachmentDescription(),
-                Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat()),
-                colorAttachmentResolve
-            },
+            attachments,
             bindingDescriptors,
             attributeDescriptors,
             SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
+            flags,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), flags);
     }
 
     void Renderer::CreateUniformBuffers()
@@ -69,17 +91,17 @@ namespace VK
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
-    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, GraphicsContext& ctx) : ctx {ctx}
+    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const RendererFlags flags, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
-        CreatePipeline(vertexShaderCode, fragmentShaderCode);
+        CreatePipeline(vertexShaderCode, fragmentShaderCode, flags);
         CreateUniformBuffers();
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), flags);
             Record(newSize);
         });
     }

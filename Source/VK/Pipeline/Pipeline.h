@@ -27,6 +27,7 @@ namespace VK
             const BindingDescriptions& bindingDescriptions = {},
             const AttributeDescriptions& attributeDescriptions = {},
             const SetLayouts& setLayouts = {},
+            const RendererFlags rendererFlags = RendererFlags_Depth | RendererFlags_Multisample,
             const Device& device = GetDevice()
         );
 

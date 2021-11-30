@@ -14,7 +14,7 @@ namespace VK
     class RenderTarget
     {
     public:
-        RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const bool useDepth = true, const Device& device = GetDevice());
+        RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const RendererFlags rendererFlags, const Device& device = GetDevice());
 
         const Framebuffer& GetFramebuffer(const size_t i) const;
         

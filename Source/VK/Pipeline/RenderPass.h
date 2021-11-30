@@ -6,6 +6,16 @@
 #include "../GraphicsContext.h"
 #include "../Common.h"
 
+enum RendererFlags_
+{
+    RendererFlags_None = 1 << 0,
+    RendererFlags_Multisample = 1 << 1,
+    RendererFlags_Depth = 1 << 2,
+};
+
+using Flags = unsigned int;
+using RendererFlags = Flags;
+
 namespace VK
 {
     FORWARD_DECLARE(Framebuffer);
@@ -33,7 +43,7 @@ namespace VK
     class RenderPass
     {
     public:
-        RenderPass(const AttachmentDescriptions& attachments, const Device& device = GetDevice());
+        RenderPass(const AttachmentDescriptions& attachments, const RendererFlags rendererFlags, const Device& device = GetDevice());
        ~RenderPass();
 
         const VkRenderPass& GetVkRenderPass() const;
