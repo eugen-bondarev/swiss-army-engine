@@ -24,13 +24,6 @@ int main()
 
         VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers());
 
-        static bool res{false};
-
-        window.ResizeSubscribe([&](const Vec2ui size)
-        {
-            res = true;
-        });
-
         for (size_t i = 0; i < 4; ++i)
         {
             renderer.Add(characterMesh, characterTexture);
@@ -46,17 +39,6 @@ int main()
         while (window.IsRunning())
         {
             window.BeginFrame();
-
-            if (res)
-            {
-                vkQueueWaitIdle(VK::Queues::graphicsQueue);
-                frameManager.reset();
-                frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
-                renderer.renderTarget.reset();
-                renderer.renderTarget = CreatePtr<VK::RenderTarget>(VK::GetSwapChain().GetSize(), VK::GetSwapChain().GetImageViews(), renderer.pipeline->GetRenderPass());
-                renderer.Record(window.GetSize());
-                res = false;
-            }
 
             const float deltaTime {window.GetDeltaTime()};
             static float timer {0}; timer += deltaTime;

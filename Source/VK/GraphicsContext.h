@@ -65,6 +65,8 @@ namespace VK
         GraphicsContext(const GraphicsContext&) = delete;
         GraphicsContext& operator=(const GraphicsContext&) = delete;
     };
+    
+    GraphicsContext& GetCurrentGraphicsContext();
 }
 
 #endif

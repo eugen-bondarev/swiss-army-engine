@@ -38,9 +38,9 @@ namespace API
         return graphicsContexts[window];
     }
 
-    GraphicsContext* GetCurrentGraphicsContext()
+    GraphicsContext& GetCurrentGraphicsContext()
     {
-        return currentGraphicsContext;
+        return *currentGraphicsContext;
     }
 
     RawWindow& GraphicsContext::GetWindow()

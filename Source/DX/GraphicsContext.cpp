@@ -108,22 +108,22 @@ namespace DX
 #ifndef NDEBUG
     Debugger* GetDebugger()
     {
-        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->debugger.get();
+        return dynamic_cast<DX::GraphicsContext*>(&API::GetCurrentGraphicsContext())->debugger.get();
     }
 #endif
 
     Device& GetDevice()
     {
-        return *dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
+        return *dynamic_cast<DX::GraphicsContext*>(&API::GetCurrentGraphicsContext())->device;
     }
 
     SwapChain* GetSwapChain()
     {
-        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain.get();
+        return dynamic_cast<DX::GraphicsContext*>(&API::GetCurrentGraphicsContext())->swapChain.get();
     }
 
     Ref<RenderTargetView>& GetRenderTargetView()
     {
-        return dynamic_cast<DX::GraphicsContext*>(API::GetCurrentGraphicsContext())->renderTargetView;
+        return dynamic_cast<DX::GraphicsContext*>(&API::GetCurrentGraphicsContext())->renderTargetView;
     }
 }

@@ -10,7 +10,7 @@
 
 namespace VK
 {
-    Device::Device(const Instance& instance) : instance{instance}
+    Device::Device(GraphicsContext& graphicsContext, const Instance& instance) : graphicsContext {graphicsContext}, instance {instance}
     {
         PickPhysicalDevice();
         CreateLogicalDevice();
@@ -113,30 +113,28 @@ namespace VK
             Queues::indices.graphicsFamily.value(), Queues::indices.presentFamily.value()
         };
 
-        float queuePriority = 1.0f;
+        const float queuePriority {1.0f};
         for (uint32_t queueFamily : uniqueQueueFamilies)
         {
-            VkDeviceQueueCreateInfo queue_create_info{};
-            queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queue_create_info.queueFamilyIndex = queueFamily;
-            queue_create_info.queueCount = 1;
-            queue_create_info.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queue_create_info);
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
         }
 
-        VkPhysicalDeviceFeatures device_features{};
-        device_features.samplerAnisotropy = VK_TRUE;
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
         // device_features.multiViewport = VK_TRUE;
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-
-        createInfo.pEnabledFeatures = &device_features;
-
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+        createInfo.pEnabledFeatures = &deviceFeatures;
 
         if (Debug::ValidationLayerEnabled())
         {

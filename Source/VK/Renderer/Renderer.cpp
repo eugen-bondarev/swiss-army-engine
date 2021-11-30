@@ -6,6 +6,7 @@
 #include "../SwapChain/SwapChain.h"
 #include <gtc/matrix_transform.hpp>
 #include "../Device/QueueFamily.h"
+#include "../GraphicsContext.h"
 #include "../Device/Device.h"
 
 namespace VK
@@ -38,7 +39,7 @@ namespace VK
             vertexShaderCode, 
             fragmentShaderCode,
             GetSwapChain().GetSize(),
-            AttachmentDescriptions { GetSwapChain().GetDefaultAttachmentDescription(), Util::CreateDefaultDepthAttachment(device.FindDepthFormat()) },
+            AttachmentDescriptions { GetSwapChain().GetDefaultAttachmentDescription(), Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat()) },
             bindingDescriptors,
             attributeDescriptors,
             SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() }
@@ -53,11 +54,19 @@ namespace VK
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
-    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const Device& device) : device {device}
+    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
         CreatePipeline(vertexShaderCode, fragmentShaderCode);
         CreateUniformBuffers();
+
+        ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
+        {
+            vkQueueWaitIdle(Queues::graphicsQueue);
+            renderTarget.reset();
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
+            Record(newSize);
+        });
     }
 
     SpaceObject& Renderer::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
@@ -82,20 +91,20 @@ namespace VK
             VK::CommandBuffer& cmd = GetCommandBuffer(i);
             const Framebuffer& framebuffer = renderTarget->GetFramebuffer(i);
 
-            VkViewport viewport{};
-            viewport.x = 0.0f;
-            viewport.y = 0.0f;
-            viewport.width = size.x;
-            viewport.height = size.y;
-            viewport.minDepth = 0.0f;
-            viewport.maxDepth = 1.0f;
-
-            VkRect2D scissor{};
-            scissor.offset = {0, 0};
-            scissor.extent = {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
-
             pool.Reset();
             cmd.Begin();
+
+                VkViewport viewport{};
+                viewport.x = 0.0f;
+                viewport.y = 0.0f;
+                viewport.width = size.x;
+                viewport.height = size.y;
+                viewport.minDepth = 0.0f;
+                viewport.maxDepth = 1.0f;
+
+                VkRect2D scissor{};
+                scissor.offset = {0, 0};
+                scissor.extent = {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
 
                 vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
                 vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
@@ -132,7 +141,7 @@ namespace VK
         const VkSemaphore& signal = frame.GetSemaphore(1);
 
         const CommandBuffer& cmd = *commandBuffers[swapChainImageIndex];
-        vkResetFences(device.GetVkDevice(), 1, &fence);
+        vkResetFences(ctx.GetDevice().GetVkDevice(), 1, &fence);
         cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal, fence);
     }
 

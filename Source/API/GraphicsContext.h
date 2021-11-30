@@ -36,7 +36,7 @@ namespace API
 
     void MakeGraphicsContextCurrent(GraphicsContext* newContext);
     GraphicsContext* GetGraphicsContext(RawWindow* window);
-    GraphicsContext* GetCurrentGraphicsContext();
+    GraphicsContext& GetCurrentGraphicsContext();
 }
 
 #endif

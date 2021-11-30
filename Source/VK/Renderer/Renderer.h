@@ -19,12 +19,10 @@
 
 namespace VK
 {
-    FORWARD_DECLARE(Device);
-
     class Renderer
     {
     public:
-        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const Device& device = GetDevice());
+        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
@@ -46,11 +44,8 @@ namespace VK
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
 
-        Ptr<RenderTarget> renderTarget;
-        Ptr<Pipeline> pipeline;
     private:
-        const Device& device;
-
+        GraphicsContext& ctx;
 
         Vec<Ptr<IRenderable>> renderable;
 
@@ -63,6 +58,8 @@ namespace VK
         void CreateCmdEntities(const size_t numCmdBuffers);
 
         Ptr<DescriptorSetLayout> descriptorSetLayout;
+        Ptr<RenderTarget> renderTarget;
+        Ptr<Pipeline> pipeline;
         void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode);
 
         Renderer(const Renderer&) = delete;

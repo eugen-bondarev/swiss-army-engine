@@ -8,11 +8,12 @@
 namespace VK
 {
     FORWARD_DECLARE(Instance);
+    FORWARD_DECLARE(GraphicsContext);
 
     class Device
     {
     public:
-        Device(const Instance& instance);
+        Device(GraphicsContext& graphicsContext, const Instance& instance);
        ~Device();
 
         inline static const std::vector<const char *> deviceExtensions =
@@ -53,6 +54,7 @@ namespace VK
 
     private:
         const Instance& instance;
+        GraphicsContext& graphicsContext;
 
         VkPhysicalDevice vkPhysicalDevice;
         VkDevice vkDevice;

@@ -14,7 +14,7 @@ namespace VK
     {
         instance = CreatePtr<Instance>(GetID());
         surface = CreatePtr<Surface>(window, *instance);
-        device = CreatePtr<Device>(*instance);
+        device = CreatePtr<Device>((*this), *instance);
 
         defaultConstInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_NEAREST);
         defaultLinearInterpolationSampler = CreatePtr<Sampler>(VK_FILTER_LINEAR);
@@ -99,36 +99,41 @@ namespace VK
 
     const Device& GetDevice()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->device;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->device;
     }
 
     const Surface& GetSurface()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->surface;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->surface;
     }
 
     SwapChain& GetSwapChain()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->swapChain;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->swapChain;
     }
 
     const DescriptorPool& GetDefaultDescriptorPool()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultDescriptorPool;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->defaultDescriptorPool;
     }
 
     const CommandPool& GetDefaultCommandPool()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultCommandPool;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->defaultCommandPool;
     }
 
     const Sampler& GetDefaultConstInterpolationSampler()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultConstInterpolationSampler;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->defaultConstInterpolationSampler;
     }
 
     const Sampler& GetDefaultLinearInterpolationSampler()
     {
-        return *dynamic_cast<::VK::GraphicsContext*>(API::GetCurrentGraphicsContext())->defaultLinearInterpolationSampler;
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->defaultLinearInterpolationSampler;
+    }
+    
+    GraphicsContext& GetCurrentGraphicsContext()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext());
     }
 }

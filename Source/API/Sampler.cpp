@@ -8,7 +8,7 @@ namespace API
 {
     Ptr<Sampler> Sampler::Create()
     {
-        if (GetCurrentGraphicsContext()->GetAPIType() == API::Type::DirectX) return CreatePtr<DX::Sampler>();
+        if (GetCurrentGraphicsContext().GetAPIType() == API::Type::DirectX) return CreatePtr<DX::Sampler>();
         return nullptr;
     }
 }
