@@ -43,7 +43,7 @@ namespace VK
     class RenderPass
     {
     public:
-        RenderPass(const AttachmentDescriptions& attachments, const RendererFlags rendererFlags, const Device& device = GetDevice());
+        RenderPass(const AttachmentDescriptions& attachments, const size_t samples, const bool useDepth, const Device& device = GetDevice());
        ~RenderPass();
 
         const VkRenderPass& GetVkRenderPass() const;

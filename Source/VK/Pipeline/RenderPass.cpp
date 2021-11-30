@@ -49,10 +49,9 @@ namespace VK
         }
     }
 
-    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const RendererFlags rendererFlags, const Device& device) : device{device}
+    RenderPass::RenderPass(const AttachmentDescriptions& attachments, const size_t samples, const bool useDepth, const Device& device) : device{device}
     {
-        const bool useDepth {static_cast<bool>(rendererFlags & RendererFlags_Depth)};
-        const bool useMultisample {static_cast<bool>(rendererFlags & RendererFlags_Multisample)};
+        const bool useMultisample {samples > 0};
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;

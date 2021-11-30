@@ -23,7 +23,7 @@ namespace VK
         }
     }
 
-    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const RendererFlags flags)
+    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth)
     {
         const Vec<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -38,25 +38,25 @@ namespace VK
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription();
 
-        if (flags & RendererFlags_Multisample)
+        if (samples > 0)
         {
             swapChainAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
         }
 
         attachments.push_back(swapChainAttachment);
 
-        if (flags & RendererFlags_Depth)
+        if (useDepth)
         {
             VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat());
 
-            if (flags & RendererFlags_Multisample)
+            if (samples > 0)
             {
                 depthAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
             }
             attachments.push_back(depthAttachment);
         }
 
-        if (flags & RendererFlags_Multisample)
+        if (samples > 0)
         {
             VkAttachmentDescription colorAttachmentResolve{};
             colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
@@ -78,11 +78,12 @@ namespace VK
             bindingDescriptors,
             attributeDescriptors,
             SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
-            flags,
+            samples,
+            useDepth,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), flags);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
     }
 
     void Renderer::CreateUniformBuffers()
@@ -91,17 +92,17 @@ namespace VK
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
-    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const RendererFlags flags, GraphicsContext& ctx) : ctx {ctx}
+    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
-        CreatePipeline(vertexShaderCode, fragmentShaderCode, flags);
+        CreatePipeline(vertexShaderCode, fragmentShaderCode, samples, useDepth);
         CreateUniformBuffers();
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), flags);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
             Record(newSize);
         });
     }

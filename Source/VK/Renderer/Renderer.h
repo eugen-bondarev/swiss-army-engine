@@ -22,7 +22,7 @@ namespace VK
     class Renderer
     {
     public:
-        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const RendererFlags flags = RendererFlags_None, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
+        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
@@ -60,7 +60,7 @@ namespace VK
         Ptr<DescriptorSetLayout> descriptorSetLayout;
         Ptr<RenderTarget> renderTarget;
         Ptr<Pipeline> pipeline;
-        void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const RendererFlags flags);
+        void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth);
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
