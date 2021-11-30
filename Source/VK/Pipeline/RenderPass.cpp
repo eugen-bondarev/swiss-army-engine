@@ -51,7 +51,7 @@ namespace VK
 
     RenderPass::RenderPass(const AttachmentDescriptions& attachments, const size_t samples, const bool useDepth, const Device& device) : device{device}
     {
-        const bool useMultisample {samples > 0};
+        const bool useMultisample {samples > 1};
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;

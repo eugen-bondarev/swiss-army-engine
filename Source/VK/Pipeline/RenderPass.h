@@ -6,15 +6,17 @@
 #include "../GraphicsContext.h"
 #include "../Common.h"
 
-enum RendererFlags_
+inline constexpr VkSampleCountFlagBits SamplesToVKFlags(const size_t samples)
 {
-    RendererFlags_None = 1 << 0,
-    RendererFlags_Multisample = 1 << 1,
-    RendererFlags_Depth = 1 << 2,
-};
-
-using Flags = unsigned int;
-using RendererFlags = Flags;
+    if (samples == 0 || samples == 1) return VK_SAMPLE_COUNT_1_BIT;
+    if (samples == 2) return VK_SAMPLE_COUNT_2_BIT;
+    if (samples == 4) return VK_SAMPLE_COUNT_4_BIT;
+    if (samples == 8) return VK_SAMPLE_COUNT_8_BIT;
+    if (samples == 16) return VK_SAMPLE_COUNT_16_BIT;
+    if (samples == 32) return VK_SAMPLE_COUNT_32_BIT;
+    if (samples == 64) return VK_SAMPLE_COUNT_64_BIT;
+    return VK_SAMPLE_COUNT_1_BIT;
+}
 
 namespace VK
 {

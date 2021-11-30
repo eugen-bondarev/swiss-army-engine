@@ -37,26 +37,17 @@ namespace VK
 
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription();
-
-        if (samples > 0)
-        {
-            swapChainAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
-        }
-
+        swapChainAttachment.samples = SamplesToVKFlags(samples);
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
         {
             VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat());
-
-            if (samples > 0)
-            {
-                depthAttachment.samples = VK_SAMPLE_COUNT_8_BIT;
-            }
+            depthAttachment.samples = SamplesToVKFlags(samples);
             attachments.push_back(depthAttachment);
         }
 
-        if (samples > 0)
+        if (samples > 1)
         {
             VkAttachmentDescription colorAttachmentResolve{};
             colorAttachmentResolve.format = GetSwapChain().GetImageFormat();

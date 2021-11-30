@@ -69,16 +69,7 @@ namespace VK
         VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo{};
         multisampleStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampleStateCreateInfo.sampleShadingEnable = VK_FALSE;
-
-        if (samples > 0)
-        {
-            multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_8_BIT;
-        }
-        else
-        {
-            multisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        }
-
+        multisampleStateCreateInfo.rasterizationSamples = SamplesToVKFlags(samples);
         multisampleStateCreateInfo.minSampleShading = 1.0f;			// Optional
         multisampleStateCreateInfo.pSampleMask = nullptr;			// Optional
         multisampleStateCreateInfo.alphaToCoverageEnable = VK_FALSE; // Optional
