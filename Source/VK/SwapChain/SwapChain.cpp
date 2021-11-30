@@ -259,7 +259,7 @@ namespace VK
         return extent;
     }
 
-    VkAttachmentDescription SwapChain::GetDefaultAttachmentDescription() const
+    VkAttachmentDescription SwapChain::GetDefaultAttachmentDescription(const VkSampleCountFlagBits samples) const
     {
         return Util::CreateAttachment(
             GetImageFormat(), 
@@ -269,7 +269,7 @@ namespace VK
             VK_ATTACHMENT_STORE_OP_STORE, 
             VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
             VK_ATTACHMENT_STORE_OP_DONT_CARE, 
-            VK_SAMPLE_COUNT_1_BIT
+            samples
         );
     }
 

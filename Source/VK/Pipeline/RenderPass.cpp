@@ -34,7 +34,7 @@ namespace VK
             return attachment;
         }
 
-        VkAttachmentDescription CreateDefaultDepthAttachment(const VkFormat& depthImageFormat)
+        VkAttachmentDescription CreateDefaultDepthAttachment(const VkFormat& depthImageFormat, const VkSampleCountFlagBits samples)
         {
             return CreateAttachment(
                 depthImageFormat,
@@ -44,7 +44,7 @@ namespace VK
                 VK_ATTACHMENT_STORE_OP_DONT_CARE,
                 VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                 VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                VK_SAMPLE_COUNT_1_BIT
+                samples
             );
         }
     }

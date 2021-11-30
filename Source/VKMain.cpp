@@ -22,7 +22,7 @@ int main()
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
 
-        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 8, true);
+        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true);
 
         for (size_t i = 0; i < 4; ++i)
         {

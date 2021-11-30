@@ -36,14 +36,12 @@ namespace VK
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
-        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription();
-        swapChainAttachment.samples = SamplesToVKFlags(samples);
+        const VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
         {
-            VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat());
-            depthAttachment.samples = SamplesToVKFlags(samples);
+            const VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat(), SamplesToVKFlags(samples));
             attachments.push_back(depthAttachment);
         }
 
