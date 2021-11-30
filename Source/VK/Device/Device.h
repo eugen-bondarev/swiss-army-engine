@@ -36,6 +36,8 @@ namespace VK
 
         const VkPhysicalDeviceProperties& GetProperties() const;
 
+        VkSampleCountFlagBits GetMaxUsableSampleCount() const;
+        
         template <typename T>
         size_t CalculateDynamicAlignment() const
         {

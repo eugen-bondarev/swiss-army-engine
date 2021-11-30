@@ -7,25 +7,9 @@
 
 namespace VK
 {
-    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const Device& device) : device{device}, size{size}
+    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const ImageView& multisampleImageView, const Device& device) : device{device}, size{size}
     {
-        std::vector<VkImageView> attachments = {imageView.GetVkImageView()};
-
-        VkFramebufferCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        createInfo.renderPass = renderPass.GetVkRenderPass();
-        createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        createInfo.pAttachments = attachments.data();
-        createInfo.width = static_cast<uint32_t>(size.x);
-        createInfo.height = static_cast<uint32_t>(size.y);
-        createInfo.layers = 1;
-        VK_TRY(vkCreateFramebuffer(this->device.GetVkDevice(), &createInfo, nullptr, &vkFramebuffer));
-    }
-
-    Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const Device& device) : device{device}, size{size}
-    {
-        std::vector<VkImageView> attachments = {imageView.GetVkImageView(), depthImageView.GetVkImageView()};
-        
+        const Vec<VkImageView> attachments = {multisampleImageView.GetVkImageView(), depthImageView.GetVkImageView(), imageView.GetVkImageView()};
         VkFramebufferCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         createInfo.renderPass = renderPass.GetVkRenderPass();

@@ -22,6 +22,7 @@ namespace VK
         const Device& device;
         Vec<Ptr<Framebuffer>> framebuffers;
         Ptr<Texture2D> depthTexture;
+        Ptr<Texture2D> multiSampleTexture;
         Vec2ui size;
         const RenderPass& renderPass;
     };

@@ -15,8 +15,7 @@ namespace VK
     class Framebuffer
     {
     public:
-        Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const Device& device = GetDevice());
-        Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const Device& device = GetDevice());
+        Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView& depthImageView, const ImageView& multisampleImageView, const Device& device = GetDevice());
        ~Framebuffer();
 
         VkFramebuffer GetVkFramebuffer() const;

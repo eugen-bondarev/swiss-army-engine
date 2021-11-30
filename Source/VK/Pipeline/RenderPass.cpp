@@ -22,7 +22,7 @@ namespace VK
         {
             VkAttachmentDescription attachment{};
             attachment.format = format;
-            attachment.samples = samples;
+            attachment.samples = VK_SAMPLE_COUNT_8_BIT;
             attachment.loadOp = loadOp;
             attachment.storeOp = storeOp;
             attachment.stencilLoadOp = stencilLoadOp;
@@ -57,11 +57,16 @@ namespace VK
         depthAttachmentRef.attachment = 1;
         depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+        VkAttachmentReference colorAttachmentResolveRef{};
+        colorAttachmentResolveRef.attachment = 2;
+        colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
+        subpass.pResolveAttachments = &colorAttachmentResolveRef;
         
         std::vector<VkSubpassDependency> dependencies;
         dependencies.resize(1);

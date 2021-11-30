@@ -35,17 +35,32 @@ namespace VK
 		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
+        VkAttachmentDescription colorAttachmentResolve{};
+        colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
+        colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
         pipeline = CreatePtr<Pipeline>(
             vertexShaderCode, 
             fragmentShaderCode,
             GetSwapChain().GetSize(),
-            AttachmentDescriptions { GetSwapChain().GetDefaultAttachmentDescription(), Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat()) },
+            AttachmentDescriptions {
+                GetSwapChain().GetDefaultAttachmentDescription(),
+                Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat()),
+                colorAttachmentResolve
+            },
             bindingDescriptors,
             attributeDescriptors,
-            SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() }
+            SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
+            ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(GetSwapChain().GetSize(), GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass());
     }
 
     void Renderer::CreateUniformBuffers()
@@ -109,14 +124,14 @@ namespace VK
                 vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
                 vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
 
-                cmd.BeginRenderPass(GetPipeline().GetRenderPass(), framebuffer);
-                    cmd.BindPipeline(GetPipeline());
+                cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
+                    cmd.BindPipeline(*pipeline);
                         for (size_t j = 0; j < renderable.size(); ++j)
                         {
                             const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
                             cmd.BindVertexBuffers({renderable[j]->GetVertexBuffer().UnderlyingPtr()}, {0});
                                 cmd.BindIndexBuffer(renderable[j]->GetIndexBuffer().UnderlyingRef());
-                                    cmd.BindDescriptorSets(GetPipeline(), 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
+                                    cmd.BindDescriptorSets(*pipeline, 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
                                         cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
                         }
                 cmd.EndRenderPass();

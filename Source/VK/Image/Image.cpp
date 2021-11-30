@@ -113,7 +113,7 @@ namespace VK
         }
     }
 
-    Image::Image(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}, size{size}
+    Image::Image(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const VkSampleCountFlagBits numSamples, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}, size{size}
     {
         VkImageCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -128,7 +128,7 @@ namespace VK
         createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         createInfo.usage = usageFlags;
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        createInfo.samples = numSamples;
         createInfo.flags = 0;
         VK_TRY(vkCreateImage(device.GetVkDevice(), &createInfo, nullptr, &vkImage));
 
