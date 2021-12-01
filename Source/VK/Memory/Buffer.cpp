@@ -59,10 +59,7 @@ namespace VK
 
         if (data != nullptr)
         {
-            void* mappedData;
-            vkMapMemory(this->device.GetVkDevice(), vkMemory, 0, bufferSize, 0, &mappedData);
-                memcpy(mappedData, data, static_cast<size_t>(bufferSize));
-            vkUnmapMemory(this->device.GetVkDevice(), vkMemory);
+            Update(data);
         }
 
         SetupDefaultDescriptor();
