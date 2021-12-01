@@ -37,17 +37,17 @@ namespace VK
 
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
-        // if (isOutput)
-        // {
-        //     swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        //     swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        //     swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        // }
-        // else
-        // {
-        //     swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        //     swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        // }
+        if (isOutput)
+        {
+            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        }
+        else
+        {
+            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
@@ -172,7 +172,7 @@ namespace VK
         (*entityUniformBuffer).Overwrite();
     }
 
-    void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex, const uint32_t waitSemaphoreIndex, const uint32_t signalSemaphoreIndex)
+    void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex, const uint32_t signalSemaphoreIndex)
     {
         // Todo: Do smth with sync-objects.
         const VkFence& fence = frame.GetInFlightFence();
@@ -181,7 +181,14 @@ namespace VK
 
         const CommandBuffer& cmd = *commandBuffers[swapChainImageIndex];
         vkResetFences(ctx.GetDevice().GetVkDevice(), 1, &fence);
-        cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal, fence);
+        if (resetFence)
+        {
+            cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal, fence);
+        }
+        else
+        {
+            cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal);
+        }
     }
 
     CommandBuffer& Renderer::GetCommandBuffer(const size_t i)

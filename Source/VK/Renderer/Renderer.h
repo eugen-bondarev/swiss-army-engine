@@ -28,7 +28,7 @@ namespace VK
 
         void Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional);
         void UpdateUniformBuffers(const float ratio);
-        void Render(const Frame& frame, const uint32_t swapChainImageIndex, const uint32_t waitSemaphoreIndex = 0, const uint32_t signalSemaphoreIndex = 1);
+        void Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex = 0, const uint32_t signalSemaphoreIndex = 1);
 
         CommandBuffer& GetCommandBuffer(const size_t i);
         CommandPool& GetCommandPool(const size_t i);

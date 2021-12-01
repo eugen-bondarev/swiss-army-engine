@@ -25,8 +25,8 @@ void ImGuiInit(
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    ImGuiIO& io = ImGui::GetIO();
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ImGui::StyleColorsDark();
 
@@ -70,21 +70,21 @@ int main()
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768});
 
-        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
+        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 2);
 
-        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, true);
-        // VK::Renderer imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, false);
+        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, false);
+        VK::Renderer imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, true);
 
-        // ImGuiInit(
-        //     window.GetHandle(),
-        //     VK::GetInstance().GetVkInstance(),
-        //     VK::GetDevice().GetVkPhysicalDevice(),
-        //     VK::GetDevice().GetVkDevice(),
-        //     VK::Queues::indices.graphicsFamily.value(),
-        //     VK::Queues::graphicsQueue,
-        //     VK::GetDefaultDescriptorPool(),
-        //     imGuiRenderer.GetPipeline()
-        // );
+        ImGuiInit(
+            window.GetHandle(),
+            VK::GetInstance().GetVkInstance(),
+            VK::GetDevice().GetVkPhysicalDevice(),
+            VK::GetDevice().GetVkDevice(),
+            VK::Queues::indices.graphicsFamily.value(),
+            VK::Queues::graphicsQueue,
+            VK::GetDefaultDescriptorPool(),
+            imGuiRenderer.GetPipeline()
+        );
 
         for (size_t i = 0; i < 4; ++i)
         {
@@ -117,11 +117,11 @@ int main()
                 timer = 0;
             }
 
-            // ImGui_ImplVulkan_NewFrame();
-            // ImGui_ImplGlfw_NewFrame();
-            // ImGui::NewFrame();
-            //     ImGui::ShowDemoWindow();
-            // ImGui::Render();
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+                ImGui::ShowDemoWindow();
+            ImGui::Render();
 
             frameManager->AcquireSwapChainImage();
 
@@ -133,24 +133,24 @@ int main()
                 }
 
                 renderer.UpdateUniformBuffers(window.GetAspectRatio());
-                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), 0, 1);
+                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
 
-                // imGuiRenderer.Record(window.GetSize(), [&](const VkCommandBuffer& cmd)
-                // {
-				// 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-                // });
+                imGuiRenderer.Record(window.GetSize(), [&](const VkCommandBuffer& cmd)
+                {
+					ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+                });
 
-                // vkQueueWaitIdle(VK::Queues::graphicsQueue);
-                // imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), 1, 2);
+                vkQueueWaitIdle(VK::Queues::graphicsQueue);
+                imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 1, 2);
             
             frameManager->Present();
 
             // Update and Render additional Platform Windows		
-            // if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            // {
-            //     ImGui::UpdatePlatformWindows();
-            //     ImGui::RenderPlatformWindowsDefault();
-            // }
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
 
             window.EndFrame();
         }
