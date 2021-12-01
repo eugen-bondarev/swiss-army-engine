@@ -22,6 +22,8 @@
 #include "Image/ImageView.h"
 #include "Image/Image.h"
 
+#include "Instance/Instance.h"
+
 #include "Device/QueueFamily.h"
 #include "Device/Device.h"
 

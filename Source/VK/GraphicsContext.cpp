@@ -97,6 +97,11 @@ namespace VK
         return *defaultLinearInterpolationSampler;
     }
 
+    const Instance& GetInstance()
+    {
+        return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->instance;
+    }
+
     const Device& GetDevice()
     {
         return *dynamic_cast<::VK::GraphicsContext*>(&API::GetCurrentGraphicsContext())->device;

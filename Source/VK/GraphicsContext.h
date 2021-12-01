@@ -18,6 +18,7 @@ namespace VK
     FORWARD_DECLARE(CommandPool);
     FORWARD_DECLARE(Sampler);
 
+    const Instance&       GetInstance();
     const Surface&        GetSurface();
     const Device&         GetDevice();
           SwapChain&      GetSwapChain();
@@ -28,7 +29,7 @@ namespace VK
 
     class GraphicsContext final : public API::GraphicsContext
     {
-        
+    friend const Instance&       GetInstance();
     friend const Surface&        GetSurface();
     friend const Device&         GetDevice();
     friend       SwapChain&      GetSwapChain();

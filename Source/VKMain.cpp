@@ -5,8 +5,58 @@
 #include "Util/Path.h"
 #include "VK/VK.h"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+
 #include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
+
+void ImGuiInit(
+    GLFWwindow* handle, 
+    const VkInstance& vkInstance, 
+    const VkPhysicalDevice& vkPhysicalDevice,
+    const VkDevice& vkDevice,
+    const uint32_t queueFamily,
+    const VkQueue& queue,
+    const VK::DescriptorPool& descriptorPool,
+    const VK::Pipeline& pipeline
+)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForVulkan(handle, true);
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = vkInstance;
+    initInfo.PhysicalDevice = vkPhysicalDevice;
+    initInfo.Device = vkDevice;
+    initInfo.QueueFamily = queueFamily;
+    initInfo.Queue = queue;
+    initInfo.PipelineCache = nullptr;
+    initInfo.DescriptorPool = descriptorPool.GetVkDescriptorPool();
+    initInfo.Allocator = nullptr;
+    initInfo.MinImageCount = 2;
+    initInfo.ImageCount = 2;
+    initInfo.CheckVkResultFn = nullptr;
+    ImGui_ImplVulkan_Init(&initInfo, pipeline.GetRenderPass().GetVkRenderPass());
+
+    VK::CommandPool pool;
+    VK::CommandBuffer cmd(pool);
+
+    cmd.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        ImGui_ImplVulkan_CreateFontsTexture(cmd.GetVkCommandBuffer());
+    cmd.End();
+
+    cmd.SubmitToQueue(queue);
+
+    vkDeviceWaitIdle(vkDevice);
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
 
 int main()
 {
@@ -22,7 +72,19 @@ int main()
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 1, 2, 2);
 
-        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 8, true);
+        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, true);
+        // VK::Renderer imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, false);
+
+        // ImGuiInit(
+        //     window.GetHandle(),
+        //     VK::GetInstance().GetVkInstance(),
+        //     VK::GetDevice().GetVkPhysicalDevice(),
+        //     VK::GetDevice().GetVkDevice(),
+        //     VK::Queues::indices.graphicsFamily.value(),
+        //     VK::Queues::graphicsQueue,
+        //     VK::GetDefaultDescriptorPool(),
+        //     imGuiRenderer.GetPipeline()
+        // );
 
         for (size_t i = 0; i < 4; ++i)
         {
@@ -30,13 +92,11 @@ int main()
         }
 
         renderer.GetSpaceObject(0).SetPosition(-5, -5, -15);
-        renderer.GetSpaceObject(0).SetScale(2.0f);
-
         renderer.GetSpaceObject(1).SetPosition(-5, -5, -25);
         renderer.GetSpaceObject(2).SetPosition( 5, -5, -15);
         renderer.GetSpaceObject(3).SetPosition( 5, -5, -25);
 
-        renderer.Record(window.GetSize());
+        renderer.Record(window.GetSize(), [&](const VkCommandBuffer&) {});
 
         while (window.IsRunning())
         {
@@ -57,6 +117,12 @@ int main()
                 timer = 0;
             }
 
+            // ImGui_ImplVulkan_NewFrame();
+            // ImGui_ImplGlfw_NewFrame();
+            // ImGui::NewFrame();
+            //     ImGui::ShowDemoWindow();
+            // ImGui::Render();
+
             frameManager->AcquireSwapChainImage();
 
                 static float theta {0}; theta += deltaTime * 0.5f;
@@ -67,9 +133,24 @@ int main()
                 }
 
                 renderer.UpdateUniformBuffers(window.GetAspectRatio());
-                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex());
+                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), 0, 1);
+
+                // imGuiRenderer.Record(window.GetSize(), [&](const VkCommandBuffer& cmd)
+                // {
+				// 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+                // });
+
+                // vkQueueWaitIdle(VK::Queues::graphicsQueue);
+                // imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), 1, 2);
             
             frameManager->Present();
+
+            // Update and Render additional Platform Windows		
+            // if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            // {
+            //     ImGui::UpdatePlatformWindows();
+            //     ImGui::RenderPlatformWindowsDefault();
+            // }
 
             window.EndFrame();
         }

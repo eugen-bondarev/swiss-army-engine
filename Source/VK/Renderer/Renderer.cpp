@@ -23,7 +23,7 @@ namespace VK
         }
     }
 
-    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth)
+    void Renderer::CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth, const bool isOutput)
     {
         const Vec<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -36,7 +36,18 @@ namespace VK
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
-        const VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        // if (isOutput)
+        // {
+        //     swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        //     swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        //     swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        // }
+        // else
+        // {
+        //     swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        //     swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        // }
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
@@ -81,10 +92,10 @@ namespace VK
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
     }
 
-    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, GraphicsContext& ctx) : ctx {ctx}
+    Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
-        CreatePipeline(vertexShaderCode, fragmentShaderCode, samples, useDepth);
+        CreatePipeline(vertexShaderCode, fragmentShaderCode, samples, useDepth, isOutput);
         CreateUniformBuffers();
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
@@ -92,7 +103,7 @@ namespace VK
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
-            Record(newSize);
+            Record(newSize, [&](const VkCommandBuffer& cmd) {});
         });
     }
 
@@ -110,7 +121,7 @@ namespace VK
         return item->GetSpaceObject();
     }
 
-    void Renderer::Record(const Vec2ui size)
+    void Renderer::Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional)
     {
         for (size_t i = 0; i < GetNumCmdBuffers(); ++i)
         {
@@ -146,6 +157,7 @@ namespace VK
                                     cmd.BindDescriptorSets(*pipeline, 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
                                         cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
                         }
+                        additional(cmd.GetVkCommandBuffer());
                 cmd.EndRenderPass();
             cmd.End();
         }        
@@ -160,12 +172,12 @@ namespace VK
         (*entityUniformBuffer).Overwrite();
     }
 
-    void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex)
+    void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex, const uint32_t waitSemaphoreIndex, const uint32_t signalSemaphoreIndex)
     {
         // Todo: Do smth with sync-objects.
         const VkFence& fence = frame.GetInFlightFence();
-        const VkSemaphore& wait = frame.GetSemaphore(0);
-        const VkSemaphore& signal = frame.GetSemaphore(1);
+        const VkSemaphore& wait = frame.GetSemaphore(waitSemaphoreIndex);
+        const VkSemaphore& signal = frame.GetSemaphore(signalSemaphoreIndex);
 
         const CommandBuffer& cmd = *commandBuffers[swapChainImageIndex];
         vkResetFences(ctx.GetDevice().GetVkDevice(), 1, &fence);

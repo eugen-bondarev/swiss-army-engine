@@ -22,13 +22,13 @@ namespace VK
     class Renderer
     {
     public:
-        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
+        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
-        void Record(const Vec2ui size);
+        void Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional);
         void UpdateUniformBuffers(const float ratio);
-        void Render(const Frame& frame, const uint32_t swapChainImageIndex);
+        void Render(const Frame& frame, const uint32_t swapChainImageIndex, const uint32_t waitSemaphoreIndex = 0, const uint32_t signalSemaphoreIndex = 1);
 
         CommandBuffer& GetCommandBuffer(const size_t i);
         CommandPool& GetCommandPool(const size_t i);
@@ -60,7 +60,7 @@ namespace VK
         Ptr<DescriptorSetLayout> descriptorSetLayout;
         Ptr<RenderTarget> renderTarget;
         Ptr<Pipeline> pipeline;
-        void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth);
+        void CreatePipeline(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth, const bool isOutput);
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
