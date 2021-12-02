@@ -42,13 +42,13 @@ namespace VK
 
             cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
                 cmd.BindPipeline(*pipeline);
-                    for (size_t j = 0; j < renderable.size(); ++j)
+                    for (size_t i = 0; i < renderable.size(); ++i)
                     {
-                        const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
-                        cmd.BindVertexBuffers({renderable[j]->GetVertexBuffer().UnderlyingPtr()}, {0});
-                            cmd.BindIndexBuffer(renderable[j]->GetIndexBuffer().UnderlyingRef());
-                                cmd.BindDescriptorSets(*pipeline, 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
-                                    cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
+                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<VK::EntityUBO>::Get())};
+                        cmd.BindVertexBuffers({renderable[i]->GetVertexBuffer().UnderlyingPtr()}, {0});
+                            cmd.BindIndexBuffer(renderable[i]->GetIndexBuffer().UnderlyingRef());
+                                cmd.BindDescriptorSets(*pipeline, 1, &renderable[i]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
+                                    cmd.DrawIndexed(renderable[i]->GetNumIndices(), 1, 0, 0, 0);
                     }
             cmd.EndRenderPass();
         cmd.End();
