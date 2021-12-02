@@ -16,6 +16,8 @@
 
 #include "Logic/Scene/SpaceObject.h"
 
+#include "Renderer/RendererGUI.h"
+#include "Renderer/Renderer3D.h"
 #include "Renderer/Renderer.h"
 
 #include "Image/Texture2D.h"

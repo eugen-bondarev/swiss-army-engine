@@ -107,7 +107,7 @@ namespace VK
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
-            Record(newSize, [&](const VkCommandBuffer& cmd) {});
+            // Record(newSize, [&](const VkCommandBuffer& cmd) {});
         });
     }
 
@@ -125,50 +125,58 @@ namespace VK
         return item->GetSpaceObject();
     }
 
-    void Renderer::Record(const Vec2ui size, const uint32_t i, const std::function<void(const VkCommandBuffer& cmd)>& additional)
-    {
-        VK::CommandPool& pool = GetCommandPool(i);
-        VK::CommandBuffer& cmd = GetCommandBuffer(i);
-        const Framebuffer& framebuffer = renderTarget->GetFramebuffer(i);
+    // void Renderer::Record(const Vec2ui size, const uint32_t i, const std::function<void(const VkCommandBuffer& cmd)>& additional)
+    // {
+    //     VK::CommandPool& pool = GetCommandPool(i);
+    //     VK::CommandBuffer& cmd = GetCommandBuffer(i);
+    //     const Framebuffer& framebuffer = renderTarget->GetFramebuffer(i);
 
-        pool.Reset();
-        cmd.Begin();
+    //     pool.Reset();
+    //     cmd.Begin();
 
-            VkViewport viewport{};
-            viewport.x = 0.0f;
-            viewport.y = 0.0f;
-            viewport.width = size.x;
-            viewport.height = size.y;
-            viewport.minDepth = 0.0f;
-            viewport.maxDepth = 1.0f;
+    //         VkViewport viewport{};
+    //         viewport.x = 0.0f;
+    //         viewport.y = 0.0f;
+    //         viewport.width = size.x;
+    //         viewport.height = size.y;
+    //         viewport.minDepth = 0.0f;
+    //         viewport.maxDepth = 1.0f;
 
-            VkRect2D scissor{};
-            scissor.offset = {0, 0};
-            scissor.extent = {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
+    //         VkRect2D scissor{};
+    //         scissor.offset = {0, 0};
+    //         scissor.extent = {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
 
-            vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
-            vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
+    //         vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
+    //         vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
 
-            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
-                cmd.BindPipeline(*pipeline);
-                    for (size_t j = 0; j < renderable.size(); ++j)
-                    {
-                        const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
-                        cmd.BindVertexBuffers({renderable[j]->GetVertexBuffer().UnderlyingPtr()}, {0});
-                            cmd.BindIndexBuffer(renderable[j]->GetIndexBuffer().UnderlyingRef());
-                                cmd.BindDescriptorSets(*pipeline, 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
-                                    cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
-                    }
-                    additional(cmd.GetVkCommandBuffer());
-            cmd.EndRenderPass();
-        cmd.End();        
-    }
+    //         cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
+    //             cmd.BindPipeline(*pipeline);
+    //                 for (size_t j = 0; j < renderable.size(); ++j)
+    //                 {
+    //                     const uint32_t dynamicOffset {static_cast<uint32_t>(j * DynamicAlignment<VK::EntityUBO>::Get())};
+    //                     cmd.BindVertexBuffers({renderable[j]->GetVertexBuffer().UnderlyingPtr()}, {0});
+    //                         cmd.BindIndexBuffer(renderable[j]->GetIndexBuffer().UnderlyingRef());
+    //                             cmd.BindDescriptorSets(*pipeline, 1, &renderable[j]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
+    //                                 cmd.DrawIndexed(renderable[j]->GetNumIndices(), 1, 0, 0, 0);
+    //                 }
+    //                 additional(cmd.GetVkCommandBuffer());
+    //         cmd.EndRenderPass();
+    //     cmd.End();        
+    // }
 
-    void Renderer::Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional)
+    // void Renderer::Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional)
+    // {
+    //     for (size_t i = 0; i < GetNumCmdBuffers(); ++i)
+    //     {
+    //         Record(size, i, additional);
+    //     }
+    // }
+
+    void Renderer::RecordAll()
     {
         for (size_t i = 0; i < GetNumCmdBuffers(); ++i)
         {
-            Record(size, i, additional);
+            Record(i);
         }
     }
 
