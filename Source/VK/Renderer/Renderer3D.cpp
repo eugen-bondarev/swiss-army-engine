@@ -12,12 +12,14 @@ namespace VK
         GraphicsContext& ctx
     ) : Renderer(vertexShaderCode, fragmentShaderCode, numCmdBuffers, samples, useDepth, isOutput, ctx)
     {
-        needsResize.resize(GetNumCmdBuffers(), true);
+        needsResize.resize(GetNumCmdBuffers());
+
+        for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;
         newSize = ctx.GetWindow().GetSize();
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newViewportSize)
         {
-            needsResize.resize(GetNumCmdBuffers(), true);
+        for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;
             newSize = newViewportSize;
         });
     }
