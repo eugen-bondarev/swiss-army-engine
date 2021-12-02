@@ -35,6 +35,9 @@ namespace VK
         void BindIndexBuffer(const Buffer& indexBuffer, const VkIndexType indexType = VK_INDEX_TYPE_UINT32) const;
         void BindDescriptorSets(const Pipeline& pipeline, const uint32_t numDescriptorSets, const VkDescriptorSet* descriptorSets, const uint32_t numOffsets = 0, const uint32_t* offsets = nullptr) const;
 
+        void SetViewport(const float width, const float height, const float x = 0.0f, const float y = 0.0f, const float minDepth = 0.0f, const float maxDepth = 1.0f);
+        void SetScissors(const float width, const float height, const float offsetX = 0.0f, const float offsetY = 0.0f);
+
         template <typename... Args>
         void Draw(Args&&... args) const
         {

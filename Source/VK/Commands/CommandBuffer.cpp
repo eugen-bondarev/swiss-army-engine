@@ -125,6 +125,26 @@ namespace VK
         );
     }
 
+    void CommandBuffer::SetViewport(const float width, const float height, const float x, const float y, const float minDepth, const float maxDepth)
+    {
+        VkViewport viewport{};
+        viewport.x = x;
+        viewport.y = y;
+        viewport.width = width;
+        viewport.height = height;
+        viewport.minDepth = minDepth;
+        viewport.maxDepth = maxDepth;
+        vkCmdSetViewport(GetVkCommandBuffer(), 0, 1, &viewport);
+    }
+
+    void CommandBuffer::SetScissors(const float width, const float height, const float offsetX, const float offsetY)
+    {
+        VkRect2D scissor{};
+        scissor.offset = {static_cast<int32_t>(offsetX), static_cast<int32_t>(offsetY)};
+        scissor.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+        vkCmdSetScissor(GetVkCommandBuffer(), 0, 1, &scissor);
+    }
+
     void CommandBuffer::Free() const
     {
         vkFreeCommandBuffers(device.GetVkDevice(), commandPool.GetVkCommandPool(), 1, &vkCommandBuffer);

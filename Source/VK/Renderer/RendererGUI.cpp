@@ -35,20 +35,8 @@ namespace VK
 
             if (needsResize[cmdIndex])
             {
-                VkViewport viewport{};
-                viewport.x = 0.0f;
-                viewport.y = 0.0f;
-                viewport.width = newSize.x;
-                viewport.height = newSize.y;
-                viewport.minDepth = 0.0f;
-                viewport.maxDepth = 1.0f;
-
-                VkRect2D scissor{};
-                scissor.offset = {0, 0};
-                scissor.extent = {static_cast<uint32_t>(newSize.x), static_cast<uint32_t>(newSize.y)};
-
-                vkCmdSetViewport(cmd.GetVkCommandBuffer(), 0, 1, &viewport);
-                vkCmdSetScissor(cmd.GetVkCommandBuffer(), 0, 1, &scissor);
+                cmd.SetViewport(newSize.x, newSize.y);
+                cmd.SetScissors(newSize.x, newSize.y);
                 needsResize[cmdIndex] = false;
             }
 
