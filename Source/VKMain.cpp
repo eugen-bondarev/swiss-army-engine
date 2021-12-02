@@ -79,7 +79,7 @@ int main()
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
 
-        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, false);
+        VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 8, true, false);
         VK::Renderer imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, true);
 
         ImGuiInit(
@@ -147,6 +147,20 @@ int main()
                     VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
                     spaceObject.SetRotationY(theta);
                 }
+
+                // for (size_t i = 0; i < renderers.size(); ++i)
+                // {
+                //     const size_t firstSemaphoreIndex {i};
+                //     const size_t lastSemaphoreIndex {firstSemaphoreIndex + 1};
+                //     const bool lastRenderCall {lastSemaphoreIndex == renderers.size()};
+                //     renderers[i]->Render(
+                //         frameManager->GetCurrentFrame(), 
+                //         VK::GetSwapChain().GetCurrentImageIndex(), 
+                //         lastRenderCall, 
+                //         firstSemaphoreIndex, 
+                //         lastSemaphoreIndex
+                //     );
+                // }
                 
                 renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
                 imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 1, 2);

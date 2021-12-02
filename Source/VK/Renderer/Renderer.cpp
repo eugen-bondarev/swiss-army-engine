@@ -185,9 +185,9 @@ namespace VK
         const VkSemaphore& signal = frame.GetSemaphore(signalSemaphoreIndex);
 
         const CommandBuffer& cmd = *commandBuffers[swapChainImageIndex];
-        vkResetFences(ctx.GetDevice().GetVkDevice(), 1, &fence);
         if (resetFence)
         {
+            vkResetFences(ctx.GetDevice().GetVkDevice(), 1, &fence);
             cmd.SubmitToQueue(Queues::graphicsQueue, &wait, &signal, fence);
         }
         else
