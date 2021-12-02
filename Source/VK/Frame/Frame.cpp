@@ -63,15 +63,13 @@ namespace VK
 
         vkWaitForFences(device.GetVkDevice(), 1, &frame.GetInFlightFence(), VK_TRUE, UINT64_MAX);
 
-        const uint32_t imageIndex = GetSwapChain().AcquireImage(frame.GetSemaphore(frame.firstSemaphore));
+        const uint32_t imageIndex {GetSwapChain().AcquireImage(frame.GetSemaphore(frame.firstSemaphore))};
 
         if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
         {
             vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
         imagesInFlight[imageIndex] = frame.GetInFlightFence();
-        
-        // vkResetFences(device.GetVkDevice(), 1, &frame.GetInFlightFence());
 
         return imageIndex;
     }

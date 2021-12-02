@@ -45,8 +45,8 @@ void ImGuiInit(
     initInfo.CheckVkResultFn = nullptr;
     ImGui_ImplVulkan_Init(&initInfo, pipeline.GetRenderPass().GetVkRenderPass());
 
-    VK::CommandPool pool;
-    VK::CommandBuffer cmd(pool);
+    const VK::CommandPool pool;
+    const VK::CommandBuffer cmd(pool);
 
     cmd.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         ImGui_ImplVulkan_CreateFontsTexture(cmd.GetVkCommandBuffer());
@@ -56,6 +56,13 @@ void ImGuiInit(
 
     vkDeviceWaitIdle(vkDevice);
     ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+void ImGuiShutdown()
+{    
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 int main()
@@ -98,6 +105,8 @@ int main()
 
         renderer.Record(window.GetSize(), [&](const VkCommandBuffer&) {});
 
+        Vec<VK::Renderer*> renderers { &renderer, &imGuiRenderer };
+
         while (window.IsRunning())
         {
             window.BeginFrame();
@@ -127,10 +136,10 @@ int main()
 
             frameManager->AcquireSwapChainImage();
 
-            imGuiRenderer.Record(window.GetSize(), VK::GetSwapChain().GetCurrentImageIndex(), [&](const VkCommandBuffer& cmd)
-            {
-                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-            });
+                imGuiRenderer.Record(window.GetSize(), VK::GetSwapChain().GetCurrentImageIndex(), [&](const VkCommandBuffer& cmd)
+                {
+                    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+                });
 
                 static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
@@ -155,6 +164,7 @@ int main()
         }
 
         VK::GetDevice().WaitIdle();
+        ImGuiShutdown();
     }
     catch (const std::runtime_error& exception)
     {
