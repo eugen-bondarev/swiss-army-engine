@@ -10,6 +10,7 @@
 #include "../Commands/CommandBuffer.h"
 #include "../Commands/CommandPool.h"
 #include "../Pipeline/Pipeline.h"
+#include "../Logic/Scene/Space.h"
 #include "../Image/Texture2D.h"
 #include "../GraphicsContext.h"
 #include "../../Util/Assets.h"
@@ -44,9 +45,12 @@ namespace VK
 
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
+        Space& GetSpace();
 
     private:
         GraphicsContext& ctx;
+
+        Ptr<Space> space;
 
         Vec<Ptr<IRenderable>> renderable;
 

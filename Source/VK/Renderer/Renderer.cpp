@@ -90,6 +90,7 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
+        space = CreatePtr<Space>(&sceneUniformBuffer->operator()());
     }
 
     Renderer::Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& ctx) : ctx {ctx}
@@ -98,8 +99,11 @@ namespace VK
         CreatePipeline(vertexShaderCode, fragmentShaderCode, samples, useDepth, isOutput);
         CreateUniformBuffers();
 
+        space->SetAspectRatio(ctx.GetWindow().GetAspectRatio());
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
+            space->SetAspectRatio(newSize.x / newSize.y);
+
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
@@ -170,10 +174,7 @@ namespace VK
 
     void Renderer::UpdateUniformBuffers(const float ratio)
     {
-        (*sceneUniformBuffer)().projection = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 1000.0f); 
-        (*sceneUniformBuffer)().projection[1][1] *= -1.0f;
         (*sceneUniformBuffer).Overwrite();
-
         (*entityUniformBuffer).Overwrite();
     }
 
@@ -244,5 +245,10 @@ namespace VK
     SpaceObject& Renderer::GetSpaceObject(const size_t i)
     {
         return renderable[i]->GetSpaceObject();
+    }
+
+    Space& Renderer::GetSpace()
+    {
+        return *space;
     }
 }
