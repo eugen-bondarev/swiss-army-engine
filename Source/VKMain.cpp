@@ -26,7 +26,7 @@ void ImGuiInit(
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ImGui::StyleColorsDark();
 
@@ -40,8 +40,8 @@ void ImGuiInit(
     initInfo.PipelineCache = nullptr;
     initInfo.DescriptorPool = descriptorPool.GetVkDescriptorPool();
     initInfo.Allocator = nullptr;
-    initInfo.MinImageCount = 2;
-    initInfo.ImageCount = 2;
+    initInfo.MinImageCount = 3;
+    initInfo.ImageCount = 3;
     initInfo.CheckVkResultFn = nullptr;
     ImGui_ImplVulkan_Init(&initInfo, pipeline.GetRenderPass().GetVkRenderPass());
 
@@ -68,9 +68,9 @@ int main()
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 768});
+        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 786});
 
-        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 2);
+        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
 
         VK::Renderer renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, false);
         VK::Renderer imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, true);
@@ -123,7 +123,14 @@ int main()
                 ImGui::ShowDemoWindow();
             ImGui::Render();
 
+            renderer.UpdateUniformBuffers(window.GetAspectRatio());
+
             frameManager->AcquireSwapChainImage();
+
+            imGuiRenderer.Record(window.GetSize(), VK::GetSwapChain().GetCurrentImageIndex(), [&](const VkCommandBuffer& cmd)
+            {
+                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+            });
 
                 static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
@@ -131,16 +138,8 @@ int main()
                     VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
                     spaceObject.SetRotationY(theta);
                 }
-
-                renderer.UpdateUniformBuffers(window.GetAspectRatio());
+                
                 renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
-
-                imGuiRenderer.Record(window.GetSize(), [&](const VkCommandBuffer& cmd)
-                {
-					ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-                });
-
-                vkQueueWaitIdle(VK::Queues::graphicsQueue);
                 imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 1, 2);
             
             frameManager->Present();

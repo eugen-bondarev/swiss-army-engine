@@ -59,30 +59,32 @@ namespace VK
 
     uint32_t FrameManager::AcquireSwapChainImage()
     {
-        const Frame& frame = GetCurrentFrame();			
+        const Frame& frame = GetCurrentFrame();
+
+        vkWaitForFences(device.GetVkDevice(), 1, &frame.GetInFlightFence(), VK_TRUE, UINT64_MAX);
+
         const uint32_t imageIndex = GetSwapChain().AcquireImage(frame.GetSemaphore(frame.firstSemaphore));
 
         if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
         {
             vkWaitForFences(device.GetVkDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
-        
-        vkWaitForFences(device.GetVkDevice(), 1, &frame.GetInFlightFence(), VK_TRUE, UINT64_MAX);
-        vkResetFences(device.GetVkDevice(), 1, &frame.GetInFlightFence());
         imagesInFlight[imageIndex] = frame.GetInFlightFence();
+        
+        // vkResetFences(device.GetVkDevice(), 1, &frame.GetInFlightFence());
 
         return imageIndex;
     }
 
     void FrameManager::Present()
-    {			
+    {
         const Frame& frame = GetCurrentFrame();
         VK_TRY(GetSwapChain().Present(&frame.GetSemaphore(frame.lastSemaphore), 1));
         NextFrame();
     }
 
     void FrameManager::NextFrame()
-    {		
+    {
         currentFrame = (currentFrame + 1) % framesCount;
     }
 

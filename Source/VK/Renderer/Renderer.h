@@ -27,6 +27,7 @@ namespace VK
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
         void Record(const Vec2ui size, const std::function<void(const VkCommandBuffer& cmd)>& additional);
+        void Record(const Vec2ui size, const uint32_t i, const std::function<void(const VkCommandBuffer& cmd)>& additional);
         void UpdateUniformBuffers(const float ratio);
         void Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex = 0, const uint32_t signalSemaphoreIndex = 1);
 
