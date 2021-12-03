@@ -33,6 +33,8 @@ namespace VK
             const bool isOutput
         );
 
+        Ptr<Pipeline> pipeline;
+
         Vec<bool> needsResize;
         Vec2ui newSize;
     };

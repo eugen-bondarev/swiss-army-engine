@@ -13,8 +13,6 @@ namespace VK
     {
     public:
         RendererGUI(
-            const Str& vertexShaderCode,
-            const Str& fragmentShaderCode,
             const size_t numCmdBuffers,
             const size_t samples,
             const bool useDepth,
@@ -24,14 +22,16 @@ namespace VK
 
         void Record(const size_t cmdIndex) override;
 
+        RenderPass& GetRenderPass();
+
     private:
         void CreateGraphicsResources(
-            const Str& vertexShaderCode, 
-            const Str& fragmentShaderCode, 
             const size_t samples, 
             const bool useDepth, 
             const bool isOutput
         );
+
+        Ptr<RenderPass> renderPass;
         
         Vec<bool> needsResize;
         Vec2ui newSize;

@@ -20,7 +20,7 @@ void ImGuiInit(
     const uint32_t queueFamily,
     const VkQueue& queue,
     const VK::DescriptorPool& descriptorPool,
-    const VK::Pipeline& pipeline
+    const VK::RenderPass& renderPass
 )
 {
     IMGUI_CHECKVERSION();
@@ -43,7 +43,7 @@ void ImGuiInit(
     initInfo.MinImageCount = 3;
     initInfo.ImageCount = 3;
     initInfo.CheckVkResultFn = nullptr;
-    ImGui_ImplVulkan_Init(&initInfo, pipeline.GetRenderPass().GetVkRenderPass());
+    ImGui_ImplVulkan_Init(&initInfo, renderPass.GetVkRenderPass());
 
     const VK::CommandPool pool;
     const VK::CommandBuffer cmd(pool);
@@ -80,7 +80,7 @@ int main()
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
 
         VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, false);
-        VK::RendererGUI imGuiRenderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, false, true);
+        VK::RendererGUI imGuiRenderer(VK::GetSwapChain().GetNumBuffers(), 0, false, true);
 
         ImGuiInit(
             window.GetHandle(),
@@ -90,7 +90,7 @@ int main()
             VK::Queues::indices.graphicsFamily.value(),
             VK::Queues::graphicsQueue,
             VK::GetDefaultDescriptorPool(),
-            imGuiRenderer.GetPipeline()
+            imGuiRenderer.GetRenderPass()
         );
 
         for (size_t i = 0; i < 4; ++i)

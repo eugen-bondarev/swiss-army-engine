@@ -15,7 +15,7 @@ namespace VK
         const bool useDepth, 
         const bool isOutput,
         GraphicsContext& ctx
-    ) : Renderer(vertexShaderCode, fragmentShaderCode, numCmdBuffers, samples, useDepth, isOutput, ctx)
+    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 

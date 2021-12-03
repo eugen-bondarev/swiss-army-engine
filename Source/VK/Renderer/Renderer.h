@@ -23,7 +23,7 @@ namespace VK
     class Renderer
     {
     public:
-        Renderer(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
+        Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
@@ -38,7 +38,6 @@ namespace VK
         size_t GetNumCmdBuffers() const;
         size_t GetNumCmdPool() const;
 
-        const Pipeline& GetPipeline() const;
         const DescriptorSetLayout& GetDescriptorSetLayout() const;
 
         EntityUniformBuffer<EntityUBO>& GetEntityUBO();
@@ -61,12 +60,9 @@ namespace VK
         Vec<Ptr<CommandPool>> commandPools;
         Vec<Ptr<CommandBuffer>> commandBuffers;
         void CreateCmdEntities(const size_t numCmdBuffers);
-
-        Ptr<DescriptorSetLayout> descriptorSetLayout;
-        Ptr<Pipeline> pipeline;
-        Ptr<RenderTarget> renderTarget;
         
-        // void CreateGraphicsResources(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth, const bool isOutput);
+        Ptr<DescriptorSetLayout> descriptorSetLayout;
+        Ptr<RenderTarget> renderTarget;
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;

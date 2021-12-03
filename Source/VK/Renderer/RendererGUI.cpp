@@ -8,14 +8,12 @@
 namespace VK
 {
     RendererGUI::RendererGUI(
-        const Str& vertexShaderCode, 
-        const Str& fragmentShaderCode, 
         const size_t numCmdBuffers, 
         const size_t samples, 
         const bool useDepth, 
         const bool isOutput,
         GraphicsContext& ctx
-    ) : Renderer(vertexShaderCode, fragmentShaderCode, numCmdBuffers, samples, useDepth, isOutput, ctx)
+    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -29,26 +27,14 @@ namespace VK
         });
 
         CreateGraphicsResources(
-            vertexShaderCode,
-            fragmentShaderCode,
             samples,
             useDepth,
             isOutput
         );
     }
 
-    void RendererGUI::CreateGraphicsResources(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth, const bool isOutput)
+    void RendererGUI::CreateGraphicsResources(const size_t samples, const bool useDepth, const bool isOutput)
     {
-        const Vec<VkDescriptorSetLayoutBinding> bindings({
-            CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
-            CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
-            CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-        });
-
-        descriptorSetLayout = CreatePtr<DescriptorSetLayout>(bindings);
-		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
-		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
-
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
         if (isOutput)
@@ -84,27 +70,21 @@ namespace VK
             attachments.push_back(colorAttachmentResolve);
         }
 
-        pipeline = CreatePtr<Pipeline>(
-            vertexShaderCode, 
-            fragmentShaderCode,
-            GetSwapChain().GetSize(),
-            attachments,
-            bindingDescriptors,
-            attributeDescriptors,
-            SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
-            samples,
-            useDepth,
+        renderPass = CreatePtr<RenderPass>(
+            attachments, 
+            samples, 
+            useDepth, 
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, useDepth);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, useDepth);
         });
     }
 
@@ -124,10 +104,14 @@ namespace VK
                 needsResize[cmdIndex] = false;
             }
 
-            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
-                cmd.BindPipeline(*pipeline);
-                    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd.GetVkCommandBuffer());
+            cmd.BeginRenderPass(*renderPass, framebuffer);
+                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd.GetVkCommandBuffer());
             cmd.EndRenderPass();
         cmd.End(); 
+    }
+
+    RenderPass& RendererGUI::GetRenderPass()
+    {
+        return *renderPass;
     }
 }
