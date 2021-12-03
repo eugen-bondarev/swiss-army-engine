@@ -25,6 +25,14 @@ namespace VK
         void Record(const size_t cmdIndex) override;
 
     private:
+        void CreateGraphicsResources(
+            const Str& vertexShaderCode, 
+            const Str& fragmentShaderCode, 
+            const size_t samples, 
+            const bool useDepth, 
+            const bool isOutput
+        );
+        
         Vec<bool> needsResize;
         Vec2ui newSize;
     };
