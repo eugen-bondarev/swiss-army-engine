@@ -102,8 +102,6 @@ int main()
         renderer.GetSpaceObject(1).SetPosition(-5, -5, -25);
         renderer.GetSpaceObject(2).SetPosition( 5, -5, -15);
         renderer.GetSpaceObject(3).SetPosition( 5, -5, -25);
-
-        // renderer.Record(window.GetSize(), [&](const VkCommandBuffer&) {});
         renderer.RecordAll();
 
         Vec<VK::Renderer*> renderers { &renderer, &imGuiRenderer };
@@ -138,10 +136,6 @@ int main()
             frameManager->AcquireSwapChainImage();
 
                 imGuiRenderer.Record(VK::GetSwapChain().GetCurrentImageIndex());
-                // imGuiRenderer.Record(window.GetSize(), VK::GetSwapChain().GetCurrentImageIndex(), [&](const VkCommandBuffer& cmd)
-                // {
-                //     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-                // });
 
                 static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
