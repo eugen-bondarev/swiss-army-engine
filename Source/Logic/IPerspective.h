@@ -1,15 +1,15 @@
-#ifndef __Logic_ISpace_h__
-#define __Logic_ISpace_h__
+#ifndef __Logic_IPerspective_h__
+#define __Logic_IPerspective_h__
 
 #pragma once
 
+#include "ISpace.h"
+
 namespace Logic
 {
-    class ISpace
+    class IPerspective : public ISpace
     {
     public:
-        virtual void UpdateProjectionMatrix() = 0;
-
         void SetFieldOfView(const float value) { fieldOfView = value; UpdateProjectionMatrix(); }
         void SetAspectRatio(const float value) { aspectRatio = value; UpdateProjectionMatrix(); }
         void SetNear(const float value) { nearVal = value; UpdateProjectionMatrix(); }
@@ -21,11 +21,11 @@ namespace Logic
         float GetNear() const { return nearVal; } 
         float GetFar() const { return farVal; } 
 
-    protected:
+    protected:        
         float fieldOfView {70.0f};
         float aspectRatio {1.0f};
         float nearVal {0.1f};
-        float farVal {1000.0f};
+        float farVal {1000.0f};        
     };
 }
 

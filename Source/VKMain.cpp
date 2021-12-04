@@ -104,8 +104,6 @@ int main()
         renderer.GetSpaceObject(3).SetPosition( 5, -5, -25);
         renderer.RecordAll();
 
-        // Vec<VK::Renderer*> renderers { &renderer, &imGuiRenderer };
-
         while (window.IsRunning())
         {
             window.BeginFrame();

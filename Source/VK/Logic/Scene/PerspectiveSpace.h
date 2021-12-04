@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include "../../../Logic/ISpace.h"
+#include "../../../Logic/IPerspective.h"
 #include "SceneUBO.h"
 
 namespace VK
 {
-    class Space : public Logic::ISpace
+    class PerspectiveSpace : public Logic::IPerspective
     {
     public:
-        Space(SceneUBO* ubo);
+        PerspectiveSpace(SceneUBO* ubo);
 
         void UpdateProjectionMatrix() override;
 

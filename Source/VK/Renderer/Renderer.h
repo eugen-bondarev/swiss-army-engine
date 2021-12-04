@@ -4,13 +4,14 @@
 #pragma once
 
 #include "../Descriptors/DescriptorSetLayout.h"
+#include "../Logic/Scene/PerspectiveSpace.h"
+#include "../Logic/Scene/OrthogonalSpace.h"
 #include "../Memory/EntityUniformBuffer.h"
 #include "../Memory/SceneUniformBuffer.h"
 #include "../RenderTarget/RenderTarget.h"
 #include "../Commands/CommandBuffer.h"
 #include "../Commands/CommandPool.h"
 #include "../Pipeline/Pipeline.h"
-#include "../Logic/Scene/Space.h"
 #include "../Image/Texture2D.h"
 #include "../GraphicsContext.h"
 #include "../../Util/Assets.h"
@@ -45,7 +46,7 @@ namespace VK
 
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
-        Space& GetSpace();
+        PerspectiveSpace& GetSpace();
 
     protected:
         GraphicsContext& ctx;
@@ -54,7 +55,7 @@ namespace VK
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        Ptr<Space> space;
+        Ptr<PerspectiveSpace> space;
         void CreateUniformBuffers();
 
         Vec<Ptr<CommandPool>> commandPools;

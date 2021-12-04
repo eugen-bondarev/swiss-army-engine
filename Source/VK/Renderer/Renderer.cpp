@@ -27,7 +27,7 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-        space = CreatePtr<Space>(&(*sceneUniformBuffer)());
+        space = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
     }
 
     Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& ctx) : ctx {ctx}
@@ -124,7 +124,7 @@ namespace VK
         return renderable[i]->GetSpaceObject();
     }
 
-    Space& Renderer::GetSpace()
+    PerspectiveSpace& Renderer::GetSpace()
     {
         return *space;
     }
