@@ -19,6 +19,7 @@ namespace VK
             const size_t samples,
             const bool useDepth,
             const bool isOutput,
+            const bool singlePass,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
 
@@ -30,7 +31,8 @@ namespace VK
             const Str& fragmentShaderCode, 
             const size_t samples, 
             const bool useDepth, 
-            const bool isOutput
+            const bool isOutput,
+            const bool singlePass
         );
 
         Ptr<Pipeline> pipeline;

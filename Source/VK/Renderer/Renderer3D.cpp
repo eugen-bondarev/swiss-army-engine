@@ -14,6 +14,7 @@ namespace VK
         const size_t samples, 
         const bool useDepth, 
         const bool isOutput,
+        const bool singlePass,
         GraphicsContext& ctx
     ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, ctx)
     {
@@ -33,11 +34,19 @@ namespace VK
             fragmentShaderCode,
             samples,
             useDepth,
-            isOutput
+            isOutput,
+            singlePass
         );
     }
 
-    void Renderer3D::CreateGraphicsResources(const Str& vertexShaderCode, const Str& fragmentShaderCode, const size_t samples, const bool useDepth, const bool isOutput)
+    void Renderer3D::CreateGraphicsResources(
+        const Str& vertexShaderCode, 
+        const Str& fragmentShaderCode, 
+        const size_t samples, 
+        const bool useDepth, 
+        const bool isOutput,
+        const bool singlePass
+    )
     {
         const Vec<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -53,9 +62,17 @@ namespace VK
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
         if (isOutput)
         {
-            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            if (singlePass)
+            {
+                swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            }
+            else
+            {
+                swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            }
             swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-            swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         }
         else
         {
