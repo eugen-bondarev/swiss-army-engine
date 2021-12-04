@@ -16,6 +16,11 @@ struct Vertex
     {
         float x, y;
     } texCoords;
+
+    struct
+    {
+        float x, y, z;
+    } normal;
 };
 
 #endif

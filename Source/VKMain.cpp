@@ -75,11 +75,11 @@ int main()
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(0, 0));
+        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
 
-        VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 8, true, false, false);
+        VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 4, true, false, false);
         VK::RendererGUI imGuiRenderer(VK::GetSwapChain().GetNumBuffers(), 0, false, true);
 
         ImGuiInit(
@@ -129,7 +129,8 @@ int main()
                         }
                         else
                         {
-                            renderer.GetPerspectiveSpace().UpdateProjectionMatrix();
+                            // renderer.GetPerspectiveSpace().UpdateProjectionMatrix();
+                            renderer.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
                         }
                         currentSpace = !currentSpace;
                     }

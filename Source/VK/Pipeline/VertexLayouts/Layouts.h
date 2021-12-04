@@ -13,6 +13,7 @@ namespace VK
     {
         Vec3f Position;
         Vec2f TextureCoords;
+        Vec3f normal;
 
         static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();

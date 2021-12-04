@@ -84,11 +84,11 @@ namespace Util
             {
                 const aiVector3D& position = mesh->mVertices[vertexIndex];
                 const aiVector2D& texCoords = { mesh->mTextureCoords[0][vertexIndex].x, mesh->mTextureCoords[0][vertexIndex].y };
-             // const aiVector3D& normal = mesh->mNormals[vertexIndex];
+                const aiVector3D& normal = mesh->mNormals[vertexIndex];
 
                 memcpy(&result.vertices[vertexIndex].position,  &position,  sizeof(float) * 3);
                 memcpy(&result.vertices[vertexIndex].texCoords, &texCoords, sizeof(float) * 2);
-             // memcpy(&result.Vertices[vertexIndex].normal,    &normal,    sizeof(float) * 3);
+                memcpy(&result.vertices[vertexIndex].normal,    &normal,    sizeof(float) * 3);
             }
 
             result.indices.resize(mesh->mNumFaces * 3);
