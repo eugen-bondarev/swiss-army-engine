@@ -117,14 +117,26 @@ RawWindow::~RawWindow()
     }
 }
 
+void RawWindow::BeginFrameSubscribe(const Callback::BeginFrame& callback)
+{
+    beginFrameCallbacks.push_back(callback);
+}
+
+void RawWindow::EndFrameSubscribe(const Callback::EndFrame& callback)
+{
+    endFrameCallbacks.push_back(callback);
+}
+
 void RawWindow::BeginFrame()
 {
     glfwPollEvents();
     time.BeginFrame();
+    CallbackManager::Issue(beginFrameCallbacks);
 }
 
 void RawWindow::EndFrame()
 {
+    CallbackManager::Issue(endFrameCallbacks);
     MY_ASSERT(swapChain != nullptr);
     swapChain->Present(static_cast<unsigned int>(vSync), 0u);
     time.EndFrame();

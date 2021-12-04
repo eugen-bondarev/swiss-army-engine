@@ -125,12 +125,6 @@ int main()
                 timer = 0;
             }
 
-            ImGui_ImplVulkan_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-                ImGui::ShowDemoWindow();
-            ImGui::Render();
-
             renderer.UpdateUniformBuffers(window.GetAspectRatio());
 
             frameManager->AcquireSwapChainImage();
@@ -162,13 +156,6 @@ int main()
                 imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 1, 2);
             
             frameManager->Present();
-
-            // Update and Render additional Platform Windows		
-            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-            }
 
             window.EndFrame();
         }

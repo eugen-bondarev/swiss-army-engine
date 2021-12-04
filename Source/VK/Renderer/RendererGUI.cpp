@@ -4,6 +4,7 @@
 #include "../Device/QueueFamily.h"
 #include <imgui_impl_vulkan.h>
 #include "../Device/Device.h"
+#include <imgui_impl_glfw.h>
 
 namespace VK
 {
@@ -31,6 +32,24 @@ namespace VK
             useDepth,
             isOutput
         );
+
+        ctx.GetWindow().BeginFrameSubscribe([&]()
+        {
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+                ImGui::ShowDemoWindow();
+            ImGui::Render();
+        });
+
+        ctx.GetWindow().EndFrameSubscribe([&]()
+        {
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
+        });
     }
 
     void RendererGUI::CreateGraphicsResources(const size_t samples, const bool useDepth, const bool isOutput)

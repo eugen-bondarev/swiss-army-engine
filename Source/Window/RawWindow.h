@@ -43,7 +43,10 @@ public:
    ~RawWindow();
 
     void BeginFrame();
+    void BeginFrameSubscribe(const Callback::BeginFrame& callback);
+
     void EndFrame();
+    void EndFrameSubscribe(const Callback::EndFrame& callback);
 
     void ResizeSubscribe(const Callback::Resize& callback);
     void ResizeClear();
@@ -70,6 +73,8 @@ private:
     GLFWwindow* handle;
     Time time;
     Callback::Queue<Callback::Resize> resizeCallbacks;
+    Callback::Queue<Callback::BeginFrame> beginFrameCallbacks;
+    Callback::Queue<Callback::EndFrame> endFrameCallbacks;
     
     Base::SwapChain* swapChain;
     void SetSwapChain(Base::SwapChain* swapChain);
