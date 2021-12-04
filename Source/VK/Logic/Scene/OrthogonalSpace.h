@@ -1,5 +1,5 @@
-#ifndef __VK_Logic_Spene_Space_h__
-#define __VK_Logic_Spene_Space_h__
+#ifndef __VK_Logic_Spene_OrthogonalSpace_h__
+#define __VK_Logic_Spene_OrthogonalSpace_h__
 
 #pragma once
 

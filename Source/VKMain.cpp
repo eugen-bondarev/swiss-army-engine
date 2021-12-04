@@ -75,11 +75,11 @@ int main()
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
-        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui {1024, 786});
+        API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(0, 0));
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
 
-        VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 0, true, false, false);
+        VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 8, true, false, false);
         VK::RendererGUI imGuiRenderer(VK::GetSwapChain().GetNumBuffers(), 0, false, true);
 
         ImGuiInit(
@@ -107,6 +107,35 @@ int main()
         while (window.IsRunning())
         {
             window.BeginFrame();
+
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+                ImGui::Begin("Scene");
+                {
+                    static float* distance = renderer.GetOrthogonalSpace().GetDistancePtr();
+                    if (ImGui::DragFloat("Distance", distance, 0.001f, -128.0f, 128.0f))
+                    {
+                        renderer.GetOrthogonalSpace().UpdateProjectionMatrix();
+                    }
+                }
+                {
+                    if (ImGui::Button("Switch space"))
+                    {
+                        static bool currentSpace {true};
+                        if (currentSpace)
+                        {
+                            renderer.GetOrthogonalSpace().UpdateProjectionMatrix();
+                        }
+                        else
+                        {
+                            renderer.GetPerspectiveSpace().UpdateProjectionMatrix();
+                        }
+                        currentSpace = !currentSpace;
+                    }
+                }
+                ImGui::End();
+            ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
             static float timer {0}; timer += deltaTime;

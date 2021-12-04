@@ -118,7 +118,7 @@ namespace VK
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            space->SetAspectRatio(newSize.x / newSize.y);
+            // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);

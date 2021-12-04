@@ -27,14 +27,18 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-        space = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
+
+        orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
+        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
     }
 
     Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
         CreateUniformBuffers();
-        space->SetAspectRatio(ctx.GetWindow().GetAspectRatio());
+
+        const Vec2f halfSize {Math::CastTo<Vec2f>(ctx.GetWindow().GetSize()) / 2.0f};
+        orthogonalSpace->Set(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y);
     }
 
     SpaceObject& Renderer::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
@@ -61,6 +65,7 @@ namespace VK
 
     void Renderer::UpdateUniformBuffers(const float ratio)
     {
+        // orthogonalSpace->UpdateProjectionMatrix();
         (*sceneUniformBuffer).Overwrite();
         (*entityUniformBuffer).Overwrite();
     }
@@ -124,8 +129,13 @@ namespace VK
         return renderable[i]->GetSpaceObject();
     }
 
-    PerspectiveSpace& Renderer::GetSpace()
+    PerspectiveSpace& Renderer::GetPerspectiveSpace()
     {
-        return *space;
+        return *perspectiveSpace;
+    }
+
+    OrthogonalSpace& Renderer::GetOrthogonalSpace()
+    {
+        return *orthogonalSpace;
     }
 }

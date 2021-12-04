@@ -46,7 +46,9 @@ namespace VK
 
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
-        PerspectiveSpace& GetSpace();
+
+        PerspectiveSpace& GetPerspectiveSpace();
+        OrthogonalSpace& GetOrthogonalSpace();
 
     protected:
         GraphicsContext& ctx;
@@ -55,7 +57,8 @@ namespace VK
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        Ptr<PerspectiveSpace> space;
+        Ptr<PerspectiveSpace> perspectiveSpace;
+        Ptr<OrthogonalSpace> orthogonalSpace;
         void CreateUniformBuffers();
 
         Vec<Ptr<CommandPool>> commandPools;

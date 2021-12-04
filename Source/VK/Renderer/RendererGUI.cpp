@@ -33,14 +33,14 @@ namespace VK
             isOutput
         );
 
-        ctx.GetWindow().BeginFrameSubscribe([&]()
-        {
-            ImGui_ImplVulkan_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-                ImGui::ShowDemoWindow();
-            ImGui::Render();
-        });
+        // ctx.GetWindow().BeginFrameSubscribe([&]()
+        // {
+        //     ImGui_ImplVulkan_NewFrame();
+        //     ImGui_ImplGlfw_NewFrame();
+        //     ImGui::NewFrame();
+        //         ImGui::ShowDemoWindow();
+        //     ImGui::Render();
+        // });
 
         ctx.GetWindow().EndFrameSubscribe([&]()
         {
@@ -100,7 +100,7 @@ namespace VK
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            space->SetAspectRatio(newSize.x / newSize.y);
+            // orthogonalSpace->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, useDepth);

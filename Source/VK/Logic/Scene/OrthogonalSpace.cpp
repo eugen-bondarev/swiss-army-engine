@@ -11,7 +11,7 @@ namespace VK
 
     void OrthogonalSpace::UpdateProjectionMatrix()
     {
-        ubo->projection = glm::ortho(left, right, bottom, top);
+        ubo->projection = glm::ortho(left * distance, right * distance, bottom * distance, top * distance, -1000.0f, 1000.0f);
         ubo->projection[1][1] *= -1.0f;
     }
 }
