@@ -84,7 +84,7 @@ int main()
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            RendererFlags_None | RendererFlags_UseDepth
+            RendererFlags_UseDepth
         );
 
         VK::Renderer3D renderer1(
@@ -139,7 +139,7 @@ int main()
                     if (ImGui::DragFloat("Distance", distance, 0.001f, -128.0f, 128.0f))
                     {
                         renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
-                        // renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
+                        renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
                     }
                 }
                 {
@@ -148,14 +148,13 @@ int main()
                         static bool currentSpace {true};
                         if (currentSpace)
                         {
-                            renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
-                            // renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
+                            renderer0.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
+                            renderer1.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
                         }
                         else
                         {
-                            // renderer.GetPerspectiveSpace().UpdateProjectionMatrix();
-                            renderer0.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
-                            // renderer1.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
+                            renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
+                            renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
                         }
                         currentSpace = !currentSpace;
                     }
