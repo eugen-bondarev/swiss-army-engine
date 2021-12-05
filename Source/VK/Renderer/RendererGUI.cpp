@@ -13,8 +13,9 @@ namespace VK
         const size_t samples, 
         const bool useDepth, 
         const bool isOutput,
+        const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, ctx)
+    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -30,7 +31,8 @@ namespace VK
         CreateGraphicsResources(
             samples,
             useDepth,
-            isOutput
+            isOutput,
+            flags
         );
 
         // ctx.GetWindow().BeginFrameSubscribe([&]()
@@ -52,41 +54,32 @@ namespace VK
         });
     }
 
-    void RendererGUI::CreateGraphicsResources(const size_t samples, const bool useDepth, const bool isOutput)
+    void RendererGUI::CreateGraphicsResources(const size_t samples, const bool useDepth, const bool isOutput, const RendererFlags flags)
     {
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
-        if (isOutput)
-        {
-            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-            swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        }
-        else
-        {
-            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        }
+
+        swapChainAttachment.finalLayout = 
+            flags & RendererFlags_Output ?
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        swapChainAttachment.initialLayout =
+            flags & RendererFlags_Load ?
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                VK_IMAGE_LAYOUT_UNDEFINED;
+
+        swapChainAttachment.loadOp =
+            flags & RendererFlags_Load ?
+                VK_ATTACHMENT_LOAD_OP_LOAD :
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
         {
             const VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat(), SamplesToVKFlags(samples));
             attachments.push_back(depthAttachment);
-        }
-
-        if (samples > 1)
-        {
-            VkAttachmentDescription colorAttachmentResolve{};
-            colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
-            colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-            colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentResolve.finalLayout = isOutput ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-            attachments.push_back(colorAttachmentResolve);
         }
 
         renderPass = CreatePtr<RenderPass>(

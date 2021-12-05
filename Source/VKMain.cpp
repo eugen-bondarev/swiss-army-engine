@@ -77,10 +77,37 @@ int main()
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));
 
-        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 2, 3, 3);
+        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 3, 4, 3);
 
-        VK::Renderer3D renderer(vertexShaderCode, fragmentShaderCode, VK::GetSwapChain().GetNumBuffers(), 4, true, false, false);
-        VK::RendererGUI imGuiRenderer(VK::GetSwapChain().GetNumBuffers(), 0, false, true);
+        VK::Renderer3D renderer0(
+            vertexShaderCode,
+            fragmentShaderCode,
+            VK::GetSwapChain().GetNumBuffers(),
+            0,
+            true,
+            false,
+            false,
+            RendererFlags_None
+        );
+
+        VK::Renderer3D renderer1(
+            vertexShaderCode,
+            fragmentShaderCode,
+            VK::GetSwapChain().GetNumBuffers(),
+            4,
+            true,
+            false,
+            true,
+            RendererFlags_Load
+        );
+
+        VK::RendererGUI imGuiRenderer(
+            VK::GetSwapChain().GetNumBuffers(),
+            0,
+            false,
+            true,
+            RendererFlags_Load | RendererFlags_Output
+        );
 
         ImGuiInit(
             window.GetHandle(),
@@ -93,16 +120,19 @@ int main()
             imGuiRenderer.GetRenderPass()
         );
 
-        for (size_t i = 0; i < 4; ++i)
+        for (size_t i = 0; i < 2; ++i)
         {
-            renderer.Add(characterMesh, characterTexture);
+            renderer0.Add(characterMesh, characterTexture);
+            renderer1.Add(characterMesh, characterTexture);
         }
 
-        renderer.GetSpaceObject(0).SetPosition(-5, -5, -15);
-        renderer.GetSpaceObject(1).SetPosition(-5, -5, -25);
-        renderer.GetSpaceObject(2).SetPosition( 5, -5, -15);
-        renderer.GetSpaceObject(3).SetPosition( 5, -5, -25);
-        renderer.RecordAll();
+        renderer0.GetSpaceObject(0).SetPosition(-5, -5, -15);
+        renderer0.GetSpaceObject(1).SetPosition(-5, -5, -25);
+        renderer1.GetSpaceObject(0).SetPosition( 5, -5, -15);
+        renderer1.GetSpaceObject(1).SetPosition( 5, -5, -25);
+        
+        renderer0.RecordAll();
+        renderer1.RecordAll();
 
         while (window.IsRunning())
         {
@@ -113,10 +143,11 @@ int main()
             ImGui::NewFrame();
                 ImGui::Begin("Scene");
                 {
-                    static float* distance = renderer.GetOrthogonalSpace().GetDistancePtr();
+                    static float* distance = renderer0.GetOrthogonalSpace().GetDistancePtr();
                     if (ImGui::DragFloat("Distance", distance, 0.001f, -128.0f, 128.0f))
                     {
-                        renderer.GetOrthogonalSpace().UpdateProjectionMatrix();
+                        renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
+                        // renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
                     }
                 }
                 {
@@ -125,12 +156,14 @@ int main()
                         static bool currentSpace {true};
                         if (currentSpace)
                         {
-                            renderer.GetOrthogonalSpace().UpdateProjectionMatrix();
+                            renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
+                            // renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
                         }
                         else
                         {
                             // renderer.GetPerspectiveSpace().UpdateProjectionMatrix();
-                            renderer.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
+                            renderer0.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
+                            // renderer1.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
                         }
                         currentSpace = !currentSpace;
                     }
@@ -153,25 +186,29 @@ int main()
                 timer = 0;
             }
 
-            renderer.UpdateUniformBuffers(window.GetAspectRatio());
+            renderer0.UpdateUniformBuffers(window.GetAspectRatio());
+            renderer1.UpdateUniformBuffers(window.GetAspectRatio());
 
             frameManager->AcquireSwapChainImage();
 
                 imGuiRenderer.Record(VK::GetSwapChain().GetCurrentImageIndex());
 
                 static float theta {0}; theta += deltaTime * 0.5f;
-                for (size_t i = 0; i < renderer.GetNumRenderableEntities(); ++i)
+                for (size_t i = 0; i < renderer0.GetNumRenderableEntities(); ++i)
                 {
-                    VK::SpaceObject& spaceObject = renderer.GetSpaceObject(i);
+                    VK::SpaceObject& spaceObject = renderer0.GetSpaceObject(i);
                     spaceObject.SetRotationY(theta);
                 }
                 
-                renderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
-                imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 1, 2);
+                renderer0.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
+                renderer1.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 1, 2);
+                imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 2, 3);
             
             frameManager->Present();
 
             window.EndFrame();
+
+            // break;
         }
 
         VK::GetDevice().WaitIdle();

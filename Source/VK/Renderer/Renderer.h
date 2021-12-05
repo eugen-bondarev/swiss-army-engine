@@ -19,12 +19,22 @@
 #include "IRenderable.h"
 #include "../Common.h"
 
+using Flag = unsigned int;
+using RendererFlags = Flag;
+
+enum RendererFlags_
+{
+    RendererFlags_None      = 1 << 0,
+    RendererFlags_Load      = 1 << 1,
+    RendererFlags_Output    = 1 << 2,
+};
+
 namespace VK
 {
     class Renderer
     {
     public:
-        Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
+        Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, const RendererFlags flags, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 

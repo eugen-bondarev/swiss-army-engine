@@ -20,6 +20,7 @@ namespace VK
             const bool useDepth,
             const bool isOutput,
             const bool singlePass,
+            const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
 
@@ -32,7 +33,8 @@ namespace VK
             const size_t samples, 
             const bool useDepth, 
             const bool isOutput,
-            const bool singlePass
+            const bool singlePass,
+            const RendererFlags flags
         );
 
         Ptr<Pipeline> pipeline;

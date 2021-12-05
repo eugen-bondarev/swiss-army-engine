@@ -15,8 +15,9 @@ namespace VK
         const bool useDepth, 
         const bool isOutput,
         const bool singlePass,
+        const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, ctx)
+    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -35,7 +36,8 @@ namespace VK
             samples,
             useDepth,
             isOutput,
-            singlePass
+            singlePass,
+            flags
         );
     }
 
@@ -45,7 +47,8 @@ namespace VK
         const size_t samples, 
         const bool useDepth, 
         const bool isOutput,
-        const bool singlePass
+        const bool singlePass,
+        const RendererFlags flags
     )
     {
         const Vec<VkDescriptorSetLayoutBinding> bindings({
@@ -60,25 +63,36 @@ namespace VK
 
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
-        if (isOutput)
+
+        if (samples > 1)
         {
-            if (singlePass)
-            {
-                swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            }
-            else
-            {
-                swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-            }
-            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            swapChainAttachment.finalLayout = 
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+            swapChainAttachment.initialLayout =
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+            swapChainAttachment.loadOp =
+                    VK_ATTACHMENT_LOAD_OP_LOAD;
         }
         else
         {
-            swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            swapChainAttachment.finalLayout = 
+                flags & RendererFlags_Output ?
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+            swapChainAttachment.initialLayout =
+                flags & RendererFlags_Load ?
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                    VK_IMAGE_LAYOUT_UNDEFINED;
+
+            swapChainAttachment.loadOp =
+                flags & RendererFlags_Load ?
+                    VK_ATTACHMENT_LOAD_OP_LOAD :
+                    VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         }
+
         attachments.push_back(swapChainAttachment);
 
         if (useDepth)
@@ -92,12 +106,18 @@ namespace VK
             VkAttachmentDescription colorAttachmentResolve{};
             colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
             colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-            colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentResolve.finalLayout = isOutput ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+            colorAttachmentResolve.loadOp = swapChainAttachment.loadOp;
+            colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
+            
+            colorAttachmentResolve.finalLayout = 
+                flags & RendererFlags_Output ? 
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : 
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
             attachments.push_back(colorAttachmentResolve);
         }
 

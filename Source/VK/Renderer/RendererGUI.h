@@ -17,6 +17,7 @@ namespace VK
             const size_t samples,
             const bool useDepth,
             const bool isOutput,
+            const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
 
@@ -28,7 +29,8 @@ namespace VK
         void CreateGraphicsResources(
             const size_t samples, 
             const bool useDepth, 
-            const bool isOutput
+            const bool isOutput,
+            const RendererFlags flags
         );
 
         Ptr<RenderPass> renderPass;
