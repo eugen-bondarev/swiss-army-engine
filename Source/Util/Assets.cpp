@@ -57,6 +57,7 @@ namespace Util
 
         result.size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
         result.numChannels = static_cast<unsigned int>(_numChannels);
+        result.mipLevels = static_cast<unsigned int>(std::floor(std::log2(std::max(result.size.x, result.size.y)))) + 1;
 
         return result;
     }

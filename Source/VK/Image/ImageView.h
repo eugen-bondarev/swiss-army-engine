@@ -16,7 +16,7 @@ namespace VK
     {
     public:
         ImageView(const VkImageView& vkImageView, const Device& device);
-        ImageView(const Image& image, const VkFormat format, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const Device& device = GetDevice());
+        ImageView(const Image& image, const VkFormat format, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const uint32_t mipLevels = 1, const Device& device = GetDevice());
        ~ImageView();
 
         const VkImageView& GetVkImageView() const;

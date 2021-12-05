@@ -11,7 +11,7 @@ namespace VK
         SetupDefaultDescriptor();
     }
 
-    ImageView::ImageView(const Image& image, const VkFormat format, const VkImageAspectFlags aspectFlags, const Device& device) : device{device}
+    ImageView::ImageView(const Image& image, const VkFormat format, const VkImageAspectFlags aspectFlags, const uint32_t mipLevels, const Device& device) : device{device}
     {
         VkImageViewCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -20,7 +20,7 @@ namespace VK
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         createInfo.subresourceRange.aspectMask = aspectFlags;
         createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.levelCount = mipLevels;
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;

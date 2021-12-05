@@ -113,7 +113,7 @@ namespace VK
         }
     }
 
-    Image::Image(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const VkSampleCountFlagBits numSamples, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}, size{size}
+    Image::Image(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags, const VkSampleCountFlagBits numSamples, const uint32_t mipLevels, const Device& device, const CommandPool& commandPool) : device{device}, commandPool{commandPool}, vkFormat{format}, size{size}
     {
         VkImageCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -121,7 +121,7 @@ namespace VK
         createInfo.extent.width = static_cast<uint32_t>(size.x);
         createInfo.extent.height = static_cast<uint32_t>(size.y);
         createInfo.extent.depth = 1;
-        createInfo.mipLevels = 1;
+        createInfo.mipLevels = mipLevels;
         createInfo.arrayLayers = 1;
         createInfo.format = format;
         createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;

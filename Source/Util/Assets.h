@@ -18,6 +18,7 @@ namespace Util
         Vec2ui       size;
         unsigned int numChannels{0};
         Pixels       data{nullptr};
+        unsigned int mipLevels{1};
     };
 
     struct ModelAsset

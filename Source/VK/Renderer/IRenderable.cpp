@@ -13,7 +13,13 @@ namespace VK
     {
         vertexBuffer = CreatePtr<VertexBuffer>(modelAsset.vertices);
         indexBuffer = CreatePtr<IndexBuffer>(modelAsset.indices);
-        texture = CreatePtr<Texture2D>(imageAsset.size, 4, imageAsset.data);
+        texture = CreatePtr<Texture2D>(
+            imageAsset.size, 
+            4, 
+            imageAsset.data, 
+            imageAsset.mipLevels, 
+            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT
+        );
         numIndices = modelAsset.indices.size();
 
         descriptorSet = CreatePtr<DescriptorSet>(

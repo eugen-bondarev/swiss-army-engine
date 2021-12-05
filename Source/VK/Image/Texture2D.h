@@ -15,7 +15,7 @@ namespace VK
     class Texture2D
     {
     public:
-        Texture2D(const Vec2ui size, const uint32_t numChannels, const void* data = nullptr, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device& device = GetDevice());
+        Texture2D(const Vec2ui size, const uint32_t numChannels, const void* data = nullptr, const uint32_t mipLevels = 1, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const Device& device = GetDevice());
         Texture2D(const Vec2ui size, const VkFormat format, const VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT, const VkSampleCountFlagBits numSamples = VK_SAMPLE_COUNT_1_BIT, const Device& device = GetDevice());
        ~Texture2D() = default;
 
