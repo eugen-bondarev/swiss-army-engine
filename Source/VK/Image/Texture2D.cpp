@@ -14,7 +14,7 @@ namespace VK
         const VK::Buffer stagingBuffer(data, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, device);
 
         image = CreatePtr<Image>(size, VK_FORMAT_R8G8B8A8_UNORM, usageFlags, VK_SAMPLE_COUNT_1_BIT, mipLevels, device);
-        image->LoadFrom(stagingBuffer);
+        image->LoadFrom(stagingBuffer, mipLevels);
         imageView = CreatePtr<ImageView>(*image, image->GetVkFormat(), VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, device);
     }
 

@@ -30,6 +30,8 @@ namespace Logic
         void SetScaleY(const float value) { scale.y = value; UpdateModelMatrix(); }
         void SetScaleZ(const float value) { scale.z = value; UpdateModelMatrix(); }
 
+        Vec3f GetPosition() const { return position; }
+
     protected:
         Vec3f position {0.0f};
         Vec3f rotation {0.0f};

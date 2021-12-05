@@ -14,7 +14,13 @@ namespace VK
 
     namespace Util
     {
-        void TransitionImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const CommandPool& commandPool = GetDefaultCommandPool());
+        void TransitionImageLayout(
+            const VkImage& image,
+            const VkImageLayout oldLayout,
+            const VkImageLayout newLayout,
+            const uint32_t mipLevels,
+            const CommandPool& commandPool = GetDefaultCommandPool()
+        );
         void CopyBufferToImage(const VkBuffer& buffer, const VkImage& image, const Vec2ui size, const CommandPool& commandPool = GetDefaultCommandPool());
     }
 
@@ -35,7 +41,7 @@ namespace VK
 
         VkFormat GetVkFormat() const;
 
-        void LoadFrom(const Buffer& buffer);
+        void LoadFrom(const Buffer& buffer, const uint32_t mipLevels = 1);
 
         const VkImage& GetVkImage() const;
         const VkDeviceMemory& GetVkDeviceMemory() const;
