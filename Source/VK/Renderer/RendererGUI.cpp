@@ -9,13 +9,11 @@
 namespace VK
 {
     RendererGUI::RendererGUI(
-        const size_t numCmdBuffers, 
-        const size_t samples, 
-        const bool useDepth, 
-        const bool isOutput,
+        const size_t numCmdBuffers,
+        const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, flags, ctx)
+    ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -30,8 +28,6 @@ namespace VK
 
         CreateGraphicsResources(
             samples,
-            useDepth,
-            isOutput,
             flags
         );
 
@@ -54,7 +50,7 @@ namespace VK
         });
     }
 
-    void RendererGUI::CreateGraphicsResources(const size_t samples, const bool useDepth, const bool isOutput, const RendererFlags flags)
+    void RendererGUI::CreateGraphicsResources(const size_t samples, const RendererFlags flags)
     {
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
@@ -76,27 +72,21 @@ namespace VK
 
         attachments.push_back(swapChainAttachment);
 
-        if (useDepth)
-        {
-            const VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat(), SamplesToVKFlags(samples));
-            attachments.push_back(depthAttachment);
-        }
-
         renderPass = CreatePtr<RenderPass>(
-            attachments, 
-            samples, 
-            useDepth, 
+            attachments,
+            samples,
+            false,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, useDepth);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             // orthogonalSpace->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, useDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
         });
     }
 

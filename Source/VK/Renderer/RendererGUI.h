@@ -15,8 +15,6 @@ namespace VK
         RendererGUI(
             const size_t numCmdBuffers,
             const size_t samples,
-            const bool useDepth,
-            const bool isOutput,
             const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
@@ -28,8 +26,6 @@ namespace VK
     private:
         void CreateGraphicsResources(
             const size_t samples, 
-            const bool useDepth, 
-            const bool isOutput,
             const RendererFlags flags
         );
 

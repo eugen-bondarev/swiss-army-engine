@@ -17,9 +17,6 @@ namespace VK
             const Str& fragmentShaderCode,
             const size_t numCmdBuffers,
             const size_t samples,
-            const bool useDepth,
-            const bool isOutput,
-            const bool singlePass,
             const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
@@ -31,9 +28,6 @@ namespace VK
             const Str& vertexShaderCode, 
             const Str& fragmentShaderCode, 
             const size_t samples, 
-            const bool useDepth, 
-            const bool isOutput,
-            const bool singlePass,
             const RendererFlags flags
         );
 

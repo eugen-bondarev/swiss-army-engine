@@ -11,13 +11,10 @@ namespace VK
         const Str& vertexShaderCode, 
         const Str& fragmentShaderCode, 
         const size_t numCmdBuffers, 
-        const size_t samples, 
-        const bool useDepth, 
-        const bool isOutput,
-        const bool singlePass,
+        const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, useDepth, isOutput, flags, ctx)
+    ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -34,9 +31,6 @@ namespace VK
             vertexShaderCode,
             fragmentShaderCode,
             samples,
-            useDepth,
-            isOutput,
-            singlePass,
             flags
         );
     }
@@ -44,10 +38,7 @@ namespace VK
     void Renderer3D::CreateGraphicsResources(
         const Str& vertexShaderCode, 
         const Str& fragmentShaderCode, 
-        const size_t samples, 
-        const bool useDepth, 
-        const bool isOutput,
-        const bool singlePass,
+        const size_t samples,
         const RendererFlags flags
     )
     {
@@ -64,38 +55,24 @@ namespace VK
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-        if (samples > 1)
-        {
-            swapChainAttachment.finalLayout = 
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        swapChainAttachment.finalLayout = 
+            flags & RendererFlags_Output ?
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-            swapChainAttachment.initialLayout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        swapChainAttachment.initialLayout =
+            flags & RendererFlags_Load ?
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                VK_IMAGE_LAYOUT_UNDEFINED;
 
-            swapChainAttachment.loadOp =
-                    VK_ATTACHMENT_LOAD_OP_LOAD;
-        }
-        else
-        {
-            swapChainAttachment.finalLayout = 
-                flags & RendererFlags_Output ?
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-            swapChainAttachment.initialLayout =
-                flags & RendererFlags_Load ?
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                    VK_IMAGE_LAYOUT_UNDEFINED;
-
-            swapChainAttachment.loadOp =
-                flags & RendererFlags_Load ?
-                    VK_ATTACHMENT_LOAD_OP_LOAD :
-                    VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        }
+        swapChainAttachment.loadOp =
+            flags & RendererFlags_Load ?
+                VK_ATTACHMENT_LOAD_OP_LOAD :
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
         attachments.push_back(swapChainAttachment);
 
-        if (useDepth)
+        if (flags & RendererFlags_UseDepth)
         {
             const VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat(), SamplesToVKFlags(samples));
             attachments.push_back(depthAttachment);
@@ -130,18 +107,18 @@ namespace VK
             attributeDescriptors,
             SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
             samples,
-            useDepth,
+            flags & RendererFlags_UseDepth,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, useDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
         });
     }
 

@@ -84,28 +84,20 @@ int main()
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            true,
-            false,
-            false,
-            RendererFlags_None
+            RendererFlags_None | RendererFlags_UseDepth
         );
 
         VK::Renderer3D renderer1(
             vertexShaderCode,
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
-            4,
-            true,
-            false,
-            true,
-            RendererFlags_Load
+            0,
+            RendererFlags_Load | RendererFlags_UseDepth
         );
 
         VK::RendererGUI imGuiRenderer(
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            false,
-            true,
             RendererFlags_Load | RendererFlags_Output
         );
 

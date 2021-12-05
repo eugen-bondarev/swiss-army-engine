@@ -27,6 +27,7 @@ enum RendererFlags_
     RendererFlags_None      = 1 << 0,
     RendererFlags_Load      = 1 << 1,
     RendererFlags_Output    = 1 << 2,
+    RendererFlags_UseDepth  = 1 << 3,
 };
 
 namespace VK
@@ -34,7 +35,7 @@ namespace VK
     class Renderer
     {
     public:
-        Renderer(const size_t numCmdBuffers, const size_t samples, const bool useDepth, const bool isOutput, const RendererFlags flags, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
+        Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
