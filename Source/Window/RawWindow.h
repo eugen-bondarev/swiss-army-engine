@@ -25,6 +25,8 @@ namespace Base
     FORWARD_DECLARE(SwapChain);
 }
 
+FORWARD_DECLARE(Keyboard);
+
 enum class WindowMode
 {
     Windowed,
@@ -51,6 +53,8 @@ public:
     void ResizeSubscribe(const Callback::Resize& callback);
     void ResizeClear();
 
+    void KeyCallback(int key, int scancode, int action, int mods);
+
     void SetVSync(const bool value);
     bool GetVSync() const;
 
@@ -60,6 +64,11 @@ public:
     GLFWwindow* GetHandle();
     Vec2ui GetSize() const;
     float GetAspectRatio() const;
+
+    inline const Keyboard& GetKeyboard() const
+    {
+        return *keyboard;
+    }
     
     inline float GetDeltaTime() const
     {
@@ -71,7 +80,10 @@ private:
     bool vSync;
     bool running{true};
     GLFWwindow* handle;
+
     Time time;
+    Ptr<Keyboard> keyboard;
+
     Callback::Queue<Callback::Resize> resizeCallbacks;
     Callback::Queue<Callback::BeginFrame> beginFrameCallbacks;
     Callback::Queue<Callback::EndFrame> endFrameCallbacks;

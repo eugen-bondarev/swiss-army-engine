@@ -8,9 +8,6 @@
 class Time
 {
 public:
-    Time() = default;
-   ~Time() = default;
-
     void BeginFrame();
     void EndFrame();
 

@@ -1,5 +1,7 @@
 #include "RawWindow.h"
 
+#include "Events/Keyboard.h"
+
 #include <mutex>
 
 static size_t numWindows{0};
@@ -24,11 +26,23 @@ public:
         Issue(window->resizeCallbacks, window->size);
     }
 
+    static void KeyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods)
+    {
+        RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
+        window->KeyCallback(key, scancode, action, mods);
+        // Issue(window->resizeCallbacks, key, scancode, action, mods);
+    }
+
 private:
     CallbackManager() = delete;
     CallbackManager(const CallbackManager&) = delete;
     CallbackManager& operator=(const CallbackManager&) = delete;
 };
+
+void RawWindow::KeyCallback(int key, int scancode, int action, int mods)
+{
+    keyboard->KeyCallback(key, scancode, action, mods);
+}
 
 static void GetMonitorResolution(unsigned int& width, unsigned int& height)
 {    
@@ -37,7 +51,7 @@ static void GetMonitorResolution(unsigned int& width, unsigned int& height)
     height = mode->height;
 }
 
-RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size, const std::string& title) : vSync{vSync}
+RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size, const std::string& title) : vSync {vSync}
 {
     {
         static std::mutex glfwInitMutex;
@@ -93,8 +107,11 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     glfwGetFramebufferSize(handle, &_width, &_height);
     this->size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
 
+    keyboard = CreatePtr<Keyboard>(handle);
+
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
+    glfwSetKeyCallback(handle, CallbackManager::KeyCallback);
 
     // For debugging.
     glfwSetWindowPos(handle, 50, 50);
@@ -140,6 +157,7 @@ void RawWindow::EndFrame()
     MY_ASSERT(swapChain != nullptr);
     swapChain->Present(static_cast<unsigned int>(vSync), 0u);
     time.EndFrame();
+    keyboard->EndFrame();
 }
 
 bool RawWindow::IsRunning() const

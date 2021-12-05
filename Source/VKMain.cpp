@@ -5,6 +5,8 @@
 #include "Util/Path.h"
 #include "VK/VK.h"
 
+#include "Window/Events/Keyboard.h"
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
@@ -129,6 +131,30 @@ int main()
         while (window.IsRunning())
         {
             window.BeginFrame();
+
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
+            {
+                const float z {renderer0.GetSpaceObject(0).GetPosition().z};
+                renderer0.GetSpaceObject(0).SetPositionZ(z - window.GetDeltaTime() * 5.0f);
+            }
+
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
+            {
+                const float z {renderer0.GetSpaceObject(0).GetPosition().z};
+                renderer0.GetSpaceObject(0).SetPositionZ(z + window.GetDeltaTime() * 5.0f);
+            }
+
+            // if (window.GetKeyboard().GetStateOf(GLFW_KEY_W) == KeyState::Pressed)
+            // {
+            //     const float z {renderer0.GetSpaceObject(0).GetPosition().z};
+            //     renderer0.GetSpaceObject(0).SetPositionZ(z - 1.0f);
+            // }
+
+            // if (window.GetKeyboard().GetStateOf(GLFW_KEY_S) == KeyState::Pressed)
+            // {
+            //     const float z {renderer0.GetSpaceObject(0).GetPosition().z};
+            //     renderer0.GetSpaceObject(0).SetPositionZ(z + 1.0f);
+            // }
 
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
