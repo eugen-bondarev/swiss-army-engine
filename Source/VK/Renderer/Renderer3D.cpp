@@ -8,8 +8,8 @@
 namespace VK
 {
     Renderer3D::Renderer3D(
-        const Str& vertexShaderCode, 
-        const Str& fragmentShaderCode, 
+        const std::string& vertexShaderCode, 
+        const std::string& fragmentShaderCode, 
         const size_t numCmdBuffers, 
         const size_t samples,
         const RendererFlags flags,
@@ -36,13 +36,13 @@ namespace VK
     }
 
     void Renderer3D::CreateGraphicsResources(
-        const Str& vertexShaderCode, 
-        const Str& fragmentShaderCode, 
+        const std::string& vertexShaderCode, 
+        const std::string& fragmentShaderCode, 
         const size_t samples,
         const RendererFlags flags
     )
     {
-        const Vec<VkDescriptorSetLayoutBinding> bindings({
+        const std::vector<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
             CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
             CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)

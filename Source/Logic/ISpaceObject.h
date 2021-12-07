@@ -19,6 +19,12 @@ namespace Logic
         void SetPositionZ(const float value) { position.z = value; UpdateModelMatrix(); }
 
         template <typename... Args>
+        void AddPosition(Args&&... args) { Vec3f addition = Vec3f {std::forward<Args>(args)...}; SetPosition(position + addition); }
+        void AddPositionX(const float value) { SetPositionX(position.x + value); }
+        void AddPositionY(const float value) { SetPositionY(position.y + value); }
+        void AddPositionZ(const float value) { SetPositionZ(position.z + value); }
+
+        template <typename... Args>
         void SetRotation(Args&&... args) { rotation = Vec3f {std::forward<Args>(args)...}; UpdateModelMatrix(); }
         void SetRotationX(const float value) { rotation.x = value; UpdateModelMatrix(); }
         void SetRotationY(const float value) { rotation.y = value; UpdateModelMatrix(); }

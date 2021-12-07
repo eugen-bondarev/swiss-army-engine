@@ -15,6 +15,12 @@ namespace VK
 
         void UpdateProjectionMatrix() override;
 
+        struct
+        {
+            Vec3f position {0.0f};
+            Vec3f rotation {0.0f};
+        } camera;
+
     private:
         SceneUBO* ubo;
     };    

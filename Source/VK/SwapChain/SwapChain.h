@@ -40,7 +40,7 @@ namespace VK
 
         size_t GetNumBuffers() const;
 
-        const Vec<Ref<ImageView>>& GetImageViews() const;
+        const std::vector<Ref<ImageView>>& GetImageViews() const;
 
         VkAttachmentDescription GetDefaultAttachmentDescription(const VkSampleCountFlagBits samples) const;
         void CreateImageViews();

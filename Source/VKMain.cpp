@@ -6,6 +6,7 @@
 #include "VK/VK.h"
 
 #include "Window/Events/Keyboard.h"
+#include "Window/Events/Mouse.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -132,60 +133,59 @@ int main()
         {
             window.BeginFrame();
 
+            const float speed {window.GetDeltaTime() * 10.0f};
+
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_ESCAPE))
+            {
+                window.Close();
+            }
+
             if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
             {
-                const float z {renderer0.GetSpaceObject(0).GetPosition().z};
-                renderer0.GetSpaceObject(0).SetPositionZ(z - window.GetDeltaTime() * 5.0f);
+                renderer0.GetPerspectiveSpace().camera.position.z -= speed;
+                renderer1.GetPerspectiveSpace().camera.position.z -= speed;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
             {
-                const float z {renderer0.GetSpaceObject(0).GetPosition().z};
-                renderer0.GetSpaceObject(0).SetPositionZ(z + window.GetDeltaTime() * 5.0f);
+                renderer0.GetPerspectiveSpace().camera.position.z += speed;
+                renderer1.GetPerspectiveSpace().camera.position.z += speed;
             }
 
-            // if (window.GetKeyboard().GetStateOf(GLFW_KEY_W) == KeyState::Pressed)
-            // {
-            //     const float z {renderer0.GetSpaceObject(0).GetPosition().z};
-            //     renderer0.GetSpaceObject(0).SetPositionZ(z - 1.0f);
-            // }
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
+            {
+                renderer0.GetPerspectiveSpace().camera.position.x -= speed;
+                renderer1.GetPerspectiveSpace().camera.position.x -= speed;
+            }
 
-            // if (window.GetKeyboard().GetStateOf(GLFW_KEY_S) == KeyState::Pressed)
-            // {
-            //     const float z {renderer0.GetSpaceObject(0).GetPosition().z};
-            //     renderer0.GetSpaceObject(0).SetPositionZ(z + 1.0f);
-            // }
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
+            {
+                renderer0.GetPerspectiveSpace().camera.position.x += speed;
+                renderer1.GetPerspectiveSpace().camera.position.x += speed;
+            }
+
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))
+            {
+                renderer0.GetPerspectiveSpace().camera.position.y += speed;
+                renderer1.GetPerspectiveSpace().camera.position.y += speed;
+            }
+
+            if (window.GetKeyboard().KeyDown(GLFW_KEY_LEFT_SHIFT))
+            {
+                renderer0.GetPerspectiveSpace().camera.position.y -= speed;
+                renderer1.GetPerspectiveSpace().camera.position.y -= speed;
+            }
+
+            renderer0.GetPerspectiveSpace().UpdateProjectionMatrix();
+            renderer1.GetPerspectiveSpace().UpdateProjectionMatrix();
 
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-                ImGui::Begin("Scene");
-                {
-                    static float* distance = renderer0.GetOrthogonalSpace().GetDistancePtr();
-                    if (ImGui::DragFloat("Distance", distance, 0.001f, -128.0f, 128.0f))
-                    {
-                        renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
-                        renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
-                    }
-                }
-                {
-                    if (ImGui::Button("Switch space"))
-                    {
-                        static bool currentSpace {true};
-                        if (currentSpace)
-                        {
-                            renderer0.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
-                            renderer1.GetPerspectiveSpace().SetAspectRatio(window.GetAspectRatio());
-                        }
-                        else
-                        {
-                            renderer0.GetOrthogonalSpace().UpdateProjectionMatrix();
-                            renderer1.GetOrthogonalSpace().UpdateProjectionMatrix();
-                        }
-                        currentSpace = !currentSpace;
-                    }
-                }
-                ImGui::End();
+                // ImGui::Begin("Scene");
+                // {
+                // }
+                // ImGui::End();
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};

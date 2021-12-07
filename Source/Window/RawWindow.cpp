@@ -1,6 +1,7 @@
 #include "RawWindow.h"
 
 #include "Events/Keyboard.h"
+#include "Events/Mouse.h"
 
 #include <mutex>
 
@@ -30,7 +31,12 @@ public:
     {
         RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
         window->KeyCallback(key, scancode, action, mods);
-        // Issue(window->resizeCallbacks, key, scancode, action, mods);
+    }
+
+    static void ButtonCallback(GLFWwindow* handle, int button, int action, int mods)
+    {
+        RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
+        window->ButtonCallback(button, action, mods);
     }
 
 private:
@@ -42,6 +48,11 @@ private:
 void RawWindow::KeyCallback(int key, int scancode, int action, int mods)
 {
     keyboard->KeyCallback(key, scancode, action, mods);
+}
+
+void RawWindow::ButtonCallback(int button, int action, int mods)
+{
+    mouse->ButtonCallback(button, action, mods);
 }
 
 static void GetMonitorResolution(unsigned int& width, unsigned int& height)
@@ -108,10 +119,12 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     this->size = {static_cast<unsigned int>(_width), static_cast<unsigned int>(_height)};
 
     keyboard = CreatePtr<Keyboard>(handle);
+    mouse = CreatePtr<Mouse>(handle);
 
     glfwSetWindowUserPointer(handle, this);
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
     glfwSetKeyCallback(handle, CallbackManager::KeyCallback);
+    glfwSetMouseButtonCallback(handle, CallbackManager::ButtonCallback);
 
     // For debugging.
     glfwSetWindowPos(handle, 50, 50);
@@ -158,6 +171,7 @@ void RawWindow::EndFrame()
     swapChain->Present(static_cast<unsigned int>(vSync), 0u);
     time.EndFrame();
     keyboard->EndFrame();
+    mouse->EndFrame();
 }
 
 bool RawWindow::IsRunning() const
@@ -165,7 +179,7 @@ bool RawWindow::IsRunning() const
     return !glfwWindowShouldClose(handle) && running;
 }
 
-void RawWindow::Destroy()
+void RawWindow::Close()
 {
     running = false;
 }

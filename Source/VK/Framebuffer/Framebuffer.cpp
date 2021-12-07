@@ -9,7 +9,7 @@ namespace VK
 {
     Framebuffer::Framebuffer(const RenderPass& renderPass, const Vec2ui size, const ImageView& imageView, const ImageView* depthImageView, const ImageView* multisampleImageView, const Device& device) : device{device}, size{size}
     {
-        Vec<VkImageView> attachments;
+        std::vector<VkImageView> attachments;
         const bool useDepth {!!depthImageView};
         const bool useMultisample {!!multisampleImageView};
 

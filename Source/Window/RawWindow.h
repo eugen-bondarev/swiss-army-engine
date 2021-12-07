@@ -26,6 +26,7 @@ namespace Base
 }
 
 FORWARD_DECLARE(Keyboard);
+FORWARD_DECLARE(Mouse);
 
 enum class WindowMode
 {
@@ -54,11 +55,12 @@ public:
     void ResizeClear();
 
     void KeyCallback(int key, int scancode, int action, int mods);
+    void ButtonCallback(int button, int action, int mods);
 
     void SetVSync(const bool value);
     bool GetVSync() const;
 
-    void Destroy();
+    void Close();
 
     bool IsRunning() const;
     GLFWwindow* GetHandle();
@@ -68,6 +70,11 @@ public:
     inline const Keyboard& GetKeyboard() const
     {
         return *keyboard;
+    }
+
+    inline const Mouse& GetMouse() const
+    {
+        return *mouse;
     }
     
     inline float GetDeltaTime() const
@@ -83,6 +90,7 @@ private:
 
     Time time;
     Ptr<Keyboard> keyboard;
+    Ptr<Mouse> mouse;
 
     Callback::Queue<Callback::Resize> resizeCallbacks;
     Callback::Queue<Callback::BeginFrame> beginFrameCallbacks;

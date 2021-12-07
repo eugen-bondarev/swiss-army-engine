@@ -5,7 +5,7 @@
 
 namespace VK
 {
-    RenderTarget::RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const size_t samples, const bool useDepth, const Device& device) : size {size}, renderPass {renderPass}, device {device}
+    RenderTarget::RenderTarget(const Vec2ui size, const std::vector<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const size_t samples, const bool useDepth, const Device& device) : size {size}, renderPass {renderPass}, device {device}
     {
         // const bool useDepth {static_cast<bool>(rendererFlags & RendererFlags_Depth)};
         const bool useMultisample {samples > 1};

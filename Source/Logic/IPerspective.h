@@ -23,7 +23,7 @@ namespace Logic
 
     protected:        
         float fieldOfView {70.0f};
-        float aspectRatio {1.77777777f};
+        float aspectRatio {1.333333333f};
         float nearVal {0.1f};
         float farVal {1000.0f};        
     };
