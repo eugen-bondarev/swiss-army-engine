@@ -56,6 +56,7 @@ public:
 
     void KeyCallback(int key, int scancode, int action, int mods);
     void ButtonCallback(int button, int action, int mods);
+    void MousePositionCallback(double x, double y);
 
     void SetVSync(const bool value);
     bool GetVSync() const;

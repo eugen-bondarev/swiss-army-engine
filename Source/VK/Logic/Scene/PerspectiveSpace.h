@@ -15,6 +15,9 @@ namespace VK
 
         void UpdateProjectionMatrix() override;
 
+        Vec3f rightVector {0.0f};
+        Vec3f forwardVector {0.0f};
+
         struct
         {
             Vec3f position {0.0f};

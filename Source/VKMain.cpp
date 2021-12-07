@@ -140,28 +140,37 @@ int main()
                 window.Close();
             }
 
+            if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+            {
+                renderer0.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.002f;
+                renderer0.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.002f;
+
+                renderer1.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.002f;
+                renderer1.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.002f;
+            }
+
             if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
             {
-                renderer0.GetPerspectiveSpace().camera.position.z -= speed;
-                renderer1.GetPerspectiveSpace().camera.position.z -= speed;
+                renderer0.GetPerspectiveSpace().camera.position += renderer0.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                renderer1.GetPerspectiveSpace().camera.position += renderer1.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
             {
-                renderer0.GetPerspectiveSpace().camera.position.z += speed;
-                renderer1.GetPerspectiveSpace().camera.position.z += speed;
+                renderer0.GetPerspectiveSpace().camera.position -= renderer0.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                renderer1.GetPerspectiveSpace().camera.position -= renderer1.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
             {
-                renderer0.GetPerspectiveSpace().camera.position.x -= speed;
-                renderer1.GetPerspectiveSpace().camera.position.x -= speed;
+                renderer0.GetPerspectiveSpace().camera.position -= renderer0.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                renderer1.GetPerspectiveSpace().camera.position -= renderer1.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
             {
-                renderer0.GetPerspectiveSpace().camera.position.x += speed;
-                renderer1.GetPerspectiveSpace().camera.position.x += speed;
+                renderer0.GetPerspectiveSpace().camera.position += renderer0.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                renderer1.GetPerspectiveSpace().camera.position += renderer1.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))

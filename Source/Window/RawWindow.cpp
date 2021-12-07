@@ -39,6 +39,12 @@ public:
         window->ButtonCallback(button, action, mods);
     }
 
+    static void MousePositionCallback(GLFWwindow* handle, double x, double y)
+    {
+        RawWindow* window = static_cast<RawWindow*>(glfwGetWindowUserPointer(handle));
+        window->MousePositionCallback(x, y);
+    }
+
 private:
     CallbackManager() = delete;
     CallbackManager(const CallbackManager&) = delete;
@@ -53,6 +59,11 @@ void RawWindow::KeyCallback(int key, int scancode, int action, int mods)
 void RawWindow::ButtonCallback(int button, int action, int mods)
 {
     mouse->ButtonCallback(button, action, mods);
+}
+
+void RawWindow::MousePositionCallback(double x, double y)
+{
+    mouse->PositionCallback(x, y);
 }
 
 static void GetMonitorResolution(unsigned int& width, unsigned int& height)
@@ -125,6 +136,7 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     glfwSetWindowSizeCallback(handle, CallbackManager::SizeCallback);
     glfwSetKeyCallback(handle, CallbackManager::KeyCallback);
     glfwSetMouseButtonCallback(handle, CallbackManager::ButtonCallback);
+    glfwSetCursorPosCallback(handle, CallbackManager::MousePositionCallback);
 
     // For debugging.
     glfwSetWindowPos(handle, 50, 50);

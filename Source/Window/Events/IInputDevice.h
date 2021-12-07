@@ -16,7 +16,7 @@ public:
     {
     }
 
-    void EndFrame()
+    virtual void EndFrame()
     {
         map.clear();
     }
