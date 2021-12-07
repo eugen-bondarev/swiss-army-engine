@@ -14,13 +14,13 @@ namespace VK
     class RenderTarget
     {
     public:
-        RenderTarget(const Vec2ui size, const Vec<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const size_t samples, const bool useDepth, const Device& device = GetDevice());
+        RenderTarget(const Vec2ui size, const std::vector<Ref<ImageView>>& imageViews, const RenderPass& renderPass, const size_t samples, const bool useDepth, const Device& device = GetDevice());
 
         const Framebuffer& GetFramebuffer(const size_t i) const;
         
     private:
         const Device& device;
-        Vec<Ptr<Framebuffer>> framebuffers;
+        std::vector<Ptr<Framebuffer>> framebuffers;
         Ptr<Texture2D> depthTexture;
         Ptr<Texture2D> multiSampleTexture;
         Vec2ui size;

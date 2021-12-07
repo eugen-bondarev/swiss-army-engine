@@ -13,8 +13,8 @@ namespace VK
     {
     public:
         Renderer3D(
-            const Str& vertexShaderCode,
-            const Str& fragmentShaderCode,
+            const std::string& vertexShaderCode,
+            const std::string& fragmentShaderCode,
             const size_t numCmdBuffers,
             const size_t samples,
             const RendererFlags flags,
@@ -25,15 +25,15 @@ namespace VK
 
     private:
         void CreateGraphicsResources(
-            const Str& vertexShaderCode, 
-            const Str& fragmentShaderCode, 
+            const std::string& vertexShaderCode, 
+            const std::string& fragmentShaderCode, 
             const size_t samples, 
             const RendererFlags flags
         );
 
         Ptr<Pipeline> pipeline;
 
-        Vec<bool> needsResize;
+        std::vector<bool> needsResize;
         Vec2ui newSize;
     };
 }

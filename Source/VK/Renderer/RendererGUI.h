@@ -31,7 +31,7 @@ namespace VK
 
         Ptr<RenderPass> renderPass;
         
-        Vec<bool> needsResize;
+        std::vector<bool> needsResize;
         Vec2ui newSize;
     };
 }

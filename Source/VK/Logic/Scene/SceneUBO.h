@@ -10,6 +10,7 @@ namespace VK
     struct SceneUBO
     {
         Mat4x4 projection;
+        Mat4x4 view;
     };
 }
 

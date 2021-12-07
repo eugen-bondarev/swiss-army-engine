@@ -2,6 +2,7 @@
 
 layout(binding = 0) uniform SceneUBO {
     mat4 proj;
+    mat4 view;
 } sceneUBO;
 
 layout(binding = 1) uniform EntityUBO_dyn {
@@ -21,7 +22,7 @@ layout(location = 0) out VSOut
 
 void main() 
 {
-    gl_Position = sceneUBO.proj * entityUBO.model * vec4(inPosition, 1.0);
+    gl_Position = sceneUBO.proj * sceneUBO.view * entityUBO.model * vec4(inPosition, 1.0);
 
     fsFragPos = (entityUBO.model * vec4(inPosition, 1.0)).xyz;
 	fsTexCoords = inTexCoords;

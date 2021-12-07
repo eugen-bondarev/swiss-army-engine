@@ -59,21 +59,21 @@ namespace VK
         SpaceObject& GetSpaceObject(const size_t i);
 
         PerspectiveSpace& GetPerspectiveSpace();
-        OrthogonalSpace& GetOrthogonalSpace();
+        // OrthogonalSpace& GetOrthogonalSpace();
 
     protected:
         GraphicsContext& ctx;
 
-        Vec<Ptr<IRenderable>> renderable;
+        std::vector<Ptr<IRenderable>> renderable;
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
         Ptr<PerspectiveSpace> perspectiveSpace;
-        Ptr<OrthogonalSpace> orthogonalSpace;
+        // Ptr<OrthogonalSpace> orthogonalSpace;
         void CreateUniformBuffers();
 
-        Vec<Ptr<CommandPool>> commandPools;
-        Vec<Ptr<CommandBuffer>> commandBuffers;
+        std::vector<Ptr<CommandPool>> commandPools;
+        std::vector<Ptr<CommandBuffer>> commandBuffers;
         void CreateCmdEntities(const size_t numCmdBuffers);
         
         Ptr<DescriptorSetLayout> descriptorSetLayout;

@@ -234,7 +234,7 @@ namespace VK
         }
     }
 
-    const Vec<Ref<ImageView>>& SwapChain::GetImageViews() const
+    const std::vector<Ref<ImageView>>& SwapChain::GetImageViews() const
     {
         return imageViews;
     }
