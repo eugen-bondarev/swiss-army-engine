@@ -55,14 +55,11 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-
-        // orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
         perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
     }
 
     void Renderer3D::UpdateUniformBuffers(const float ratio)
     {
-        // orthogonalSpace->UpdateProjectionMatrix();
         (*sceneUniformBuffer).Overwrite();
         (*entityUniformBuffer).Overwrite();
     }
@@ -147,7 +144,6 @@ namespace VK
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
