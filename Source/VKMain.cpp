@@ -1,19 +1,16 @@
+#include <gtc/matrix_transform.hpp>
+#include "Window/Events/Keyboard.h"
+#include "Window/Events/Mouse.h"
 #include "Util/Shaders/SPIRV.h"
+#include <imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
 #include "Util/Aligned.h"
 #include "Util/Assets.h"
 #include "API/Window.h"
 #include "Util/Path.h"
-#include "VK/VK.h"
-
-#include "Window/Events/Keyboard.h"
-#include "Window/Events/Mouse.h"
-
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
-
-#include <gtc/matrix_transform.hpp>
 #include <glm.hpp>
+#include "VK/VK.h"
 
 void ImGuiInit(
     GLFWwindow* handle, 
@@ -90,7 +87,7 @@ int main()
             RendererFlags_UseDepth
         );
 
-        VK::Renderer3D renderer1(
+        VK::RendererGUI renderer1(
             vertexShaderCode,
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
@@ -98,7 +95,7 @@ int main()
             RendererFlags_Load | RendererFlags_UseDepth
         );
 
-        VK::RendererGUI imGuiRenderer(
+        VK::RendererImGui rendererImGui(
             VK::GetSwapChain().GetNumBuffers(),
             0,
             RendererFlags_Load | RendererFlags_Output
@@ -112,7 +109,7 @@ int main()
             VK::Queues::indices.graphicsFamily.value(),
             VK::Queues::graphicsQueue,
             VK::GetDefaultDescriptorPool(),
-            imGuiRenderer.GetRenderPass()
+            rendererImGui.GetRenderPass()
         );
 
         for (size_t i = 0; i < 2; ++i)
@@ -217,7 +214,7 @@ int main()
 
             frameManager->AcquireSwapChainImage();
 
-                imGuiRenderer.Record(VK::GetSwapChain().GetCurrentImageIndex());
+                rendererImGui.Record(VK::GetSwapChain().GetCurrentImageIndex());
 
                 static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer0.GetNumRenderableEntities(); ++i)
@@ -228,13 +225,11 @@ int main()
                 
                 renderer0.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
                 renderer1.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 1, 2);
-                imGuiRenderer.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 2, 3);
+                rendererImGui.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 2, 3);
             
             frameManager->Present();
 
             window.EndFrame();
-
-            // break;
         }
 
         VK::GetDevice().WaitIdle();

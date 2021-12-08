@@ -4,12 +4,13 @@
 #include "../Device/QueueFamily.h"
 #include <imgui_impl_vulkan.h>
 #include "../Device/Device.h"
-#include <imgui_impl_glfw.h>
 
 namespace VK
 {
     RendererGUI::RendererGUI(
-        const size_t numCmdBuffers,
+        const std::string& vertexShaderCode, 
+        const std::string& fragmentShaderCode, 
+        const size_t numCmdBuffers, 
         const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
@@ -27,31 +28,30 @@ namespace VK
         });
 
         CreateGraphicsResources(
+            vertexShaderCode,
+            fragmentShaderCode,
             samples,
             flags
         );
-
-        // ctx.GetWindow().BeginFrameSubscribe([&]()
-        // {
-        //     ImGui_ImplVulkan_NewFrame();
-        //     ImGui_ImplGlfw_NewFrame();
-        //     ImGui::NewFrame();
-        //         ImGui::ShowDemoWindow();
-        //     ImGui::Render();
-        // });
-
-        ctx.GetWindow().EndFrameSubscribe([&]()
-        {
-            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-            }
-        });
     }
 
-    void RendererGUI::CreateGraphicsResources(const size_t samples, const RendererFlags flags)
+    void RendererGUI::CreateGraphicsResources(
+        const std::string& vertexShaderCode, 
+        const std::string& fragmentShaderCode, 
+        const size_t samples,
+        const RendererFlags flags
+    )
     {
+        const std::vector<VkDescriptorSetLayoutBinding> bindings({
+            CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
+            CreateBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
+            CreateBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        });
+
+        descriptorSetLayout = CreatePtr<DescriptorSetLayout>(bindings);
+		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
+		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
+
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
@@ -72,21 +72,53 @@ namespace VK
 
         attachments.push_back(swapChainAttachment);
 
-        renderPass = CreatePtr<RenderPass>(
+        if (flags & RendererFlags_UseDepth)
+        {
+            const VkAttachmentDescription depthAttachment = Util::CreateDefaultDepthAttachment(ctx.GetDevice().FindDepthFormat(), SamplesToVKFlags(samples));
+            attachments.push_back(depthAttachment);
+        }
+
+        if (samples > 1)
+        {
+            VkAttachmentDescription colorAttachmentResolve{};
+            colorAttachmentResolve.format = GetSwapChain().GetImageFormat();
+            colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+            colorAttachmentResolve.loadOp = swapChainAttachment.loadOp;
+            colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
+            
+            colorAttachmentResolve.finalLayout = 
+                flags & RendererFlags_Output ? 
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : 
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+            attachments.push_back(colorAttachmentResolve);
+        }
+
+        pipeline = CreatePtr<Pipeline>(
+            vertexShaderCode, 
+            fragmentShaderCode,
+            GetSwapChain().GetSize(),
             attachments,
+            bindingDescriptors,
+            attributeDescriptors,
+            SetLayouts { descriptorSetLayout->GetVkDescriptorSetLayout() },
             samples,
-            false,
+            flags & RendererFlags_UseDepth,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            // orthogonalSpace->SetAspectRatio(newSize.x / newSize.y);
+            // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
         });
     }
 
@@ -106,14 +138,17 @@ namespace VK
                 needsResize[cmdIndex] = false;
             }
 
-            cmd.BeginRenderPass(*renderPass, framebuffer);
-                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd.GetVkCommandBuffer());
+            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
+                cmd.BindPipeline(*pipeline);
+                    for (size_t i = 0; i < renderable.size(); ++i)
+                    {
+                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<VK::EntityUBO>::Get())};
+                        cmd.BindVertexBuffers({renderable[i]->GetVertexBuffer().UnderlyingPtr()}, {0});
+                            cmd.BindIndexBuffer(renderable[i]->GetIndexBuffer().UnderlyingRef());
+                                cmd.BindDescriptorSets(*pipeline, 1, &renderable[i]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
+                                    cmd.DrawIndexed(renderable[i]->GetNumIndices(), 1, 0, 0, 0);
+                    }
             cmd.EndRenderPass();
-        cmd.End(); 
-    }
-
-    RenderPass& RendererGUI::GetRenderPass()
-    {
-        return *renderPass;
+        cmd.End();
     }
 }
