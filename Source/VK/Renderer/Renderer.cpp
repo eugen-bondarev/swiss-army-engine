@@ -77,9 +77,4 @@ namespace VK
     {
         return commandPools.size();
     }
-
-    // OrthogonalSpace& Renderer::GetOrthogonalSpace()
-    // {
-    //     return *orthogonalSpace;
-    // }
 }

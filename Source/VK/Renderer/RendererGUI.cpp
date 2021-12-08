@@ -55,13 +55,11 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-        
         orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
     }
 
     void RendererGUI::UpdateUniformBuffers(const float ratio)
     {
-        // orthogonalSpace->UpdateProjectionMatrix();
         (*sceneUniformBuffer).Overwrite();
         (*entityUniformBuffer).Overwrite();
     }

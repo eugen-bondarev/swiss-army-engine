@@ -80,6 +80,12 @@ int main()
         const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
         const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
 
+        struct
+        {
+            const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/VertexShader.vert")};
+            const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
+        } shaderGUI;
+
         const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
@@ -87,7 +93,7 @@ int main()
 
         Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 3, 4, 3);
 
-        VK::Renderer3D renderer0(
+        VK::Renderer3D renderer3D(
             vertexShaderCode,
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
@@ -95,9 +101,9 @@ int main()
             RendererFlags_UseDepth
         );
 
-        VK::RendererGUI renderer1(
-            vertexShaderCode,
-            fragmentShaderCode,
+        VK::RendererGUI rendererGUI(
+            shaderGUI.vertexShaderCode,
+            shaderGUI.fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
             RendererFlags_Load | RendererFlags_UseDepth
@@ -122,19 +128,19 @@ int main()
 
         for (size_t i = 0; i < 2; ++i)
         {
-            renderer0.Add(characterMesh, characterTexture);
+            renderer3D.Add(characterMesh, characterTexture);
         }
 
-        renderer0.GetSpaceObject(0).SetPosition(-5, -5, -15);
-        renderer0.GetSpaceObject(1).SetPosition(-5, -5, -25);
+        renderer3D.GetSpaceObject(0).SetPosition(-5, -5, -15);
+        renderer3D.GetSpaceObject(1).SetPosition(-5, -5, -25);
 
-        renderer1.Add(square, characterTexture);
-        renderer1.GetSpaceObject(0).SetScale(-512.0f);
-        renderer1.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
-        renderer1.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
+        rendererGUI.Add(square, characterTexture);
+        rendererGUI.GetSpaceObject(0).SetScale(-512.0f);
+        rendererGUI.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
+        rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
         
-        renderer0.RecordAll();
-        renderer1.RecordAll();
+        renderer3D.RecordAll();
+        rendererGUI.RecordAll();
 
         while (window.IsRunning())
         {
@@ -149,41 +155,41 @@ int main()
 
             if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
             {
-                renderer0.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.002f;
-                renderer0.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.002f;
+                renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.002f;
+                renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.002f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
             {
-                renderer0.GetPerspectiveSpace().camera.position += renderer0.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
             {
-                renderer0.GetPerspectiveSpace().camera.position -= renderer0.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
             {
-                renderer0.GetPerspectiveSpace().camera.position -= renderer0.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
             {
-                renderer0.GetPerspectiveSpace().camera.position += renderer0.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))
             {
-                renderer0.GetPerspectiveSpace().camera.position.y += speed;
+                renderer3D.GetPerspectiveSpace().camera.position.y += speed;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_LEFT_SHIFT))
             {
-                renderer0.GetPerspectiveSpace().camera.position.y -= speed;
+                renderer3D.GetPerspectiveSpace().camera.position.y -= speed;
             }
 
-            renderer0.GetPerspectiveSpace().UpdateProjectionMatrix();
+            renderer3D.GetPerspectiveSpace().UpdateProjectionMatrix();
 
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -209,22 +215,22 @@ int main()
                 timer = 0;
             }
 
-            renderer0.UpdateUniformBuffers(window.GetAspectRatio());
-            renderer1.UpdateUniformBuffers(window.GetAspectRatio());
+            renderer3D.UpdateUniformBuffers(window.GetAspectRatio());
+            rendererGUI.UpdateUniformBuffers(window.GetAspectRatio());
 
             frameManager->AcquireSwapChainImage();
 
                 rendererImGui.Record(VK::GetSwapChain().GetCurrentImageIndex());
 
                 static float theta {0}; theta += deltaTime * 0.5f;
-                for (size_t i = 0; i < renderer0.GetNumRenderableEntities(); ++i)
+                for (size_t i = 0; i < renderer3D.GetNumRenderableEntities(); ++i)
                 {
-                    VK::SpaceObject& spaceObject = renderer0.GetSpaceObject(i);
+                    VK::SpaceObject& spaceObject = renderer3D.GetSpaceObject(i);
                     spaceObject.SetRotationY(theta);
                 }
                 
-                renderer0.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
-                renderer1.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 1, 2);
+                renderer3D.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
+                rendererGUI.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 1, 2);
                 rendererImGui.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 2, 3);
             
             frameManager->Present();
