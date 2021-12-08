@@ -65,7 +65,7 @@ void ImGuiShutdown()
     ImGui::DestroyContext();
 }
 
-static const Util::ModelAsset<Vertex2D> square = {
+static const Util::ModelAsset<PredefinedVertexLayouts::Vertex2D> square = {
     { { { -0.5f, -0.5f }, {1, 1} },
       { { -0.5f,  0.5f }, {1, 0} },
       { {  0.5f,  0.5f }, {0, 0} },
@@ -86,7 +86,7 @@ int main()
             const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
         } shaderGUI;
 
-        const Util::ModelAsset characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
+        const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
         const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));

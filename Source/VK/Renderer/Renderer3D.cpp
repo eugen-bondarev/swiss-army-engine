@@ -37,9 +37,9 @@ namespace VK
         );
     }
 
-    SpaceObject& Renderer3D::Add(const ::Util::ModelAsset<::Vertex>& modelAsset, const ::Util::ImageAsset& imageAsset)
+    SpaceObject& Renderer3D::Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex3D>& modelAsset, const ::Util::ImageAsset& imageAsset)
     {
-        IRenderable<::Vertex>* item = new IRenderable<::Vertex>(
+        IRenderable<PredefinedVertexLayouts::Vertex3D>* item = new IRenderable<PredefinedVertexLayouts::Vertex3D>(
             modelAsset,
             imageAsset,
             *sceneUniformBuffer,
@@ -47,7 +47,7 @@ namespace VK
             *descriptorSetLayout,
             renderable.size()
         );
-        renderable.push_back(Ptr<IRenderable<::Vertex>>(item));
+        renderable.push_back(Ptr<IRenderable<PredefinedVertexLayouts::Vertex3D>>(item));
         return item->GetSpaceObject();
     }
 

@@ -23,7 +23,7 @@ namespace VK
 
         void Record(const size_t cmdIndex) override;
         
-        SpaceObject& Add(const ::Util::ModelAsset<::Vertex>& modelAsset, const ::Util::ImageAsset& imageAsset);
+        SpaceObject& Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex3D>& modelAsset, const ::Util::ImageAsset& imageAsset);
 
         void UpdateUniformBuffers(const float ratio);
         PerspectiveSpace& GetPerspectiveSpace();
@@ -46,7 +46,7 @@ namespace VK
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        std::vector<Ptr<IRenderable<::Vertex>>> renderable;
+        std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex3D>>> renderable;
         Ptr<PerspectiveSpace> perspectiveSpace;
         void CreateUniformBuffers();
 

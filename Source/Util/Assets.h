@@ -31,7 +31,7 @@ namespace Util
     void RemoveFile(const Path& filePath);
     TextAsset LoadTextFile(const Path& filePath, const bool binary = false);
     ImageAsset LoadImageFile(const Path& filePath);
-    ModelAsset<Vertex> LoadModelFile(const Path& filePath);
+    ModelAsset<PredefinedVertexLayouts::Vertex3D> LoadModelFile(const Path& filePath);
 }
 
 #endif

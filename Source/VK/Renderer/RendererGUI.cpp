@@ -37,9 +37,9 @@ namespace VK
         );
     }
 
-    SpaceObject& RendererGUI::Add(const ::Util::ModelAsset<::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset)
+    SpaceObject& RendererGUI::Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset)
     {
-        IRenderable<::Vertex2D>* item = new IRenderable<::Vertex2D>(
+        IRenderable<PredefinedVertexLayouts::Vertex2D>* item = new IRenderable<PredefinedVertexLayouts::Vertex2D>(
             modelAsset,
             imageAsset,
             *sceneUniformBuffer,
@@ -47,7 +47,7 @@ namespace VK
             *descriptorSetLayout,
             renderable.size()
         );
-        renderable.push_back(Ptr<IRenderable<::Vertex2D>>(item));
+        renderable.push_back(Ptr<IRenderable<PredefinedVertexLayouts::Vertex2D>>(item));
         return item->GetSpaceObject();
     }
 

@@ -62,9 +62,9 @@ namespace Util
         return result;
     }
 
-    ModelAsset<Vertex> LoadModelFile(const Path& filePath)
+    ModelAsset<PredefinedVertexLayouts::Vertex3D> LoadModelFile(const Path& filePath)
     {
-        ModelAsset<Vertex> result;
+        ModelAsset<PredefinedVertexLayouts::Vertex3D> result;
 
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(filePath(), aiProcess_Triangulate | aiProcess_FlipUVs);
