@@ -23,7 +23,7 @@ namespace VK
 
         void Record(const size_t cmdIndex) override;
         
-        SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
+        SpaceObject& Add(const ::Util::ModelAsset<::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset);
 
         void UpdateUniformBuffers(const float ratio);
         OrthogonalSpace& GetOrthogonalSpace();
@@ -46,7 +46,7 @@ namespace VK
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        std::vector<Ptr<IRenderable>> renderable;
+        std::vector<Ptr<IRenderable<::Vertex2D>>> renderable;
         Ptr<OrthogonalSpace> orthogonalSpace;
         void CreateUniformBuffers();
 

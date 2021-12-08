@@ -21,16 +21,17 @@ namespace Util
         unsigned int mipLevels{1};
     };
 
+    template <typename T>
     struct ModelAsset
     {
-        std::vector<Vertex>       vertices;
+        std::vector<T>       vertices;
         std::vector<unsigned int> indices;
     };
 
     void RemoveFile(const Path& filePath);
     TextAsset LoadTextFile(const Path& filePath, const bool binary = false);
     ImageAsset LoadImageFile(const Path& filePath);
-    ModelAsset LoadModelFile(const Path& filePath);
+    ModelAsset<Vertex> LoadModelFile(const Path& filePath);
 }
 
 #endif

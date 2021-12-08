@@ -65,11 +65,11 @@ void ImGuiShutdown()
     ImGui::DestroyContext();
 }
 
-static const Util::ModelAsset square = {
-    { { { -0.5f, -0.5f }, {1, 1}, {} },
-      { { -0.5f,  0.5f }, {1, 0}, {} },
-      { {  0.5f,  0.5f }, {0, 0}, {} },
-      { {  0.5f, -0.5f }, {0, 1}, {} } },
+static const Util::ModelAsset<Vertex2D> square = {
+    { { { -0.5f, -0.5f }, {1, 1} },
+      { { -0.5f,  0.5f }, {1, 0} },
+      { {  0.5f,  0.5f }, {0, 0} },
+      { {  0.5f, -0.5f }, {0, 1} } },
     { 0, 1, 2, 2, 3, 0 }
 };
 

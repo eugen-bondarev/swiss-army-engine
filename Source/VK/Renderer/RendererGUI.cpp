@@ -37,9 +37,9 @@ namespace VK
         );
     }
 
-    SpaceObject& RendererGUI::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
+    SpaceObject& RendererGUI::Add(const ::Util::ModelAsset<::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset)
     {
-        IRenderable* item = new IRenderable(
+        IRenderable<::Vertex2D>* item = new IRenderable<::Vertex2D>(
             modelAsset,
             imageAsset,
             *sceneUniformBuffer,
@@ -47,7 +47,7 @@ namespace VK
             *descriptorSetLayout,
             renderable.size()
         );
-        renderable.push_back(Ptr<IRenderable>(item));
+        renderable.push_back(Ptr<IRenderable<::Vertex2D>>(item));
         return item->GetSpaceObject();
     }
 
@@ -78,8 +78,8 @@ namespace VK
         });
 
         descriptorSetLayout = CreatePtr<DescriptorSetLayout>(bindings);
-		const BindingDescriptions bindingDescriptors {Vertex::GetBindingDescriptions()};
-		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
+		const BindingDescriptions bindingDescriptors {Vertex2D::GetBindingDescriptions()};
+		const AttributeDescriptions attributeDescriptors {Vertex2D::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));

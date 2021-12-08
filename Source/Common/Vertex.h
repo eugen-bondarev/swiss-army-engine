@@ -23,4 +23,17 @@ struct Vertex
     } normal;
 };
 
+struct Vertex2D
+{
+    struct
+    {
+        float x, y;
+    } position;
+
+    struct
+    {
+        float x, y;
+    } texCoords;
+};
+
 #endif
