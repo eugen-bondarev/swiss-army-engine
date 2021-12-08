@@ -26,7 +26,7 @@ namespace VK
         SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
 
         void UpdateUniformBuffers(const float ratio);
-        PerspectiveSpace& GetPerspectiveSpace();
+        OrthogonalSpace& GetOrthogonalSpace();
 
         EntityUniformBuffer<EntityUBO>& GetEntityUBO();
         SceneUniformBuffer<SceneUBO>& GetSceneUBO();
@@ -47,7 +47,7 @@ namespace VK
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
         std::vector<Ptr<IRenderable>> renderable;
-        Ptr<PerspectiveSpace> perspectiveSpace;
+        Ptr<OrthogonalSpace> orthogonalSpace;
         void CreateUniformBuffers();
 
         std::vector<bool> needsResize;

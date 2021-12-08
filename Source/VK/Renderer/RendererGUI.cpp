@@ -55,9 +55,8 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-
-        // orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
-        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
+        
+        orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
     }
 
     void RendererGUI::UpdateUniformBuffers(const float ratio)
@@ -204,8 +203,8 @@ namespace VK
         return renderable[i]->GetSpaceObject();
     }
 
-    PerspectiveSpace& RendererGUI::GetPerspectiveSpace()
+    OrthogonalSpace& RendererGUI::GetOrthogonalSpace()
     {
-        return *perspectiveSpace;
+        return *orthogonalSpace;
     }
 }

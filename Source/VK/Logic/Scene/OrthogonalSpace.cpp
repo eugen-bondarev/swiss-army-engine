@@ -13,5 +13,7 @@ namespace VK
     {
         ubo->projection = glm::ortho(left * distance, right * distance, bottom * distance, top * distance, -1000.0f, 1000.0f);
         ubo->projection[1][1] *= -1.0f;
+
+        ubo->view = glm::mat4x4 {1};
     }
 }

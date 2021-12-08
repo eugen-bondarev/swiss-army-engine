@@ -65,6 +65,14 @@ void ImGuiShutdown()
     ImGui::DestroyContext();
 }
 
+static const Util::ModelAsset square = {
+    { { { -0.5f, -0.5f }, {0, 0}, {} },
+      { { -0.5f,  0.5f }, {1, 0}, {} },
+      { {  0.5f,  0.5f }, {1, 1}, {} },
+      { {  0.5f, -0.5f }, {0, 1}, {} } },
+    { 0, 1, 2, 2, 3, 0 }
+};
+
 int main()
 {
     try
@@ -115,13 +123,15 @@ int main()
         for (size_t i = 0; i < 2; ++i)
         {
             renderer0.Add(characterMesh, characterTexture);
-            renderer1.Add(characterMesh, characterTexture);
         }
+        renderer1.Add(square, characterTexture);
 
         renderer0.GetSpaceObject(0).SetPosition(-5, -5, -15);
         renderer0.GetSpaceObject(1).SetPosition(-5, -5, -25);
-        renderer1.GetSpaceObject(0).SetPosition( 5, -5, -15);
-        renderer1.GetSpaceObject(1).SetPosition( 5, -5, -25);
+
+        renderer1.GetSpaceObject(0).SetPosition(0, 0.0f, -0.5f);
+        renderer1.GetSpaceObject(0).SetRotationY(180.0f);
+        renderer1.GetSpaceObject(0).SetScale(0.2f);
         
         renderer0.RecordAll();
         renderer1.RecordAll();
