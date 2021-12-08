@@ -23,36 +23,12 @@ namespace VK
         }
     }
 
-    void Renderer::CreateUniformBuffers()
-    {        
-        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
-        sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-
-        // orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
-        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
-    }
-
     Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& ctx) : ctx {ctx}
     {
         CreateCmdEntities(numCmdBuffers);
-        CreateUniformBuffers();
 
         const Vec2f halfSize {Math::CastTo<Vec2f>(ctx.GetWindow().GetSize()) / 2.0f};
         // orthogonalSpace->Set(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y);
-    }
-
-    SpaceObject& Renderer::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
-    {
-        IRenderable* item = new IRenderable(
-            modelAsset,
-            imageAsset,
-            *sceneUniformBuffer,
-            *entityUniformBuffer,
-            *descriptorSetLayout,
-            renderable.size()
-        );
-        renderable.push_back(Ptr<IRenderable>(item));
-        return item->GetSpaceObject();
     }
 
     void Renderer::RecordAll()
@@ -61,13 +37,6 @@ namespace VK
         {
             Record(i);
         }
-    }
-
-    void Renderer::UpdateUniformBuffers(const float ratio)
-    {
-        // orthogonalSpace->UpdateProjectionMatrix();
-        (*sceneUniformBuffer).Overwrite();
-        (*entityUniformBuffer).Overwrite();
     }
 
     void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex, const uint32_t signalSemaphoreIndex)
@@ -107,31 +76,6 @@ namespace VK
     size_t Renderer::GetNumCmdPool() const
     {
         return commandPools.size();
-    }
-
-    EntityUniformBuffer<EntityUBO>& Renderer::GetEntityUBO()
-    {
-        return *entityUniformBuffer;
-    }
-
-    SceneUniformBuffer<SceneUBO>& Renderer::GetSceneUBO()
-    {
-        return *sceneUniformBuffer;
-    }
-
-    size_t Renderer::GetNumRenderableEntities() const
-    {
-        return renderable.size();
-    }
-
-    SpaceObject& Renderer::GetSpaceObject(const size_t i)
-    {
-        return renderable[i]->GetSpaceObject();
-    }
-
-    PerspectiveSpace& Renderer::GetPerspectiveSpace()
-    {
-        return *perspectiveSpace;
     }
 
     // OrthogonalSpace& Renderer::GetOrthogonalSpace()

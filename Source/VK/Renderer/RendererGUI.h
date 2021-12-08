@@ -22,6 +22,17 @@ namespace VK
         );
 
         void Record(const size_t cmdIndex) override;
+        
+        SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
+
+        void UpdateUniformBuffers(const float ratio);
+        PerspectiveSpace& GetPerspectiveSpace();
+
+        EntityUniformBuffer<EntityUBO>& GetEntityUBO();
+        SceneUniformBuffer<SceneUBO>& GetSceneUBO();
+
+        size_t GetNumRenderableEntities() const;
+        SpaceObject& GetSpaceObject(const size_t i);
 
     private:
         void CreateGraphicsResources(
@@ -32,6 +43,12 @@ namespace VK
         );
 
         Ptr<Pipeline> pipeline;
+
+        Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
+        Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
+        std::vector<Ptr<IRenderable>> renderable;
+        Ptr<PerspectiveSpace> perspectiveSpace;
+        void CreateUniformBuffers();
 
         std::vector<bool> needsResize;
         Vec2ui newSize;

@@ -27,12 +27,44 @@ namespace VK
             newSize = newViewportSize;
         });
 
+        CreateUniformBuffers();
+
         CreateGraphicsResources(
             vertexShaderCode,
             fragmentShaderCode,
             samples,
             flags
         );
+    }
+
+    SpaceObject& Renderer3D::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
+    {
+        IRenderable* item = new IRenderable(
+            modelAsset,
+            imageAsset,
+            *sceneUniformBuffer,
+            *entityUniformBuffer,
+            *descriptorSetLayout,
+            renderable.size()
+        );
+        renderable.push_back(Ptr<IRenderable>(item));
+        return item->GetSpaceObject();
+    }
+
+    void Renderer3D::CreateUniformBuffers()
+    {        
+        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
+        sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
+
+        // orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
+        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
+    }
+
+    void Renderer3D::UpdateUniformBuffers(const float ratio)
+    {
+        // orthogonalSpace->UpdateProjectionMatrix();
+        (*sceneUniformBuffer).Overwrite();
+        (*entityUniformBuffer).Overwrite();
     }
 
     void Renderer3D::CreateGraphicsResources(
@@ -150,5 +182,30 @@ namespace VK
                     }
             cmd.EndRenderPass();
         cmd.End();
+    }
+
+    EntityUniformBuffer<EntityUBO>& Renderer3D::GetEntityUBO()
+    {
+        return *entityUniformBuffer;
+    }
+
+    SceneUniformBuffer<SceneUBO>& Renderer3D::GetSceneUBO()
+    {
+        return *sceneUniformBuffer;
+    }
+
+    size_t Renderer3D::GetNumRenderableEntities() const
+    {
+        return renderable.size();
+    }
+
+    SpaceObject& Renderer3D::GetSpaceObject(const size_t i)
+    {
+        return renderable[i]->GetSpaceObject();
+    }
+
+    PerspectiveSpace& Renderer3D::GetPerspectiveSpace()
+    {
+        return *perspectiveSpace;
     }
 }

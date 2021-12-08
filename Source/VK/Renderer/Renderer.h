@@ -37,12 +37,9 @@ namespace VK
     public:
         Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
-        SpaceObject& Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset);
-
         virtual void Record(const size_t cmdIndex) = 0;
         void RecordAll();
 
-        void UpdateUniformBuffers(const float ratio);
         void Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex = 0, const uint32_t signalSemaphoreIndex = 1);
 
         CommandBuffer& GetCommandBuffer(const size_t i);
@@ -52,25 +49,8 @@ namespace VK
 
         const DescriptorSetLayout& GetDescriptorSetLayout() const;
 
-        EntityUniformBuffer<EntityUBO>& GetEntityUBO();
-        SceneUniformBuffer<SceneUBO>& GetSceneUBO();
-
-        size_t GetNumRenderableEntities() const;
-        SpaceObject& GetSpaceObject(const size_t i);
-
-        PerspectiveSpace& GetPerspectiveSpace();
-        // OrthogonalSpace& GetOrthogonalSpace();
-
     protected:
         GraphicsContext& ctx;
-
-        std::vector<Ptr<IRenderable>> renderable;
-
-        Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
-        Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        Ptr<PerspectiveSpace> perspectiveSpace;
-        // Ptr<OrthogonalSpace> orthogonalSpace;
-        void CreateUniformBuffers();
 
         std::vector<Ptr<CommandPool>> commandPools;
         std::vector<Ptr<CommandBuffer>> commandBuffers;
