@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../GraphicsContext.h"
+#include "../Image/Texture2D.h"
 #include "../Common.h"
 #include "Renderer.h"
 
@@ -33,6 +34,12 @@ namespace VK
 
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
+        
+        struct 
+        {
+            std::vector< Ref<Image> > image;
+            std::vector< Ref<ImageView> > imageView;
+        } output;
 
     private:
         void CreateGraphicsResources(
@@ -41,6 +48,8 @@ namespace VK
             const size_t samples, 
             const RendererFlags flags
         );
+
+        // Ptr<Texture2D> outputTexture;
 
         Ptr<Pipeline> pipeline;
 

@@ -106,7 +106,7 @@ int main()
             shaderGUI.fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            RendererFlags_Load | RendererFlags_UseDepth
+            RendererFlags_UseDepth
         );
 
         VK::RendererImGui rendererImGui(
@@ -138,6 +138,11 @@ int main()
         rendererGUI.GetSpaceObject(0).SetScale(-512.0f);
         rendererGUI.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
         rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
+
+        VK::DescriptorSet& set = rendererGUI.renderable[0]->GetDescriptorSet();
+        rendererGUI.renderable[0]->GetDescriptorSet().Update({
+            VK::CreateWriteDescriptorSet(&set, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &renderer3D.output.imageView[0]->GetVkDescriptor())
+        });
         
         renderer3D.RecordAll();
         rendererGUI.RecordAll();
@@ -155,8 +160,8 @@ int main()
 
             if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
             {
-                renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.002f;
-                renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.002f;
+                renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.07f;
+                renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.07f;
             }
 
             if (window.GetKeyboard().KeyDown(GLFW_KEY_W))

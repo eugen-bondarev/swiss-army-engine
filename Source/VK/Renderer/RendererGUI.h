@@ -33,6 +33,8 @@ namespace VK
 
         size_t GetNumRenderableEntities() const;
         SpaceObject& GetSpaceObject(const size_t i);
+        
+        std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex2D>>> renderable;
 
     private:
         void CreateGraphicsResources(
@@ -46,7 +48,6 @@ namespace VK
 
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
-        std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex2D>>> renderable;
         Ptr<OrthogonalSpace> orthogonalSpace;
         void CreateUniformBuffers();
 

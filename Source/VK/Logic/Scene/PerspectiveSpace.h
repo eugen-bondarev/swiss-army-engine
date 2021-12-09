@@ -21,7 +21,7 @@ namespace VK
         struct
         {
             Vec3f position {0.0f};
-            Vec3f rotation {0.0f};
+            Vec3f rotation {0.0f, 35.0f, 0.0f};
         } camera;
 
     private:

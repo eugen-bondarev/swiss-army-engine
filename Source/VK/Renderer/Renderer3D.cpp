@@ -84,20 +84,32 @@ namespace VK
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Output ?
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		swapChainAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		swapChainAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		swapChainAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		swapChainAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        swapChainAttachment.initialLayout =
-            flags & RendererFlags_Load ?
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                VK_IMAGE_LAYOUT_UNDEFINED;
+        // swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        // swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        // swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Load ?
-                VK_ATTACHMENT_LOAD_OP_LOAD :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        // swapChainAttachment.finalLayout = 
+        //     flags & RendererFlags_Output ?
+        //         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
+        //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        // swapChainAttachment.initialLayout =
+        //     flags & RendererFlags_Load ?
+        //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+        //         VK_IMAGE_LAYOUT_UNDEFINED;
+
+        // swapChainAttachment.loadOp =
+        //     flags & RendererFlags_Load ?
+        //         VK_ATTACHMENT_LOAD_OP_LOAD :
+        //         VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
         attachments.push_back(swapChainAttachment);
 
@@ -140,18 +152,38 @@ namespace VK
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+        output.image.resize(3);
+        output.imageView.resize(3);
+
+        output.image[0] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        output.image[1] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        output.image[2] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        output.imageView[0] = CreateRef<ImageView>(*output.image[0], output.image[0]->GetVkFormat());
+        output.imageView[1] = CreateRef<ImageView>(*output.image[1], output.image[1]->GetVkFormat());
+        output.imageView[2] = CreateRef<ImageView>(*output.image[2], output.image[2]->GetVkFormat());
+
+        // renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+        renderTarget = CreatePtr<RenderTarget>(
+            ctx.GetSwapChain().GetSize(), 
+            output.imageView,
+            // ctx.GetSwapChain().GetImageViews(), 
+            pipeline->GetRenderPass(), 
+            samples, 
+            flags & RendererFlags_UseDepth
+        );
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+            // renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
         });
     }
 
-    void Renderer3D::Record(const size_t cmdIndex)
+    void Renderer3D::Record(const size_t cmdIndex__)
     {
+        const size_t cmdIndex {cmdIndex__};
+
         VK::CommandPool& pool = GetCommandPool(cmdIndex);
         VK::CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
         const Framebuffer& framebuffer = renderTarget->GetFramebuffer(cmdIndex);
