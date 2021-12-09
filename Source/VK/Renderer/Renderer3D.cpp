@@ -84,32 +84,33 @@ namespace VK
         AttachmentDescriptions attachments;
         VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-		swapChainAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		swapChainAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		swapChainAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		swapChainAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        VK_ASSERT(!(flags & RendererFlags_Output && flags & RendererFlags_Offscreen));
+        VK_ASSERT(!(flags & RendererFlags_Clear && flags & RendererFlags_Load));
 
-        // swapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        // swapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        // swapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        swapChainAttachment.finalLayout = 
+            flags & RendererFlags_Output ?
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        // swapChainAttachment.finalLayout = 
-        //     flags & RendererFlags_Output ?
-        //         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-        //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        swapChainAttachment.finalLayout = 
+            flags & RendererFlags_Offscreen ?
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL :
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        // swapChainAttachment.initialLayout =
-        //     flags & RendererFlags_Load ?
-        //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-        //         VK_IMAGE_LAYOUT_UNDEFINED;
+        swapChainAttachment.initialLayout =
+            flags & RendererFlags_Load || !(flags & RendererFlags_Clear) ?
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                VK_IMAGE_LAYOUT_UNDEFINED;
 
-        // swapChainAttachment.loadOp =
-        //     flags & RendererFlags_Load ?
-        //         VK_ATTACHMENT_LOAD_OP_LOAD :
-        //         VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        swapChainAttachment.loadOp =
+            flags & RendererFlags_Load ?
+                VK_ATTACHMENT_LOAD_OP_LOAD :
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+
+        swapChainAttachment.loadOp =
+            flags & RendererFlags_Clear ?
+                VK_ATTACHMENT_LOAD_OP_CLEAR :
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
         attachments.push_back(swapChainAttachment);
 

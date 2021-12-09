@@ -26,8 +26,10 @@ enum RendererFlags_
 {
     RendererFlags_None      = 1 << 0,
     RendererFlags_Load      = 1 << 1,
-    RendererFlags_Output    = 1 << 2,
-    RendererFlags_UseDepth  = 1 << 3,
+    RendererFlags_Clear     = 1 << 2,
+    RendererFlags_Output    = 1 << 3,
+    RendererFlags_UseDepth  = 1 << 4,
+    RendererFlags_Offscreen = 1 << 5,
 };
 
 namespace VK

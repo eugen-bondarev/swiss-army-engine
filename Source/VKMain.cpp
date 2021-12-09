@@ -98,7 +98,7 @@ int main()
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            RendererFlags_UseDepth
+            RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
 
         VK::RendererGUI rendererGUI(
