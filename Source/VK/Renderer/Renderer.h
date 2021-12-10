@@ -57,6 +57,9 @@ namespace VK
         std::vector<Ptr<CommandPool>> commandPools;
         std::vector<Ptr<CommandBuffer>> commandBuffers;
         void CreateCmdEntities(const size_t numCmdBuffers);
+
+        size_t samples;
+        RendererFlags flags;
         
         Ptr<DescriptorSetLayout> descriptorSetLayout;
         Ptr<RenderTarget> renderTarget;

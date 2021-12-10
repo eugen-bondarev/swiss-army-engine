@@ -44,9 +44,7 @@ namespace VK
     private:
         void CreateGraphicsResources(
             const std::string& vertexShaderCode, 
-            const std::string& fragmentShaderCode, 
-            const size_t samples, 
-            const RendererFlags flags
+            const std::string& fragmentShaderCode
         );
 
         // Ptr<Texture2D> outputTexture;

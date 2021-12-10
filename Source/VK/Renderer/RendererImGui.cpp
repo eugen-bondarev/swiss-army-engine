@@ -15,6 +15,9 @@ namespace VK
         GraphicsContext& ctx
     ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
+        this->samples = samples;
+        this->flags = flags;
+
         needsResize.resize(GetNumCmdBuffers());
 
         for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;
@@ -86,7 +89,7 @@ namespace VK
             // orthogonalSpace->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, this->samples, false);
         });
     }
 

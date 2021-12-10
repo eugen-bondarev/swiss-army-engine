@@ -16,6 +16,9 @@ namespace VK
         GraphicsContext& ctx
     ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
+        this->samples = samples;
+        this->flags = flags;
+
         needsResize.resize(GetNumCmdBuffers());
 
         for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;
@@ -31,9 +34,7 @@ namespace VK
 
         CreateGraphicsResources(
             vertexShaderCode,
-            fragmentShaderCode,
-            samples,
-            flags
+            fragmentShaderCode
         );
     }
 
@@ -66,9 +67,7 @@ namespace VK
 
     void RendererGUI::CreateGraphicsResources(
         const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t samples,
-        const RendererFlags flags
+        const std::string& fragmentShaderCode 
     )
     {
         const std::vector<VkDescriptorSetLayoutBinding> bindings({
@@ -147,7 +146,8 @@ namespace VK
             // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), this->samples, this->flags & RendererFlags_UseDepth);
+            // RecordAll();
         });
     }
 

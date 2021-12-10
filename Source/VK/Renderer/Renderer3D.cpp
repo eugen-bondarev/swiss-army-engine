@@ -16,6 +16,9 @@ namespace VK
         GraphicsContext& ctx
     ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
+        this->samples = samples;
+        this->flags = flags;
+
         needsResize.resize(GetNumCmdBuffers());
 
         for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;
@@ -31,9 +34,7 @@ namespace VK
 
         CreateGraphicsResources(
             vertexShaderCode,
-            fragmentShaderCode,
-            samples,
-            flags
+            fragmentShaderCode
         );
     }
 
@@ -66,9 +67,7 @@ namespace VK
 
     void Renderer3D::CreateGraphicsResources(
         const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t samples,
-        const RendererFlags flags
+        const std::string& fragmentShaderCode
     )
     {
         const std::vector<VkDescriptorSetLayoutBinding> bindings({
@@ -153,31 +152,31 @@ namespace VK
             ctx.GetDevice()
         );
 
-        output.image.resize(3);
-        output.imageView.resize(3);
+        output.image.resize(3); output.imageView.resize(output.image.size());
 
-        output.image[0] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-        output.image[1] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-        output.image[2] = CreateRef<Image>(Vec2ui(1024, 768), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-        output.imageView[0] = CreateRef<ImageView>(*output.image[0], output.image[0]->GetVkFormat());
-        output.imageView[1] = CreateRef<ImageView>(*output.image[1], output.image[1]->GetVkFormat());
-        output.imageView[2] = CreateRef<ImageView>(*output.image[2], output.image[2]->GetVkFormat());
+        for (size_t i = 0; i < output.image.size(); ++i)
+        {
+            output.image[i] = CreateRef<Image>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+            output.imageView[i] = CreateRef<ImageView>(*output.image[i], output.image[i]->GetVkFormat());
+        }
 
-        // renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
-        renderTarget = CreatePtr<RenderTarget>(
-            ctx.GetSwapChain().GetSize(), 
-            output.imageView,
-            // ctx.GetSwapChain().GetImageViews(), 
-            pipeline->GetRenderPass(), 
-            samples, 
-            flags & RendererFlags_UseDepth
-        );
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), output.imageView, pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             vkQueueWaitIdle(Queues::graphicsQueue);
+            for (size_t i = 0; i < output.image.size(); ++i)
+            {
+                output.image[i].reset();
+                output.image[i] = CreateRef<Image>(newSize, ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+                output.imageView[i].reset();
+                output.imageView[i] = CreateRef<ImageView>(*output.image[i], output.image[i]->GetVkFormat());
+            }
+
             renderTarget.reset();
-            // renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), output.imageView, pipeline->GetRenderPass(), this->samples, this->flags & RendererFlags_UseDepth);
+            RecordAll();
         });
     }
 

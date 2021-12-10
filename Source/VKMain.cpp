@@ -143,6 +143,15 @@ int main()
         rendererGUI.renderable[0]->GetDescriptorSet().Update({
             VK::CreateWriteDescriptorSet(&set, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &renderer3D.output.imageView[0]->GetVkDescriptor())
         });
+
+        window.ResizeSubscribe([&](const Vec2ui newSize)
+        {
+            VK::DescriptorSet& set = rendererGUI.renderable[0]->GetDescriptorSet();
+            rendererGUI.renderable[0]->GetDescriptorSet().Update({
+                VK::CreateWriteDescriptorSet(&set, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &renderer3D.output.imageView[0]->GetVkDescriptor())
+            });
+            rendererGUI.RecordAll();
+        });
         
         renderer3D.RecordAll();
         rendererGUI.RecordAll();
