@@ -69,8 +69,8 @@ int main()
         renderer3D.GetSpaceObject(1).SetPosition(-5, -5, -25);
 
         rendererGUI.Add(square, characterTexture);
-        rendererGUI.GetSpaceObject(0).SetScale(-512.0f);
-        rendererGUI.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
+        rendererGUI.GetSpaceObject(0).SetScale(-Math::CastTo<Vec2f>(window.GetSize()), 1.0f);
+        rendererGUI.GetSpaceObject(0).SetPosition(0.0f, 0.0f, 0.0f);
         rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
         rendererGUI.renderable[0]->GetDescriptorSet().SetBinding(2, renderer3D.output.imageView[0]->GetVkDescriptor());
 
@@ -140,10 +140,10 @@ int main()
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-                ImGui::Begin("Scene");
-                {
-                    ImGui::End();
-                } 
+                // ImGui::Begin("Scene");
+                // {
+                //     ImGui::End();
+                // } 
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
@@ -164,12 +164,12 @@ int main()
             renderer3D.UpdateUniformBuffers(window.GetAspectRatio());
             rendererGUI.UpdateUniformBuffers(window.GetAspectRatio());
 
-                static float theta {0}; theta += deltaTime * 0.5f;
-                for (size_t i = 0; i < renderer3D.GetNumRenderableEntities(); ++i)
-                {
-                    VK::SpaceObject& spaceObject = renderer3D.GetSpaceObject(i);
-                    spaceObject.SetRotationY(theta);
-                }
+            static float theta {0}; theta += deltaTime * 0.5f;
+            for (size_t i = 0; i < renderer3D.GetNumRenderableEntities(); ++i)
+            {
+                VK::SpaceObject& spaceObject = renderer3D.GetSpaceObject(i);
+                spaceObject.SetRotationY(theta);
+            }
 
             sequence.Render();
 
