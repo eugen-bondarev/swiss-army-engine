@@ -97,7 +97,7 @@ int main()
             vertexShaderCode,
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
-            0,
+            8,
             RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
 

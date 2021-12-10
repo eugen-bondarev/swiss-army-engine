@@ -125,13 +125,9 @@ namespace VK
             colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-            colorAttachmentResolve.loadOp = swapChainAttachment.loadOp;
+            colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
-            
-            colorAttachmentResolve.finalLayout = 
-                flags & RendererFlags_Output ? 
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : 
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;            
 
             attachments.push_back(colorAttachmentResolve);
         }

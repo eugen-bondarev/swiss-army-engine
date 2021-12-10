@@ -140,11 +140,11 @@ namespace VK
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), this->samples, this->flags & RendererFlags_UseDepth);
-            // RecordAll();
+
+            orthogonalSpace->Set(-Math::CastTo<Vec2f>(newSize).x / 2.0f, newSize.x / 2.0f, -Math::CastTo<Vec2f>(newSize).y / 2.0f, newSize.y / 2.0f, 1.0f);
         });
     }
 
