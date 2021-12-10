@@ -15,9 +15,6 @@ namespace VK
         GraphicsContext& ctx
     ) : Renderer(numCmdBuffers, samples, flags, ctx)
     {
-        this->samples = samples;
-        this->flags = flags;
-
         needsResize.resize(GetNumCmdBuffers());
 
         for (size_t i = 0; i < needsResize.size(); ++i) needsResize[i] = true;

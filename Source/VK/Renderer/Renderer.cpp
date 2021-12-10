@@ -24,7 +24,7 @@ namespace VK
     }
 
     Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& ctx) 
-        : ctx {ctx}
+        : ctx {ctx}, samples {samples}, flags {flags}
     {
         CreateCmdEntities(numCmdBuffers);
 
