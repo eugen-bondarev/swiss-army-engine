@@ -19,6 +19,8 @@ namespace VK
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
 
+       ~RendererImGui();
+
         void Record(const size_t cmdIndex) override;
 
         RenderPass& GetRenderPass();

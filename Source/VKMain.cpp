@@ -12,59 +12,6 @@
 #include <glm.hpp>
 #include "VK/VK.h"
 
-void ImGuiInit(
-    GLFWwindow* handle, 
-    const VkInstance& vkInstance, 
-    const VkPhysicalDevice& vkPhysicalDevice,
-    const VkDevice& vkDevice,
-    const uint32_t queueFamily,
-    const VkQueue& queue,
-    const VK::DescriptorPool& descriptorPool,
-    const VK::RenderPass& renderPass
-)
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForVulkan(handle, true);
-    ImGui_ImplVulkan_InitInfo initInfo{};
-    initInfo.Instance = vkInstance;
-    initInfo.PhysicalDevice = vkPhysicalDevice;
-    initInfo.Device = vkDevice;
-    initInfo.QueueFamily = queueFamily;
-    initInfo.Queue = queue;
-    initInfo.PipelineCache = nullptr;
-    initInfo.DescriptorPool = descriptorPool.GetVkDescriptorPool();
-    initInfo.Allocator = nullptr;
-    initInfo.MinImageCount = 3;
-    initInfo.ImageCount = 3;
-    initInfo.CheckVkResultFn = nullptr;
-    ImGui_ImplVulkan_Init(&initInfo, renderPass.GetVkRenderPass());
-
-    const VK::CommandPool pool;
-    const VK::CommandBuffer cmd(pool);
-
-    cmd.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        ImGui_ImplVulkan_CreateFontsTexture(cmd.GetVkCommandBuffer());
-    cmd.End();
-
-    cmd.SubmitToQueue(queue);
-
-    vkDeviceWaitIdle(vkDevice);
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
-}
-
-void ImGuiShutdown()
-{    
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
 static const Util::ModelAsset<PredefinedVertexLayouts::Vertex2D> square = {
     { { { -0.5f, -0.5f }, {1, 1} },
       { { -0.5f,  0.5f }, {1, 0} },
@@ -91,8 +38,6 @@ int main()
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));
 
-        // Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 3, 4, 3);
-
         VK::RenderSequence sequence;
 
         VK::Renderer3D& renderer3D = sequence.Emplace<VK::Renderer3D>(
@@ -117,17 +62,6 @@ int main()
             RendererFlags_Load | RendererFlags_Output
         );
         sequence.InitFrames();
-
-        ImGuiInit(
-            window.GetHandle(),
-            VK::GetInstance().GetVkInstance(),
-            VK::GetDevice().GetVkPhysicalDevice(),
-            VK::GetDevice().GetVkDevice(),
-            VK::Queues::indices.graphicsFamily.value(),
-            VK::Queues::graphicsQueue,
-            VK::GetDefaultDescriptorPool(),
-            rendererImGui.GetRenderPass()
-        );
 
         for (size_t i = 0; i < 2; ++i)
         {
@@ -209,10 +143,10 @@ int main()
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-                // ImGui::Begin("Scene");
-                // {
-                //     ImGui::End();
-                // } 
+                ImGui::Begin("Scene");
+                {
+                    ImGui::End();
+                } 
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
@@ -244,9 +178,7 @@ int main()
 
             window.EndFrame();
         }
-
         VK::GetDevice().WaitIdle();
-        ImGuiShutdown();
     }
     catch (const std::runtime_error& exception)
     {

@@ -1,10 +1,65 @@
 #include "RendererImGui.h"
 
+#include "../Descriptors/DescriptorPool.h"
 #include "../SwapChain/SwapChain.h"
 #include "../Device/QueueFamily.h"
+#include "../Instance/Instance.h"
 #include <imgui_impl_vulkan.h>
 #include "../Device/Device.h"
 #include <imgui_impl_glfw.h>
+
+void ImGuiInit(
+    GLFWwindow* handle, 
+    const VkInstance& vkInstance, 
+    const VkPhysicalDevice& vkPhysicalDevice,
+    const VkDevice& vkDevice,
+    const uint32_t queueFamily,
+    const VkQueue& queue,
+    const VK::DescriptorPool& descriptorPool,
+    const VK::RenderPass& renderPass
+)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForVulkan(handle, true);
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = vkInstance;
+    initInfo.PhysicalDevice = vkPhysicalDevice;
+    initInfo.Device = vkDevice;
+    initInfo.QueueFamily = queueFamily;
+    initInfo.Queue = queue;
+    initInfo.PipelineCache = nullptr;
+    initInfo.DescriptorPool = descriptorPool.GetVkDescriptorPool();
+    initInfo.Allocator = nullptr;
+    initInfo.MinImageCount = 3;
+    initInfo.ImageCount = 3;
+    initInfo.CheckVkResultFn = nullptr;
+    ImGui_ImplVulkan_Init(&initInfo, renderPass.GetVkRenderPass());
+
+    const VK::CommandPool pool;
+    const VK::CommandBuffer cmd(pool);
+
+    cmd.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        ImGui_ImplVulkan_CreateFontsTexture(cmd.GetVkCommandBuffer());
+    cmd.End();
+
+    cmd.SubmitToQueue(queue);
+
+    vkDeviceWaitIdle(vkDevice);
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+void ImGuiShutdown()
+{    
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
 
 namespace VK
 {
@@ -31,15 +86,6 @@ namespace VK
             flags
         );
 
-        // ctx.GetWindow().BeginFrameSubscribe([&]()
-        // {
-        //     ImGui_ImplVulkan_NewFrame();
-        //     ImGui_ImplGlfw_NewFrame();
-        //     ImGui::NewFrame();
-        //         ImGui::ShowDemoWindow();
-        //     ImGui::Render();
-        // });
-
         ctx.GetWindow().EndFrameSubscribe([&]()
         {
             if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -48,6 +94,22 @@ namespace VK
                 ImGui::RenderPlatformWindowsDefault();
             }
         });
+
+        ImGuiInit(
+            ctx.GetWindow().GetHandle(),
+            GetInstance().GetVkInstance(),
+            GetDevice().GetVkPhysicalDevice(),
+            GetDevice().GetVkDevice(),
+            VK::Queues::indices.graphicsFamily.value(),
+            VK::Queues::graphicsQueue,
+            VK::GetDefaultDescriptorPool(),
+            GetRenderPass()
+        );
+    }
+
+    RendererImGui::~RendererImGui()
+    {
+        ImGuiShutdown();
     }
 
     void RendererImGui::CreateGraphicsResources(const size_t samples, const RendererFlags flags)
