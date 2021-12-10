@@ -106,7 +106,7 @@ int main()
             shaderGUI.fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
             0,
-            RendererFlags_UseDepth
+            RendererFlags_None
         );
 
         VK::RendererImGui rendererImGui(
@@ -139,17 +139,11 @@ int main()
         rendererGUI.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
         rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
 
-        VK::DescriptorSet& set = rendererGUI.renderable[0]->GetDescriptorSet();
-        rendererGUI.renderable[0]->GetDescriptorSet().Update({
-            VK::CreateWriteDescriptorSet(&set, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &renderer3D.output.imageView[0]->GetVkDescriptor())
-        });
+        rendererGUI.renderable[0]->GetDescriptorSet().SetBinding(2, renderer3D.output.imageView[0]->GetVkDescriptor());
 
         window.ResizeSubscribe([&](const Vec2ui newSize)
         {
-            VK::DescriptorSet& set = rendererGUI.renderable[0]->GetDescriptorSet();
-            rendererGUI.renderable[0]->GetDescriptorSet().Update({
-                VK::CreateWriteDescriptorSet(&set, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &renderer3D.output.imageView[0]->GetVkDescriptor())
-            });
+            rendererGUI.renderable[0]->GetDescriptorSet().SetBinding(2, renderer3D.output.imageView[0]->GetVkDescriptor());
             rendererGUI.RecordAll();
         });
         
@@ -210,8 +204,8 @@ int main()
             ImGui::NewFrame();
                 // ImGui::Begin("Scene");
                 // {
+                //     ImGui::End();
                 // }
-                // ImGui::End();
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
