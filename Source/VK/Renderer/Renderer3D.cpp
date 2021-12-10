@@ -145,7 +145,7 @@ namespace VK
             ctx.GetDevice()
         );
 
-        output.image.resize(3); output.imageView.resize(output.image.size());
+        output.image.resize(1); output.imageView.resize(output.image.size());
 
         for (size_t i = 0; i < output.image.size(); ++i)
         {
@@ -173,13 +173,11 @@ namespace VK
         });
     }
 
-    void Renderer3D::Record(const size_t cmdIndex__)
+    void Renderer3D::Record(const size_t cmdIndex)
     {
-        const size_t cmdIndex {cmdIndex__};
-
         VK::CommandPool& pool = GetCommandPool(cmdIndex);
         VK::CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
-        const Framebuffer& framebuffer = renderTarget->GetFramebuffer(cmdIndex);
+        const Framebuffer& framebuffer = renderTarget->GetFramebuffer();
 
         pool.Reset();
         cmd.Begin();
