@@ -15,25 +15,21 @@ namespace VK
 
         if (useDepth && !useMultisample)
         {
-            LINE_OUT("Case 1");
             attachments = {imageView.GetVkImageView(), depthImageView->GetVkImageView()};
         }
 
         if (useDepth && useMultisample)
         {
-            LINE_OUT("Case 2");
             attachments = {multisampleImageView->GetVkImageView(), depthImageView->GetVkImageView(), imageView.GetVkImageView()};
         }
 
         if (!useDepth && !useMultisample)
         {
-            LINE_OUT("Case 3");
             attachments = {imageView.GetVkImageView()};
         }
 
         if (!useDepth && useMultisample)
         {
-            LINE_OUT("Case 4");
             attachments = {multisampleImageView->GetVkImageView(), imageView.GetVkImageView()};
         }
 

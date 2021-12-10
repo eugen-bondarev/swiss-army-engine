@@ -91,7 +91,7 @@ namespace VK
         swapChainAttachment.finalLayout = 
             flags & RendererFlags_Offscreen ?
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                swapChainAttachment.finalLayout;
 
         swapChainAttachment.initialLayout =
             flags & RendererFlags_Load || !(flags & RendererFlags_Clear) ?
@@ -106,7 +106,7 @@ namespace VK
         swapChainAttachment.loadOp =
             flags & RendererFlags_Clear ?
                 VK_ATTACHMENT_LOAD_OP_CLEAR :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                swapChainAttachment.loadOp;
 
         attachments.push_back(swapChainAttachment);
 
