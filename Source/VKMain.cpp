@@ -91,9 +91,11 @@ int main()
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));
 
-        Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 3, 4, 3);
+        // Ptr<VK::FrameManager> frameManager = CreatePtr<VK::FrameManager>(0, 3, 4, 3);
 
-        VK::Renderer3D renderer3D(
+        VK::RenderSequence sequence;
+
+        VK::Renderer3D& renderer3D = sequence.Emplace<VK::Renderer3D>(
             vertexShaderCode,
             fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
@@ -101,7 +103,7 @@ int main()
             RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
 
-        VK::RendererGUI rendererGUI(
+        VK::RendererGUI& rendererGUI = sequence.Emplace<VK::RendererGUI>(
             shaderGUI.vertexShaderCode,
             shaderGUI.fragmentShaderCode,
             VK::GetSwapChain().GetNumBuffers(),
@@ -109,11 +111,12 @@ int main()
             RendererFlags_None
         );
 
-        VK::RendererImGui rendererImGui(
+        VK::RendererImGui& rendererImGui = sequence.Emplace<VK::RendererImGui>(
             VK::GetSwapChain().GetNumBuffers(),
             0,
             RendererFlags_Load | RendererFlags_Output
         );
+        sequence.InitFrames();
 
         ImGuiInit(
             window.GetHandle(),
@@ -138,7 +141,6 @@ int main()
         rendererGUI.GetSpaceObject(0).SetScale(-512.0f);
         rendererGUI.GetSpaceObject(0).SetPosition(-256.0f, 0.0f, 0.0f);
         rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
-
         rendererGUI.renderable[0]->GetDescriptorSet().SetBinding(2, renderer3D.output.imageView[0]->GetVkDescriptor());
 
         window.ResizeSubscribe([&](const Vec2ui newSize)
@@ -149,6 +151,11 @@ int main()
         
         renderer3D.RecordAll();
         rendererGUI.RecordAll();
+
+        sequence.inFrame.push_back([&]()
+        {
+            rendererImGui.Record(VK::GetSwapChain().GetCurrentImageIndex());
+        }); 
 
         while (window.IsRunning())
         {
@@ -205,7 +212,7 @@ int main()
                 // ImGui::Begin("Scene");
                 // {
                 //     ImGui::End();
-                // }
+                // } 
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
@@ -226,22 +233,14 @@ int main()
             renderer3D.UpdateUniformBuffers(window.GetAspectRatio());
             rendererGUI.UpdateUniformBuffers(window.GetAspectRatio());
 
-            frameManager->AcquireSwapChainImage();
-
-                rendererImGui.Record(VK::GetSwapChain().GetCurrentImageIndex());
-
                 static float theta {0}; theta += deltaTime * 0.5f;
                 for (size_t i = 0; i < renderer3D.GetNumRenderableEntities(); ++i)
                 {
                     VK::SpaceObject& spaceObject = renderer3D.GetSpaceObject(i);
                     spaceObject.SetRotationY(theta);
                 }
-                
-                renderer3D.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 0, 1);
-                rendererGUI.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), false, 1, 2);
-                rendererImGui.Render(frameManager->GetCurrentFrame(), VK::GetSwapChain().GetCurrentImageIndex(), true, 2, 3);
-            
-            frameManager->Present();
+
+            sequence.Render();
 
             window.EndFrame();
         }
