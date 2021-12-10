@@ -1,15 +1,11 @@
-#include <gtc/matrix_transform.hpp>
 #include "Window/Events/Keyboard.h"
 #include "Window/Events/Mouse.h"
 #include "Util/Shaders/SPIRV.h"
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
-#include "Util/Aligned.h"
 #include "Util/Assets.h"
 #include "API/Window.h"
-#include "Util/Path.h"
 #include <imgui.h>
-#include <glm.hpp>
 #include "VK/VK.h"
 
 static const Util::ModelAsset<PredefinedVertexLayouts::Vertex2D> square = {
@@ -61,6 +57,7 @@ int main()
             0,
             RendererFlags_Load | RendererFlags_Output
         );
+        
         sequence.InitFrames();
 
         for (size_t i = 0; i < 2; ++i)
