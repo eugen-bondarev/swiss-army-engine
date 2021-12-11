@@ -189,7 +189,7 @@ namespace VK
                 needsResize[cmdIndex] = false;
             }
 
-            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
+            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer, {0.1f, 0.4f, 0.9f, 1.0f});
                 cmd.BindPipeline(*pipeline);
                     for (size_t i = 0; i < renderable.size(); ++i)
                     {

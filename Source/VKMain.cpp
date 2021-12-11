@@ -69,7 +69,8 @@ int main()
         renderer3D.GetSpaceObject(1).SetPosition(-5, -5, -25);
 
         rendererGUI.Add(square, characterTexture);
-        rendererGUI.GetSpaceObject(0).SetScale(-Math::CastTo<Vec2f>(window.GetSize()), 1.0f);
+        // rendererGUI.GetSpaceObject(0).SetScale(-Math::CastTo<Vec2f>(window.GetSize()), 1.0f);
+        rendererGUI.GetSpaceObject(0).SetScale(-512.0f, -512.0f, 1.0f);
         rendererGUI.GetSpaceObject(0).SetPosition(0.0f, 0.0f, 0.0f);
         rendererGUI.GetOrthogonalSpace().Set(-512.0f, 512.0f, -384.0f, 384.0f, 1.0f);
         rendererGUI.renderable[0]->GetDescriptorSet().SetBinding(2, renderer3D.output.imageView[0]->GetVkDescriptor());
@@ -94,45 +95,48 @@ int main()
 
             const float speed {window.GetDeltaTime() * 10.0f};
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_ESCAPE))
+            if (!ImGui::GetIO().WantCaptureMouse)
             {
-                window.Close();
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_ESCAPE))
+                {
+                    window.Close();
+                }
 
-            if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-            {
-                renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.07f;
-                renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.07f;
-            }
+                if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.07f;
+                    renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.07f;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position.y += speed;
-            }
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position.y += speed;
+                }
 
-            if (window.GetKeyboard().KeyDown(GLFW_KEY_LEFT_SHIFT))
-            {
-                renderer3D.GetPerspectiveSpace().camera.position.y -= speed;
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_LEFT_SHIFT))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position.y -= speed;
+                }
             }
 
             renderer3D.GetPerspectiveSpace().UpdateProjectionMatrix();
@@ -140,10 +144,10 @@ int main()
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-                // ImGui::Begin("Scene");
-                // {
-                //     ImGui::End();
-                // } 
+                ImGui::Begin("Scene");
+                {
+                    ImGui::End();
+                } 
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};
