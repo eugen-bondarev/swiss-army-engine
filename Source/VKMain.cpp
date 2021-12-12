@@ -130,14 +130,16 @@ int main()
 
             renderer3D.GetPerspectiveSpace().UpdateProjectionMatrix();
 
-            ImGui_ImplVulkan_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-                // ImGui::Begin("Scene");
-                // {
-                //     ImGui::End();
-                // } 
-            ImGui::Render();
+            static bool show {true};
+            if (show)
+            {
+                ImGui::Begin("Foo");
+                ImGui::End();
+            }
+
+            ImGui::Begin("Bar");
+                ImGui::Checkbox("Show foo?", &show);
+            ImGui::End();
 
             const float deltaTime {window.GetDeltaTime()};
             static float timer {0}; timer += deltaTime;

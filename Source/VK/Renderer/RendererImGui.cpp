@@ -81,6 +81,8 @@ namespace VK
 
         ctx.GetWindow().EndFrameSubscribe([&]()
         {
+            // ImGui::Render();
+
             if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
             {
                 ImGui::UpdatePlatformWindows();
@@ -132,6 +134,13 @@ namespace VK
             renderTarget.reset();
             renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, 0, false);
         });
+
+        ctx.GetWindow().BeginFrameSubscribe([&]()
+        {
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+        });
     }
 
     void RendererImGui::Record(const size_t cmdIndex)
@@ -158,6 +167,7 @@ namespace VK
 
     void RendererImGui::InFrame()
     {
+        ImGui::Render();
         Record(VK::GetSwapChain().GetCurrentImageIndex());
     }
 
