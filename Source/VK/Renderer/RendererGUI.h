@@ -13,9 +13,8 @@ namespace VK
     {
     public:
         RendererGUI(
-            const std::string& vertexShaderCode,
-            const std::string& fragmentShaderCode,
-            const size_t numCmdBuffers,
+            const std::string& vsCode,
+            const std::string& fsCode,
             const size_t samples,
             const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()

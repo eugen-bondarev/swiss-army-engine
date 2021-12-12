@@ -8,13 +8,12 @@
 namespace VK
 {
     RendererGUI::RendererGUI(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t numCmdBuffers, 
+        const std::string& vsCode, 
+        const std::string& fsCode, 
         const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, flags, ctx)
+    ) : Renderer(GetSwapChain().GetNumBuffers(), samples, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -28,11 +27,7 @@ namespace VK
         });
 
         CreateUniformBuffers();
-
-        CreateGraphicsResources(
-            vertexShaderCode,
-            fragmentShaderCode
-        );
+        CreateGraphicsResources(vsCode, fsCode);
     }
 
     SpaceObject& RendererGUI::Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset)
@@ -63,8 +58,8 @@ namespace VK
     }
 
     void RendererGUI::CreateGraphicsResources(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode 
+        const std::string& vsCode, 
+        const std::string& fsCode 
     )
     {
         const std::vector<VkDescriptorSetLayoutBinding> bindings({
@@ -78,24 +73,13 @@ namespace VK
 		const AttributeDescriptions attributeDescriptors {Vertex2D::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
-        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Output ?
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        VkAttachmentDescription colorAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        colorAttachment.finalLayout = FlagsToFinalImageLayout(flags);
+        colorAttachment.initialLayout = FlagsToInitialImageLayout(flags);
+        colorAttachment.loadOp = FlagsToLoadOp(flags);
 
-        swapChainAttachment.initialLayout =
-            flags & RendererFlags_Load ?
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                VK_IMAGE_LAYOUT_UNDEFINED;
-
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Load ?
-                VK_ATTACHMENT_LOAD_OP_LOAD :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-
-        attachments.push_back(swapChainAttachment);
+        attachments.push_back(colorAttachment);
 
         if (flags & RendererFlags_UseDepth)
         {
@@ -112,8 +96,8 @@ namespace VK
             colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-            colorAttachmentResolve.loadOp = swapChainAttachment.loadOp;
-            colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
+            colorAttachmentResolve.loadOp = colorAttachment.loadOp;
+            colorAttachmentResolve.initialLayout = colorAttachment.initialLayout;
             
             colorAttachmentResolve.finalLayout = 
                 flags & RendererFlags_Output ? 
@@ -124,8 +108,8 @@ namespace VK
         }
 
         pipeline = CreatePtr<Pipeline>(
-            vertexShaderCode, 
-            fragmentShaderCode,
+            vsCode, 
+            fsCode,
             GetSwapChain().GetSize(),
             attachments,
             bindingDescriptors,

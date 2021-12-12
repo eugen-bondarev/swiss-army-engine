@@ -39,7 +39,6 @@ int main()
         VK::Renderer3D& renderer3D = sequence.Emplace<VK::Renderer3D>(
             vertexShaderCode,
             fragmentShaderCode,
-            VK::GetSwapChain().GetNumBuffers(),
             8,
             RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
@@ -47,16 +46,11 @@ int main()
         VK::RendererGUI& rendererGUI = sequence.Emplace<VK::RendererGUI>(
             shaderGUI.vertexShaderCode,
             shaderGUI.fragmentShaderCode,
-            VK::GetSwapChain().GetNumBuffers(),
             0,
             RendererFlags_None
         );
 
-        VK::RendererImGui& rendererImGui = sequence.Emplace<VK::RendererImGui>(
-            VK::GetSwapChain().GetNumBuffers(),
-            0,
-            RendererFlags_Load | RendererFlags_Output
-        );
+        VK::RendererImGui& rendererImGui = sequence.Emplace<VK::RendererImGui>(RendererFlags_Load | RendererFlags_Output);
         
         sequence.InitFrames();
 

@@ -63,12 +63,8 @@ void ImGuiShutdown()
 
 namespace VK
 {
-    RendererImGui::RendererImGui(
-        const size_t numCmdBuffers,
-        const size_t samples,
-        const RendererFlags flags,
-        GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, flags, ctx)
+    RendererImGui::RendererImGui(const RendererFlags flags, GraphicsContext& ctx) 
+        : Renderer(GetSwapChain().GetNumBuffers(), 0, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -81,10 +77,7 @@ namespace VK
             newSize = newViewportSize;
         });
 
-        CreateGraphicsResources(
-            samples,
-            flags
-        );
+        CreateGraphicsResources(flags);
 
         ctx.GetWindow().EndFrameSubscribe([&]()
         {
@@ -112,43 +105,32 @@ namespace VK
         ImGuiShutdown();
     }
 
-    void RendererImGui::CreateGraphicsResources(const size_t samples, const RendererFlags flags)
+    void RendererImGui::CreateGraphicsResources(const RendererFlags flags)
     {
         AttachmentDescriptions attachments;
-        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        
+        VkAttachmentDescription colorAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(0));
+        colorAttachment.finalLayout = FlagsToFinalImageLayout(flags);
+        colorAttachment.initialLayout = FlagsToInitialImageLayout(flags);
+        colorAttachment.loadOp = FlagsToLoadOp(flags);
 
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Output ?
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        swapChainAttachment.initialLayout =
-            flags & RendererFlags_Load ?
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                VK_IMAGE_LAYOUT_UNDEFINED;
-
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Load ?
-                VK_ATTACHMENT_LOAD_OP_LOAD :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-
-        attachments.push_back(swapChainAttachment);
+        attachments.push_back(colorAttachment);
 
         renderPass = CreatePtr<RenderPass>(
             attachments,
-            samples,
+            0,
             false,
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, samples, false);
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, 0, false);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
             // orthogonalSpace->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, this->samples, false);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), *renderPass, 0, false);
         });
     }
 

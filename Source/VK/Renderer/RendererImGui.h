@@ -12,26 +12,16 @@ namespace VK
     class RendererImGui : public Renderer
     {
     public:
-        RendererImGui(
-            const size_t numCmdBuffers,
-            const size_t samples,
-            const RendererFlags flags,
-            GraphicsContext& ctx = GetCurrentGraphicsContext()
-        );
-
+        RendererImGui(const RendererFlags flags, GraphicsContext& ctx = GetCurrentGraphicsContext());
        ~RendererImGui();
 
         void InFrame() override;
-
         void Record(const size_t cmdIndex) override;
 
         RenderPass& GetRenderPass();
 
     private:
-        void CreateGraphicsResources(
-            const size_t samples, 
-            const RendererFlags flags
-        );
+        void CreateGraphicsResources(const RendererFlags flags);
 
         Ptr<RenderPass> renderPass;
         

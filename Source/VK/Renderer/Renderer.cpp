@@ -10,7 +10,30 @@
 #include "../Device/Device.h"
 
 namespace VK
-{
+{    
+    VkImageLayout FlagsToFinalImageLayout(const RendererFlags flags)
+    {
+        VK_ASSERT(!(flags & RendererFlags_Output && flags & RendererFlags_Offscreen));
+        if (flags & RendererFlags_Output) return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        if (flags & RendererFlags_Offscreen) return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+
+    VkImageLayout FlagsToInitialImageLayout(const RendererFlags flags)
+    {
+        VK_ASSERT(!(flags & RendererFlags_Load && flags & RendererFlags_Clear));
+        if (flags & RendererFlags_Load) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        if (flags & RendererFlags_Clear) return VK_IMAGE_LAYOUT_UNDEFINED;
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
+    VkAttachmentLoadOp FlagsToLoadOp(const RendererFlags flags)
+    {
+        if (flags & RendererFlags_Load) return VK_ATTACHMENT_LOAD_OP_LOAD;
+        if (flags & RendererFlags_Clear) return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+
     void Renderer::CreateCmdEntities(const size_t numCmdBuffers)
     {
         commandBuffers.reserve(numCmdBuffers);

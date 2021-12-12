@@ -8,13 +8,12 @@
 namespace VK
 {
     Renderer3D::Renderer3D(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t numCmdBuffers, 
+        const std::string& vsCode, 
+        const std::string& fsCode, 
         const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, flags, ctx)
+    ) : Renderer(GetSwapChain().GetNumBuffers(), samples, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -28,11 +27,7 @@ namespace VK
         });
 
         CreateUniformBuffers();
-
-        CreateGraphicsResources(
-            vertexShaderCode,
-            fragmentShaderCode
-        );
+        CreateGraphicsResources(vsCode, fsCode);
     }
 
     SpaceObject& Renderer3D::Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex3D>& modelAsset, const ::Util::ImageAsset& imageAsset)
@@ -62,10 +57,7 @@ namespace VK
         (*entityUniformBuffer).Overwrite();
     }
 
-    void Renderer3D::CreateGraphicsResources(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode
-    )
+    void Renderer3D::CreateGraphicsResources(const std::string& vertexShaderCode, const std::string& fragmentShaderCode)
     {
         const std::vector<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -78,37 +70,13 @@ namespace VK
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
-        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-        VK_ASSERT(!(flags & RendererFlags_Output && flags & RendererFlags_Offscreen));
-        VK_ASSERT(!(flags & RendererFlags_Clear && flags & RendererFlags_Load));
+        VkAttachmentDescription colorAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        colorAttachment.finalLayout = FlagsToFinalImageLayout(flags);
+        colorAttachment.initialLayout = FlagsToInitialImageLayout(flags);
+        colorAttachment.loadOp = FlagsToLoadOp(flags);
 
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Output ?
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Offscreen ?
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL :
-                swapChainAttachment.finalLayout;
-
-        swapChainAttachment.initialLayout =
-            flags & RendererFlags_Load || !(flags & RendererFlags_Clear) ?
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                VK_IMAGE_LAYOUT_UNDEFINED;
-
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Load ?
-                VK_ATTACHMENT_LOAD_OP_LOAD :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Clear ?
-                VK_ATTACHMENT_LOAD_OP_CLEAR :
-                swapChainAttachment.loadOp;
-
-        attachments.push_back(swapChainAttachment);
+        attachments.push_back(colorAttachment);
 
         if (flags & RendererFlags_UseDepth)
         {
@@ -126,7 +94,7 @@ namespace VK
             colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
             colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
+            colorAttachmentResolve.initialLayout = colorAttachment.initialLayout;
             colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;            
 
             attachments.push_back(colorAttachmentResolve);
@@ -175,8 +143,8 @@ namespace VK
 
     void Renderer3D::Record(const size_t cmdIndex)
     {
-        VK::CommandPool& pool = GetCommandPool(cmdIndex);
-        VK::CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
+        CommandPool& pool = GetCommandPool(cmdIndex);
+        CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
         const Framebuffer& framebuffer = renderTarget->GetFramebuffer();
 
         pool.Reset();
@@ -193,7 +161,7 @@ namespace VK
                 cmd.BindPipeline(*pipeline);
                     for (size_t i = 0; i < renderable.size(); ++i)
                     {
-                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<VK::EntityUBO>::Get())};
+                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<EntityUBO>::Get())};
                         cmd.BindVertexBuffers({renderable[i]->GetVertexBuffer().UnderlyingPtr()}, {0});
                             cmd.BindIndexBuffer(renderable[i]->GetIndexBuffer().UnderlyingRef());
                                 cmd.BindDescriptorSets(*pipeline, 1, &renderable[i]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);

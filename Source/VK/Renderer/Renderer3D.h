@@ -14,9 +14,8 @@ namespace VK
     {
     public:
         Renderer3D(
-            const std::string& vertexShaderCode,
-            const std::string& fragmentShaderCode,
-            const size_t numCmdBuffers,
+            const std::string& vsCode,
+            const std::string& fsCode,
             const size_t samples,
             const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
@@ -37,8 +36,8 @@ namespace VK
         
         struct 
         {
-            std::vector< Ref<Image> > image;
-            std::vector< Ref<ImageView> > imageView;
+            std::vector<Ref<Image>> image;
+            std::vector<Ref<ImageView>> imageView;
         } output;
 
     private:
@@ -47,10 +46,7 @@ namespace VK
             const std::string& fragmentShaderCode
         );
 
-        // Ptr<Texture2D> outputTexture;
-
         Ptr<Pipeline> pipeline;
-
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
         std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex3D>>> renderable;

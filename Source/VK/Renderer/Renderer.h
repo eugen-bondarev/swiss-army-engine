@@ -33,7 +33,11 @@ enum RendererFlags_
 };
 
 namespace VK
-{
+{    
+    VkImageLayout FlagsToFinalImageLayout(const RendererFlags flags);
+    VkImageLayout FlagsToInitialImageLayout(const RendererFlags flags);
+    VkAttachmentLoadOp FlagsToLoadOp(const RendererFlags flags);
+
     class Renderer
     {
     public:
