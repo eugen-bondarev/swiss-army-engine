@@ -51,7 +51,7 @@ namespace VK
         orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
     }
 
-    void RendererGUI::UpdateUniformBuffers(const float ratio)
+    void RendererGUI::UpdateUniformBuffers()
     {
         (*sceneUniformBuffer).Overwrite();
         (*entityUniformBuffer).Overwrite();

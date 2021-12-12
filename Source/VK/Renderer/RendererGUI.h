@@ -24,7 +24,7 @@ namespace VK
         
         SpaceObject& Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset);
 
-        void UpdateUniformBuffers(const float ratio);
+        void UpdateUniformBuffers();
         OrthogonalSpace& GetOrthogonalSpace();
 
         EntityUniformBuffer<EntityUBO>& GetEntityUBO();

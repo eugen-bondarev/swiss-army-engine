@@ -48,13 +48,22 @@ namespace VK
     {        
         entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
         sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
+        perspectiveSpace = CreatePtr<PerspectiveSpace>(sceneUniformBufferRequiresUpdate, &(*sceneUniformBuffer)());
     }
 
-    void Renderer3D::UpdateUniformBuffers(const float ratio)
+    void Renderer3D::UpdateUniformBuffers()
     {
-        (*sceneUniformBuffer).Overwrite();
-        (*entityUniformBuffer).Overwrite();
+        if (sceneUniformBufferRequiresUpdate)
+        {
+            (*sceneUniformBuffer).Overwrite();
+            sceneUniformBufferRequiresUpdate = false;
+        }
+
+        // if (entityUniformBufferRequiresUpdate)
+        {
+            (*entityUniformBuffer).Overwrite();
+            // entityUniformBufferRequiresUpdate = false;
+        }
     }
 
     void Renderer3D::CreateGraphicsResources(const std::string& vertexShaderCode, const std::string& fragmentShaderCode)

@@ -25,7 +25,7 @@ namespace VK
         
         SpaceObject& Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex3D>& modelAsset, const ::Util::ImageAsset& imageAsset);
 
-        void UpdateUniformBuffers(const float ratio);
+        void UpdateUniformBuffers();
         PerspectiveSpace& GetPerspectiveSpace();
 
         EntityUniformBuffer<EntityUBO>& GetEntityUBO();
@@ -47,8 +47,13 @@ namespace VK
         );
 
         Ptr<Pipeline> pipeline;
+
         Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
+        bool entityUniformBufferRequiresUpdate {true};
+
         Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
+        bool sceneUniformBufferRequiresUpdate {true};
+
         std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex3D>>> renderable;
         Ptr<PerspectiveSpace> perspectiveSpace;
         void CreateUniformBuffers();

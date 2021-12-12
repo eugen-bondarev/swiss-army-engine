@@ -11,7 +11,7 @@ namespace VK
     class PerspectiveSpace : public Logic::IPerspective
     {
     public:
-        PerspectiveSpace(SceneUBO* ubo);
+        PerspectiveSpace(bool& wantUpdate, SceneUBO* ubo);
 
         void UpdateProjectionMatrix() override;
 
@@ -25,6 +25,7 @@ namespace VK
         } camera;
 
     private:
+        bool& wantUpdate;
         SceneUBO* ubo;
     };    
 }

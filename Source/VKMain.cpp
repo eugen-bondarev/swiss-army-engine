@@ -20,13 +20,16 @@ int main()
 {
     try
     {
-        const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
-        const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
+        struct
+        {
+            const Util::TextAsset vsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
+            const Util::TextAsset fsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
+        } shader3D;
 
         struct
         {
-            const Util::TextAsset vertexShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/VertexShader.vert")};
-            const Util::TextAsset fragmentShaderCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
+            const Util::TextAsset vsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/VertexShader.vert")};
+            const Util::TextAsset fsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
         } shaderGUI;
 
         const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
@@ -37,15 +40,15 @@ int main()
         VK::RenderSequence sequence;
 
         VK::Renderer3D& renderer3D = sequence.Emplace<VK::Renderer3D>(
-            vertexShaderCode,
-            fragmentShaderCode,
+            shader3D.vsCode,
+            shader3D.fsCode,
             8,
             RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
 
         VK::RendererGUI& rendererGUI = sequence.Emplace<VK::RendererGUI>(
-            shaderGUI.vertexShaderCode,
-            shaderGUI.fragmentShaderCode,
+            shaderGUI.vsCode,
+            shaderGUI.fsCode,
             0,
             RendererFlags_None
         );
@@ -148,8 +151,8 @@ int main()
                 timer = 0;
             }
 
-            renderer3D.UpdateUniformBuffers(window.GetAspectRatio());
-            rendererGUI.UpdateUniformBuffers(window.GetAspectRatio());
+            renderer3D.UpdateUniformBuffers();
+            rendererGUI.UpdateUniformBuffers();
 
             static float theta {0}; theta += deltaTime * 0.5f;
             for (size_t i = 0; i < renderer3D.GetNumRenderableEntities(); ++i)

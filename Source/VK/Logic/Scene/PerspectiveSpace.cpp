@@ -4,7 +4,7 @@
 
 namespace VK
 {    
-    PerspectiveSpace::PerspectiveSpace(SceneUBO* ubo) : ubo {ubo}
+    PerspectiveSpace::PerspectiveSpace(bool& wantUpdate, SceneUBO* ubo) : wantUpdate {wantUpdate}, ubo {ubo}
     {
         UpdateProjectionMatrix();
     }
@@ -21,5 +21,7 @@ namespace VK
 
         forwardVector = -glm::normalize(glm::vec3(glm::inverse(ubo->view)[2]));
         rightVector = glm::normalize(glm::vec3(glm::inverse(ubo->view)[0]));
+
+        wantUpdate = true;
     }
 }
