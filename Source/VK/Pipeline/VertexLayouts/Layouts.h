@@ -18,6 +18,15 @@ namespace VK
         static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
     };
+
+    struct Vertex2D
+    {
+        Vec2f position;
+        Vec2f textureCoords;
+
+        static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+    };
 }
 
 #endif

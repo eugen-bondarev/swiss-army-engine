@@ -8,7 +8,11 @@
 namespace VK
 {
     FORWARD_DECLARE(DescriptorPool);
+    FORWARD_DECLARE(DescriptorSet);
     FORWARD_DECLARE(Device);
+
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorBufferInfo* descriptorBufferInfo);
+    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorImageInfo* descriptorImageInfo);
     
     class DescriptorSet
     {
@@ -17,6 +21,16 @@ namespace VK
        ~DescriptorSet();
 
         void Update(const std::vector<VkWriteDescriptorSet>& writeDescriptorSets);
+
+        void SetBinding(const uint32_t binding, const VkDescriptorImageInfo imageInfo, const VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+        {
+            Update({CreateWriteDescriptorSet(this, binding, descriptorType, &imageInfo)});
+        }
+
+        void SetBinding(const uint32_t binding, const VkDescriptorBufferInfo bufferInfo, const VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+        {
+            Update({CreateWriteDescriptorSet(this, binding, descriptorType, &bufferInfo)});
+        }
 
         const VkDescriptorSet& GetVkDescriptorSet() const;
 
@@ -27,9 +41,6 @@ namespace VK
         DescriptorSet(const DescriptorSet&) = delete;
         DescriptorSet& operator=(const DescriptorSet&) = delete;
     };
-
-    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorBufferInfo* descriptorBufferInfo);
-    VkWriteDescriptorSet CreateWriteDescriptorSet(const DescriptorSet* descriptorSet, const uint32_t binding, const VkDescriptorType descriptorType, const VkDescriptorImageInfo* descriptorImageInfo);
 }
 
 #endif

@@ -17,23 +17,68 @@
 
 namespace VK
 {
+    template <typename T>
     class IRenderable
     {
     public:
         IRenderable(
-            const ::Util::ModelAsset& modelAsset, 
+            const ::Util::ModelAsset<T>& modelAsset, 
             const ::Util::ImageAsset& imageAsset, 
             const SceneUniformBuffer<SceneUBO>& sceneUniformBuffer, 
-                  EntityUniformBuffer<EntityUBO>& entityUniformBuffer, 
+                EntityUniformBuffer<EntityUBO>& entityUniformBuffer, 
             const DescriptorSetLayout& descriptorSetLayout,
             const size_t index
-        );
+        )
+        {
+            vertexBuffer = CreatePtr<VertexBuffer>(modelAsset.vertices);
+            indexBuffer = CreatePtr<IndexBuffer>(modelAsset.indices);
+            texture = CreatePtr<Texture2D>(
+                imageAsset.size, 
+                4, 
+                imageAsset.data, 
+                imageAsset.mipLevels, 
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT
+            );
+            numIndices = modelAsset.indices.size();
 
-        SpaceObject& GetSpaceObject();
-        VertexBuffer& GetVertexBuffer();
-        IndexBuffer& GetIndexBuffer();
-        DescriptorSet& GetDescriptorSet();
-        unsigned int GetNumIndices() const;
+            descriptorSet = CreatePtr<DescriptorSet>(
+                GetDefaultDescriptorPool(),
+                std::vector<VkDescriptorSetLayout> {descriptorSetLayout.GetVkDescriptorSetLayout()}
+            );
+
+            descriptorSet->Update({
+                CreateWriteDescriptorSet(descriptorSet.get(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, &sceneUniformBuffer.GetVkDescriptor()),
+                CreateWriteDescriptorSet(descriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, &entityUniformBuffer.GetVkDescriptor()),
+                CreateWriteDescriptorSet(descriptorSet.get(), 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &texture->GetImageView().GetVkDescriptor())
+            });
+
+            spaceObject = CreatePtr<SpaceObject>(&entityUniformBuffer()[index]);
+        }
+
+        SpaceObject& GetSpaceObject()
+        {
+            return *spaceObject;
+        }
+
+        VertexBuffer& GetVertexBuffer()
+        {
+            return *vertexBuffer;
+        }
+
+        IndexBuffer& GetIndexBuffer()
+        {
+            return *indexBuffer;
+        }
+
+        DescriptorSet& GetDescriptorSet()
+        {
+            return *descriptorSet;
+        }
+
+        unsigned int GetNumIndices() const
+        {
+            return numIndices;
+        }
 
     private:
         Ptr<SpaceObject> spaceObject;

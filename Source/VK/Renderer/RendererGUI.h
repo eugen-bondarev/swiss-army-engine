@@ -13,24 +13,41 @@ namespace VK
     {
     public:
         RendererGUI(
-            const size_t numCmdBuffers,
+            const std::string& vsCode,
+            const std::string& fsCode,
             const size_t samples,
             const RendererFlags flags,
             GraphicsContext& ctx = GetCurrentGraphicsContext()
         );
 
         void Record(const size_t cmdIndex) override;
+        
+        SpaceObject& Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex2D>& modelAsset, const ::Util::ImageAsset& imageAsset);
 
-        RenderPass& GetRenderPass();
+        void UpdateUniformBuffers(const float ratio);
+        OrthogonalSpace& GetOrthogonalSpace();
+
+        EntityUniformBuffer<EntityUBO>& GetEntityUBO();
+        SceneUniformBuffer<SceneUBO>& GetSceneUBO();
+
+        size_t GetNumRenderableEntities() const;
+        SpaceObject& GetSpaceObject(const size_t i);
+        
+        std::vector<Ptr<IRenderable<PredefinedVertexLayouts::Vertex2D>>> renderable;
 
     private:
         void CreateGraphicsResources(
-            const size_t samples, 
-            const RendererFlags flags
+            const std::string& vertexShaderCode, 
+            const std::string& fragmentShaderCode
         );
 
-        Ptr<RenderPass> renderPass;
-        
+        Ptr<Pipeline> pipeline;
+
+        Ptr<EntityUniformBuffer<EntityUBO>> entityUniformBuffer;
+        Ptr<SceneUniformBuffer<SceneUBO>> sceneUniformBuffer;
+        Ptr<OrthogonalSpace> orthogonalSpace;
+        void CreateUniformBuffers();
+
         std::vector<bool> needsResize;
         Vec2ui newSize;
     };

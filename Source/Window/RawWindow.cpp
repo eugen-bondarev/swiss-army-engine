@@ -99,10 +99,13 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
         case WindowMode::Windowed:
         {
             handle = glfwCreateWindow(finalSize.x, finalSize.y, title.c_str(), nullptr, nullptr);
-
             if (size.x == 0u || size.y == 0u)
             {
                 glfwMaximizeWindow(handle);
+            }
+            else
+            {                
+                glfwSetWindowPos(handle, 50, 50);
             }
             break;
         }
@@ -137,9 +140,6 @@ RawWindow::RawWindow(const WindowMode mode, const bool vSync, const Vec2ui size,
     glfwSetKeyCallback(handle, CallbackManager::KeyCallback);
     glfwSetMouseButtonCallback(handle, CallbackManager::ButtonCallback);
     glfwSetCursorPosCallback(handle, CallbackManager::MousePositionCallback);
-
-    // For debugging.
-    glfwSetWindowPos(handle, 50, 50);
 
     static std::mutex mutex;
     std::lock_guard lock(mutex);

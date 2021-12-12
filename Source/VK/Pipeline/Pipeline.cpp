@@ -59,8 +59,8 @@ namespace VK
         rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizerCreateInfo.lineWidth = 1.0f;
         rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-        // rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-        rasterizerCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        // rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        // rasterizerCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizerCreateInfo.depthBiasEnable = VK_FALSE;
         rasterizerCreateInfo.depthBiasConstantFactor = 0.0f; // Optional
         rasterizerCreateInfo.depthBiasClamp = 0.0f;		   // Optional

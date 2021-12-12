@@ -10,7 +10,30 @@
 #include "../Device/Device.h"
 
 namespace VK
-{
+{    
+    VkImageLayout FlagsToFinalImageLayout(const RendererFlags flags)
+    {
+        VK_ASSERT(!(flags & RendererFlags_Output && flags & RendererFlags_Offscreen));
+        if (flags & RendererFlags_Output) return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        if (flags & RendererFlags_Offscreen) return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+
+    VkImageLayout FlagsToInitialImageLayout(const RendererFlags flags)
+    {
+        VK_ASSERT(!(flags & RendererFlags_Load && flags & RendererFlags_Clear));
+        if (flags & RendererFlags_Load) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        if (flags & RendererFlags_Clear) return VK_IMAGE_LAYOUT_UNDEFINED;
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
+    VkAttachmentLoadOp FlagsToLoadOp(const RendererFlags flags)
+    {
+        if (flags & RendererFlags_Load) return VK_ATTACHMENT_LOAD_OP_LOAD;
+        if (flags & RendererFlags_Clear) return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+
     void Renderer::CreateCmdEntities(const size_t numCmdBuffers)
     {
         commandBuffers.reserve(numCmdBuffers);
@@ -23,36 +46,13 @@ namespace VK
         }
     }
 
-    void Renderer::CreateUniformBuffers()
-    {        
-        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
-        sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
-
-        // orthogonalSpace = CreatePtr<OrthogonalSpace>(&(*sceneUniformBuffer)());
-        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
-    }
-
-    Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& ctx) : ctx {ctx}
+    Renderer::Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& ctx) 
+        : ctx {ctx}, samples {samples}, flags {flags}
     {
         CreateCmdEntities(numCmdBuffers);
-        CreateUniformBuffers();
 
         const Vec2f halfSize {Math::CastTo<Vec2f>(ctx.GetWindow().GetSize()) / 2.0f};
         // orthogonalSpace->Set(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y);
-    }
-
-    SpaceObject& Renderer::Add(const ::Util::ModelAsset& modelAsset, const ::Util::ImageAsset& imageAsset)
-    {
-        IRenderable* item = new IRenderable(
-            modelAsset,
-            imageAsset,
-            *sceneUniformBuffer,
-            *entityUniformBuffer,
-            *descriptorSetLayout,
-            renderable.size()
-        );
-        renderable.push_back(Ptr<IRenderable>(item));
-        return item->GetSpaceObject();
     }
 
     void Renderer::RecordAll()
@@ -61,13 +61,6 @@ namespace VK
         {
             Record(i);
         }
-    }
-
-    void Renderer::UpdateUniformBuffers(const float ratio)
-    {
-        // orthogonalSpace->UpdateProjectionMatrix();
-        (*sceneUniformBuffer).Overwrite();
-        (*entityUniformBuffer).Overwrite();
     }
 
     void Renderer::Render(const Frame& frame, const uint32_t swapChainImageIndex, const bool resetFence, const uint32_t waitSemaphoreIndex, const uint32_t signalSemaphoreIndex)
@@ -108,34 +101,4 @@ namespace VK
     {
         return commandPools.size();
     }
-
-    EntityUniformBuffer<EntityUBO>& Renderer::GetEntityUBO()
-    {
-        return *entityUniformBuffer;
-    }
-
-    SceneUniformBuffer<SceneUBO>& Renderer::GetSceneUBO()
-    {
-        return *sceneUniformBuffer;
-    }
-
-    size_t Renderer::GetNumRenderableEntities() const
-    {
-        return renderable.size();
-    }
-
-    SpaceObject& Renderer::GetSpaceObject(const size_t i)
-    {
-        return renderable[i]->GetSpaceObject();
-    }
-
-    PerspectiveSpace& Renderer::GetPerspectiveSpace()
-    {
-        return *perspectiveSpace;
-    }
-
-    // OrthogonalSpace& Renderer::GetOrthogonalSpace()
-    // {
-    //     return *orthogonalSpace;
-    // }
 }

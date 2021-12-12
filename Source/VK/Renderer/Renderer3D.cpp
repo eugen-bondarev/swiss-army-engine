@@ -8,13 +8,12 @@
 namespace VK
 {
     Renderer3D::Renderer3D(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t numCmdBuffers, 
+        const std::string& vsCode, 
+        const std::string& fsCode, 
         const size_t samples,
         const RendererFlags flags,
         GraphicsContext& ctx
-    ) : Renderer(numCmdBuffers, samples, flags, ctx)
+    ) : Renderer(GetSwapChain().GetNumBuffers(), samples, flags, ctx)
     {
         needsResize.resize(GetNumCmdBuffers());
 
@@ -27,20 +26,38 @@ namespace VK
             newSize = newViewportSize;
         });
 
-        CreateGraphicsResources(
-            vertexShaderCode,
-            fragmentShaderCode,
-            samples,
-            flags
-        );
+        CreateUniformBuffers();
+        CreateGraphicsResources(vsCode, fsCode);
     }
 
-    void Renderer3D::CreateGraphicsResources(
-        const std::string& vertexShaderCode, 
-        const std::string& fragmentShaderCode, 
-        const size_t samples,
-        const RendererFlags flags
-    )
+    SpaceObject& Renderer3D::Add(const ::Util::ModelAsset<PredefinedVertexLayouts::Vertex3D>& modelAsset, const ::Util::ImageAsset& imageAsset)
+    {
+        IRenderable<PredefinedVertexLayouts::Vertex3D>* item = new IRenderable<PredefinedVertexLayouts::Vertex3D>(
+            modelAsset,
+            imageAsset,
+            *sceneUniformBuffer,
+            *entityUniformBuffer,
+            *descriptorSetLayout,
+            renderable.size()
+        );
+        renderable.push_back(Ptr<IRenderable<PredefinedVertexLayouts::Vertex3D>>(item));
+        return item->GetSpaceObject();
+    }
+
+    void Renderer3D::CreateUniformBuffers()
+    {        
+        entityUniformBuffer = CreatePtr<EntityUniformBuffer<EntityUBO>>(50);
+        sceneUniformBuffer = CreatePtr<SceneUniformBuffer<SceneUBO>>();
+        perspectiveSpace = CreatePtr<PerspectiveSpace>(&(*sceneUniformBuffer)());
+    }
+
+    void Renderer3D::UpdateUniformBuffers(const float ratio)
+    {
+        (*sceneUniformBuffer).Overwrite();
+        (*entityUniformBuffer).Overwrite();
+    }
+
+    void Renderer3D::CreateGraphicsResources(const std::string& vertexShaderCode, const std::string& fragmentShaderCode)
     {
         const std::vector<VkDescriptorSetLayoutBinding> bindings({
             CreateBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
@@ -53,24 +70,13 @@ namespace VK
 		const AttributeDescriptions attributeDescriptors {Vertex::GetAttributeDescriptions()};
 
         AttachmentDescriptions attachments;
-        VkAttachmentDescription swapChainAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
 
-        swapChainAttachment.finalLayout = 
-            flags & RendererFlags_Output ?
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR :
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        VkAttachmentDescription colorAttachment = GetSwapChain().GetDefaultAttachmentDescription(SamplesToVKFlags(samples));
+        colorAttachment.finalLayout = FlagsToFinalImageLayout(flags);
+        colorAttachment.initialLayout = FlagsToInitialImageLayout(flags);
+        colorAttachment.loadOp = FlagsToLoadOp(flags);
 
-        swapChainAttachment.initialLayout =
-            flags & RendererFlags_Load ?
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                VK_IMAGE_LAYOUT_UNDEFINED;
-
-        swapChainAttachment.loadOp =
-            flags & RendererFlags_Load ?
-                VK_ATTACHMENT_LOAD_OP_LOAD :
-                VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-
-        attachments.push_back(swapChainAttachment);
+        attachments.push_back(colorAttachment);
 
         if (flags & RendererFlags_UseDepth)
         {
@@ -87,13 +93,9 @@ namespace VK
             colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-            colorAttachmentResolve.loadOp = swapChainAttachment.loadOp;
-            colorAttachmentResolve.initialLayout = swapChainAttachment.initialLayout;
-            
-            colorAttachmentResolve.finalLayout = 
-                flags & RendererFlags_Output ? 
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : 
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.initialLayout = colorAttachment.initialLayout;
+            colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;            
 
             attachments.push_back(colorAttachmentResolve);
         }
@@ -111,22 +113,39 @@ namespace VK
             ctx.GetDevice()
         );
 
-        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+        output.image.resize(1); output.imageView.resize(output.image.size());
+
+        for (size_t i = 0; i < output.image.size(); ++i)
+        {
+            output.image[i] = CreateRef<Image>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+            output.imageView[i] = CreateRef<ImageView>(*output.image[i], output.image[i]->GetVkFormat());
+        }
+
+        renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), output.imageView, pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
 
         ctx.GetWindow().ResizeSubscribe([&](const Vec2ui newSize)
         {
-            // space->SetAspectRatio(newSize.x / newSize.y);
             vkQueueWaitIdle(Queues::graphicsQueue);
+            for (size_t i = 0; i < output.image.size(); ++i)
+            {
+                output.image[i].reset();
+                output.image[i] = CreateRef<Image>(newSize, ctx.GetSwapChain().GetImageFormat(), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+                output.imageView[i].reset();
+                output.imageView[i] = CreateRef<ImageView>(*output.image[i], output.image[i]->GetVkFormat());
+            }
+
             renderTarget.reset();
-            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), ctx.GetSwapChain().GetImageViews(), pipeline->GetRenderPass(), samples, flags & RendererFlags_UseDepth);
+            renderTarget = CreatePtr<RenderTarget>(ctx.GetSwapChain().GetSize(), output.imageView, pipeline->GetRenderPass(), this->samples, this->flags & RendererFlags_UseDepth);
+            RecordAll();
         });
     }
 
     void Renderer3D::Record(const size_t cmdIndex)
     {
-        VK::CommandPool& pool = GetCommandPool(cmdIndex);
-        VK::CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
-        const Framebuffer& framebuffer = renderTarget->GetFramebuffer(cmdIndex);
+        CommandPool& pool = GetCommandPool(cmdIndex);
+        CommandBuffer& cmd = GetCommandBuffer(cmdIndex);
+        const Framebuffer& framebuffer = renderTarget->GetFramebuffer();
 
         pool.Reset();
         cmd.Begin();
@@ -138,11 +157,11 @@ namespace VK
                 needsResize[cmdIndex] = false;
             }
 
-            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer);
+            cmd.BeginRenderPass(pipeline->GetRenderPass(), framebuffer, {0.1f, 0.4f, 0.9f, 1.0f});
                 cmd.BindPipeline(*pipeline);
                     for (size_t i = 0; i < renderable.size(); ++i)
                     {
-                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<VK::EntityUBO>::Get())};
+                        const uint32_t dynamicOffset {static_cast<uint32_t>(i * DynamicAlignment<EntityUBO>::Get())};
                         cmd.BindVertexBuffers({renderable[i]->GetVertexBuffer().UnderlyingPtr()}, {0});
                             cmd.BindIndexBuffer(renderable[i]->GetIndexBuffer().UnderlyingRef());
                                 cmd.BindDescriptorSets(*pipeline, 1, &renderable[i]->GetDescriptorSet().GetVkDescriptorSet(), 1, &dynamicOffset);
@@ -150,5 +169,30 @@ namespace VK
                     }
             cmd.EndRenderPass();
         cmd.End();
+    }
+
+    EntityUniformBuffer<EntityUBO>& Renderer3D::GetEntityUBO()
+    {
+        return *entityUniformBuffer;
+    }
+
+    SceneUniformBuffer<SceneUBO>& Renderer3D::GetSceneUBO()
+    {
+        return *sceneUniformBuffer;
+    }
+
+    size_t Renderer3D::GetNumRenderableEntities() const
+    {
+        return renderable.size();
+    }
+
+    SpaceObject& Renderer3D::GetSpaceObject(const size_t i)
+    {
+        return renderable[i]->GetSpaceObject();
+    }
+
+    PerspectiveSpace& Renderer3D::GetPerspectiveSpace()
+    {
+        return *perspectiveSpace;
     }
 }

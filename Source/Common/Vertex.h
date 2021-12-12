@@ -5,22 +5,38 @@
 
 #include "Common.h"
 
-struct Vertex
+namespace PredefinedVertexLayouts
 {
-    struct
+    struct Vertex3D
     {
-        float x, y, z;
-    } position;
+        struct
+        {
+            float x, y, z;
+        } position;
 
-    struct
-    {
-        float x, y;
-    } texCoords;
+        struct
+        {
+            float x, y;
+        } texCoords;
 
-    struct
+        struct
+        {
+            float x, y, z;
+        } normal;
+    };
+
+    struct Vertex2D
     {
-        float x, y, z;
-    } normal;
-};
+        struct
+        {
+            float x, y;
+        } position;
+
+        struct
+        {
+            float x, y;
+        } texCoords;
+    };
+}
 
 #endif
