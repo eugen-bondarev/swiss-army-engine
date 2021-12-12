@@ -84,11 +84,6 @@ int main()
         renderer3D.RecordAll();
         rendererGUI.RecordAll();
 
-        sequence.inFrame.push_back([&]()
-        {
-            rendererImGui.Record(VK::GetSwapChain().GetCurrentImageIndex());
-        }); 
-
         while (window.IsRunning())
         {
             window.BeginFrame();
@@ -144,10 +139,10 @@ int main()
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-                ImGui::Begin("Scene");
-                {
-                    ImGui::End();
-                } 
+                // ImGui::Begin("Scene");
+                // {
+                //     ImGui::End();
+                // } 
             ImGui::Render();
 
             const float deltaTime {window.GetDeltaTime()};

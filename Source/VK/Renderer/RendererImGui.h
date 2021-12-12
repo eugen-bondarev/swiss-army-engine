@@ -21,6 +21,8 @@ namespace VK
 
        ~RendererImGui();
 
+        void InFrame() override;
+
         void Record(const size_t cmdIndex) override;
 
         RenderPass& GetRenderPass();

@@ -12,48 +12,23 @@ namespace VK
     class RenderSequence
     {
     public:
-        RenderSequence();
-       ~RenderSequence();
+        RenderSequence() = default;
+
+        void InitFrames();
+        void Render();
 
         template <typename T, typename... Args>
         T& Emplace(Args&&... args)
         {
-            Ptr<T> instance = CreatePtr<T>(std::forward<Args>(args)...);
+            std::unique_ptr<T> instance = std::make_unique<T>(std::forward<Args>(args)...);
             T* rawPtr {instance.get()};
             renderers.push_back(std::move(instance));
             return *rawPtr;
         }
 
-        void InitFrames()
-        {
-            const size_t framesInFlight {3};
-            const size_t lastSemaphore {renderers.size()};
-            frameManager = CreatePtr<FrameManager>(0, lastSemaphore, lastSemaphore + 1, framesInFlight);
-        }
-
-        void Render()
-        {
-            frameManager->AcquireSwapChainImage();
-            
-            for (const std::function<void()>& inFrameCallback : inFrame)
-            {
-                inFrameCallback();
-            }
-
-            for (size_t i = 0; i < renderers.size(); ++i)
-            {
-                const bool lastRenderer {i == renderers.size() - 1};
-                renderers[i]->Render(frameManager->GetCurrentFrame(), GetSwapChain().GetCurrentImageIndex(), lastRenderer, i, i + 1);
-            }
-
-            frameManager->Present();
-        }
-
-        std::vector<std::function<void()>> inFrame;
-
-        Ptr<FrameManager> frameManager;
     private:
-        std::vector<Ptr<Renderer>> renderers;
+        std::unique_ptr<FrameManager> frameManager;
+        std::vector<std::unique_ptr<Renderer>> renderers;
 
         RenderSequence(const RenderSequence&) = delete;
         RenderSequence& operator=(const RenderSequence&) = delete;

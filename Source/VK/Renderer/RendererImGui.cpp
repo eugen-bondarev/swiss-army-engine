@@ -174,6 +174,11 @@ namespace VK
         cmd.End(); 
     }
 
+    void RendererImGui::InFrame()
+    {
+        Record(VK::GetSwapChain().GetCurrentImageIndex());
+    }
+
     RenderPass& RendererImGui::GetRenderPass()
     {
         return *renderPass;

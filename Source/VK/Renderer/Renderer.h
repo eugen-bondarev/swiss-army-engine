@@ -39,6 +39,8 @@ namespace VK
     public:
         Renderer(const size_t numCmdBuffers, const size_t samples, const RendererFlags flags, GraphicsContext& graphicsContext = GetCurrentGraphicsContext());
 
+        virtual void InFrame() {}
+
         virtual void Record(const size_t cmdIndex) = 0;
         void RecordAll();
 
