@@ -90,45 +90,37 @@ int main()
                 {
                     window.Close();
                 }
-
                 if (window.GetMouse().ButtonDown(GLFW_MOUSE_BUTTON_LEFT))
                 {
                     renderer3D.GetPerspectiveSpace().camera.rotation.y += window.GetMouse().GetDeltaPosition().x * 0.07f;
                     renderer3D.GetPerspectiveSpace().camera.rotation.x += window.GetMouse().GetDeltaPosition().y * 0.07f;
                 }
-
                 if (window.GetKeyboard().KeyDown(GLFW_KEY_W))
                 {
                     renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
                 }
-
                 if (window.GetKeyboard().KeyDown(GLFW_KEY_S))
                 {
                     renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().forwardVector * window.GetDeltaTime() * 10.0f;
                 }
-
-                if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
-                {
-                    renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
-                }
-
                 if (window.GetKeyboard().KeyDown(GLFW_KEY_D))
                 {
                     renderer3D.GetPerspectiveSpace().camera.position += renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
                 }
-
+                if (window.GetKeyboard().KeyDown(GLFW_KEY_A))
+                {
+                    renderer3D.GetPerspectiveSpace().camera.position -= renderer3D.GetPerspectiveSpace().rightVector * window.GetDeltaTime() * 10.0f;
+                }
                 if (window.GetKeyboard().KeyDown(GLFW_KEY_SPACE))
                 {
                     renderer3D.GetPerspectiveSpace().camera.position.y += speed;
                 }
-
                 if (window.GetKeyboard().KeyDown(GLFW_KEY_LEFT_SHIFT))
                 {
                     renderer3D.GetPerspectiveSpace().camera.position.y -= speed;
                 }
+                renderer3D.GetPerspectiveSpace().UpdateProjectionMatrix();
             }
-
-            renderer3D.GetPerspectiveSpace().UpdateProjectionMatrix();
 
             static bool show {true};
             if (show)
