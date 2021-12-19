@@ -22,6 +22,7 @@ link_directories(
 
 add_subdirectory(external/glfw)
 add_subdirectory(external/assimp)
+add_subdirectory(external/SRM)
 
 target_link_libraries(${PROJECT_NAME} 
     dxgi
@@ -34,6 +35,7 @@ target_link_libraries(${PROJECT_NAME}
 
     assimp
     glfw
+    SmartResourceManager_s
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -44,6 +46,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "external/glfw/include"
     "external/glm/glm"
     "external/assimp/include"
+    "external/SRM/SmartResourceManager/Include"
     "external/stb_image"
     "external/imgui"
+    "external/entt"
 )

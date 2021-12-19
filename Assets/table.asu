@@ -1,0 +1,8 @@
+Images/CharacterTexture.png 1654307 0
+Models/CharacterModel.fbx 593916 1654307
+Shaders/FragmentShader.frag 1307 2248223
+Shaders/GUI/FragmentShader.frag 242 2249530
+Shaders/GUI/VertexShader.vert 476 2249772
+Shaders/PixelShader.hlsl 153 2250248
+Shaders/VertexShader.hlsl 384 2250401
+Shaders/VertexShader.vert 701 2250785

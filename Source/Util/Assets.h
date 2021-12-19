@@ -7,6 +7,8 @@
 #include "../Common/Vertex.h"
 #include "Path.h"
 
+#include <SRM/Resource.h>
+
 namespace Util
 {
     using TextAsset = std::string;
@@ -29,9 +31,14 @@ namespace Util
     };
 
     void RemoveFile(const Path& filePath);
+
     TextAsset LoadTextFile(const Path& filePath, const bool binary = false);
+
     ImageAsset LoadImageFile(const Path& filePath);
+    ImageAsset LoadImageFile(const srm::Resource& resource);
+
     ModelAsset<PredefinedVertexLayouts::Vertex3D> LoadModelFile(const Path& filePath);
+    ModelAsset<PredefinedVertexLayouts::Vertex3D> LoadModelFile(const srm::Resource& resource);
 }
 
 #endif

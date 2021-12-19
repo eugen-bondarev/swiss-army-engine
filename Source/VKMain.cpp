@@ -4,9 +4,13 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #include "Util/Assets.h"
+#include <entt/entt.hpp>
 #include "API/Window.h"
 #include <imgui.h>
 #include "VK/VK.h"
+
+#include <SRM/ResourceManager.h>
+#include <SRM/Exception.h>
 
 static const Util::ModelAsset<PredefinedVertexLayouts::Vertex2D> square = {
     { { { -0.5f, -0.5f }, {1, 1} },
@@ -20,6 +24,13 @@ int main()
 {
     try
     {
+        srm::ResourceManager resourceManager{ 
+            Util::Path::projectRoot + "/Assets", 
+            "table.asu", 
+            "data.asu", 
+            srm::ResourceManager::Mode::Default 
+        };
+
         struct
         {
             const Util::TextAsset vsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
@@ -32,8 +43,23 @@ int main()
             const Util::TextAsset fsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
         } shaderGUI;
 
-        const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh {Util::LoadModelFile("Assets/Models/CharacterModel.fbx")};
-        const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
+        //const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh{ Util::LoadModelFile("Assets/Models/CharacterModel.fbx") };
+        srm::Resource characterMeshResource;
+        srm::Resource characterTextureResource;
+        try
+        {
+            characterMeshResource = resourceManager.Load("Models/CharacterModel.fbx");
+            characterTextureResource = resourceManager.Load("Images/CharacterTexture.png");
+        }
+        catch (const srm::Exception& exception)
+        {
+            LINE_OUT(exception.what());
+        }
+
+        const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh{ Util::LoadModelFile(characterMeshResource) };
+        const Util::ImageAsset characterTexture{ Util::LoadImageFile(characterTextureResource) };
+
+        //const Util::ImageAsset characterTexture {Util::LoadImageFile("Assets/Images/CharacterTexture.png")};
 
         API::Window window(API::Type::Vulkan, WindowMode::Windowed, false, Vec2ui(1024, 768));
 
@@ -45,6 +71,8 @@ int main()
             8,
             RendererFlags_UseDepth | RendererFlags_Clear | RendererFlags_Offscreen
         );
+
+        const size_t foo{ 254 };
 
         VK::RendererGUI& rendererGUI = sequence.Emplace<VK::RendererGUI>(
             shaderGUI.vsCode,
