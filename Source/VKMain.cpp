@@ -33,14 +33,14 @@ int main()
 
         struct
         {
-            const Util::TextAsset vsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert")};
-            const Util::TextAsset fsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag")};
+            const Util::TextAsset vsCode{ Util::SPIRV::CompileAndExtract("Assets/Shaders/VertexShader.vert") };
+            const Util::TextAsset fsCode{ Util::SPIRV::CompileAndExtract("Assets/Shaders/FragmentShader.frag") };
         } shader3D;
 
         struct
         {
-            const Util::TextAsset vsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/VertexShader.vert")};
-            const Util::TextAsset fsCode {Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag")};
+            const Util::TextAsset vsCode{ Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/VertexShader.vert") };
+            const Util::TextAsset fsCode{ Util::SPIRV::CompileAndExtract("Assets/Shaders/GUI/FragmentShader.frag") };
         } shaderGUI;
 
         //const Util::ModelAsset<PredefinedVertexLayouts::Vertex3D> characterMesh{ Util::LoadModelFile("Assets/Models/CharacterModel.fbx") };

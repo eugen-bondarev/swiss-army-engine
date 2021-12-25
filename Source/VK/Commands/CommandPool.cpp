@@ -17,7 +17,7 @@ namespace VK
 
     CommandPool::~CommandPool()
     {
-        vkDestroyCommandPool(device.GetVkDevice(), vkCommandPool, nullptr);        
+        vkDestroyCommandPool(device.GetVkDevice(), vkCommandPool, nullptr);
     }
 
     void CommandPool::Reset()
